@@ -1,14 +1,12 @@
 # VA Express Tolls
 
-One public page for Northern Virginia drivers: pick a corridor, read the tolling rules in plain English, and open that corridor's **official** toll calculator. No login, no fake prices.
+Public, mobile-friendly toll estimates for Northern Virginia's Express Lanes. Pick a corridor and a trip, and the site fetches the number the operator's **own** public calculator shows right now — structured, in our UI, clearly labelled as an unofficial estimate. Deep-links to the official calculators remain as the fallback.
 
-Corridors covered:
-
-| Corridor | Operator | Official calculator |
-| --- | --- | --- |
-| 495 Express Lanes | Transurban | https://expresslanes.com/map-your-trip/ |
-| I-66 Inside the Beltway | VDOT | https://vai66tolls.com/ |
-| I-66 Outside the Beltway | I-66 Express Mobility Partners | https://ride66express.com/pricing/plan-your-trip/ |
+| Corridor | Operator | Live estimate on this site | Official calculator |
+| --- | --- | --- | --- |
+| 495 Express Lanes | Transurban | Yes (current price) | https://expresslanes.com/map-your-trip/ |
+| I-66 Inside the Beltway | VDOT | Yes (current, or a past weekday time) | https://vai66tolls.com/ |
+| I-66 Outside the Beltway | I-66 Express Mobility Partners | No — link only (see below) | https://ride66express.com/pricing/plan-your-trip/ |
 
 ## Quick start
 
@@ -18,34 +16,56 @@ bun install
 bun run dev
 ```
 
-Open the URL Vite prints (default `http://localhost:5173`).
+Open `http://localhost:5173/`. `bun run dev` starts both the Bun API (port `8787`) and Vite; Vite proxies `/api` to the API.
 
-Other scripts: `bun run build` (typecheck + production build to `dist/`), `bun run preview`, `bun run lint`.
+Other scripts:
 
-## What it does
+- `bun run build` — typecheck (app + server) and build the front end to `dist/`
+- `bun run start` — serve `dist/` and the API from one Bun process (production)
+- `bun run dev:web` / `bun run dev:api` — run either half alone
+- `bun run lint`
 
-1. Choose a corridor. The choice is mirrored into the URL hash (`#495`, `#66-inside`, `#66-outside`) so you can share a link to a specific corridor.
-2. Read that corridor's rules: when tolls apply, how the price is set, HOV-3+ / E-ZPass Flex, what's free. For I-66 Inside the Beltway there is a schedule-based "tolling now / free right now" hint (weekday peak windows, Eastern time; it does not know about federal holidays).
-3. Tap the primary button to open the operator's official calculator in a new tab. That calculator is the only source of prices. Underneath, "What you'll see there" explains the official UI (they are map/gantry pickers, not address search; one shows historical averages; one needs a Refresh tap), and small links to the other two calculators cover trips that cross operators.
-4. Read the caveats: the overhead sign is the real price and web estimates can differ from it, E-ZPass is required, and an I-66 → I-495 trip crosses operators so it is two tolls.
+No environment variables or secrets are needed.
+
+## How it works
+
+```
+src/                       React front end (Vite, Tailwind v4, shadcn button/card/badge)
+  components/TripEstimator.tsx  direction → entry → exit → estimate; result card; two-toll hint
+  data/corridors.ts        rules, hours, official links, calculator tips
+  lib/api-types.ts         API contract shared with the server
+  lib/schedule.ts          I-66 Inside peak-window helper
+server/                    Bun.serve API
+  index.ts                 routes, error mapping, static dist/ in production
+  adapters/vai66.ts        I-66 Inside — VDOT Razor page handlers
+  adapters/expresslanes.ts 495 — Transurban entry/exit mapping + price feed
+  adapters/ride66.ts       66 Outside — not automated (returns the reason)
+  cache.ts                 TTL cache with single-flight
+```
+
+API:
+
+```
+GET /api/corridors
+GET /api/:corridor/points?direction=nb|sb|eb|wb
+GET /api/:corridor/estimate?direction=&entry=&exit=[&at=<ISO, past only, 66 Inside>]
+```
+
+Every estimate carries `source.operator`, `source.fetchedAt`, per-leg prices, and `notes`. When an operator can't be reached or returns something unexpected, the API returns an `error` — it never fabricates a number.
+
+## Why 66 Outside is link-only
+
+`ride66express.com` serves its trip planner from a deliberately obfuscated JavaScript bundle that posts to a theme `ajax.php`. We read that as a do-not-automate signal and did not reverse it. The adapter slot exists; enabling it should start with a conversation with the operator.
+
+## Fragility and risk
+
+- **Undocumented endpoints.** Both adapters use the internal endpoints the operators' own pages call. A site redesign breaks them silently; the adapters then fail closed and the UI shows the official link.
+- **Rate limits are unknown.** Responses are cached (mappings 24h, 495 feed and current I-66 prices 60s, historical I-66 prices 24h) with single-flight, so bursts of clicks don't fan out to the operators.
+- **Terms of use.** `robots.txt` on both sites allows these paths, but neither publishes an API or terms for automated access. This is a demo; a public deployment should get the operators' OK.
+- **Latency.** `vai66tolls.com` handlers can take several seconds; upstream calls time out at 15s.
 
 ## Out of scope
 
-Live toll APIs (none are public), scraping, any price shown by this app, accounts, E-ZPass / HOV Flex linking. See [PLAN.md](./PLAN.md).
+Live prices for 66 Outside, accounts, E-ZPass / HOV Flex linking, scraping beyond the calls above. See [PLAN.md](./PLAN.md).
 
-## Stack
-
-- Bun + Vite + React 19 + TypeScript (mirrors `apps/pstack-playbook-demo`)
-- Tailwind v4 + shadcn/ui (`button`, `card`, `badge` only)
-
-## Project layout
-
-```
-src/
-  data/corridors.ts   — corridor rules, notes, official calculator links
-  lib/schedule.ts     — I-66 Inside the Beltway peak-window helper
-  components/ui/      — shadcn primitives
-  App.tsx             — one-screen flow
-```
-
-Rules are summarized from VDOT, Transurban and 66 Express public pages (checked Sep 2026). This is an unofficial guide, not affiliated with any operator or E-ZPass.
+Rules are summarized from VDOT, Transurban and 66 Express public pages (checked Sep 2026). Unofficial; not affiliated with any operator or E-ZPass.

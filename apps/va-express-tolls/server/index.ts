@@ -1,0 +1,104 @@
+import { existsSync } from "node:fs"
+import path from "node:path"
+import { CORRIDORS, isCorridorId } from "../src/data/corridors"
+import type { Direction } from "../src/lib/api-types"
+import { expresslanes } from "./adapters/expresslanes"
+import { ride66 } from "./adapters/ride66"
+import { BadRequest, type CorridorAdapter } from "./adapters/types"
+import { vai66 } from "./adapters/vai66"
+import { UpstreamError } from "./http"
+
+const adapters: Record<string, CorridorAdapter> = {
+  "495": expresslanes,
+  "66-inside": vai66,
+  "66-outside": ride66,
+}
+
+const PORT = Number(process.env.PORT ?? 8787)
+const DIST = path.resolve(import.meta.dir, "../dist")
+const serveStatic = existsSync(DIST)
+
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+  })
+
+function adapterFor(id: string): CorridorAdapter {
+  if (!isCorridorId(id)) throw new BadRequest(`Unknown corridor "${id}"`)
+  return adapters[id]
+}
+
+function directionParam(url: URL, adapter: CorridorAdapter): Direction {
+  const d = url.searchParams.get("direction") ?? ""
+  const ok = adapter.support.directions.some((x) => x.id === d)
+  if (!ok) throw new BadRequest(`direction must be one of: ${adapter.support.directions.map((x) => x.id).join(", ")}`)
+  return d as Direction
+}
+
+async function handleApi(url: URL): Promise<Response> {
+  const [, , corridorId, action] = url.pathname.split("/")
+
+  if (corridorId === "corridors" && !action) {
+    return json(
+      CORRIDORS.map((c) => ({
+        ...adapters[c.id].support,
+        name: c.name,
+        calculatorUrl: c.calculator.url,
+      })),
+    )
+  }
+
+  const adapter = adapterFor(corridorId ?? "")
+  if (!adapter.support.supported) throw new BadRequest(adapter.support.reason ?? "This corridor is not automated")
+
+  if (action === "points") {
+    const direction = directionParam(url, adapter)
+    return json({ corridor: adapter.support.id, direction, entries: await adapter.points(direction) })
+  }
+
+  if (action === "estimate") {
+    const direction = directionParam(url, adapter)
+    const entry = url.searchParams.get("entry") ?? ""
+    const exit = url.searchParams.get("exit") ?? ""
+    if (!entry || !exit) throw new BadRequest("entry and exit are required")
+    const atRaw = url.searchParams.get("at")
+    let at: Date | undefined
+    if (atRaw) {
+      at = new Date(atRaw)
+      if (Number.isNaN(at.getTime())) throw new BadRequest("at must be an ISO date-time")
+    }
+    return json(await adapter.estimate({ direction, entry, exit, at }))
+  }
+
+  throw new BadRequest("Not found")
+}
+
+async function serveFile(pathname: string): Promise<Response> {
+  const target = path.resolve(DIST, `.${pathname === "/" ? "/index.html" : pathname}`)
+  const inDist = target.startsWith(DIST + path.sep)
+  let file = Bun.file(target)
+  if (!inDist || !(await file.exists())) file = Bun.file(path.join(DIST, "index.html"))
+  return new Response(file)
+}
+
+Bun.serve({
+  port: PORT,
+  async fetch(req) {
+    const url = new URL(req.url)
+    if (url.pathname.startsWith("/api/")) {
+      try {
+        return await handleApi(url)
+      } catch (err) {
+        if (err instanceof BadRequest) return json({ error: err.message }, err.status)
+        if (err instanceof UpstreamError) return json({ error: err.message }, err.status)
+        console.error(err)
+        return json({ error: "Unexpected server error" }, 500)
+      }
+    }
+    if (serveStatic && req.method === "GET") return serveFile(url.pathname)
+    return json({ error: "Not found" }, 404)
+  },
+})
+
+console.log(`va-express-tolls API on http://127.0.0.1:${PORT}${serveStatic ? " (also serving dist/)" : ""}`)

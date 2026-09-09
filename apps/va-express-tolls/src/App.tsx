@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { TripEstimator } from "@/components/TripEstimator"
 import {
   CORRIDORS,
   DEFAULT_CORRIDOR,
@@ -15,9 +9,10 @@ import {
   isCorridorId,
   type CorridorId,
 } from "@/data/corridors"
+import { type CorridorSupportInfo, fetchCorridors } from "@/lib/api"
 import { insideBeltwayStatus } from "@/lib/schedule"
 import { cn } from "@/lib/utils"
-import { CircleAlert, Clock, ExternalLink, MapPinned } from "lucide-react"
+import { CircleAlert, Clock, MapPinned } from "lucide-react"
 
 function corridorFromHash(): CorridorId {
   const hash = window.location.hash.replace(/^#/, "")
@@ -26,12 +21,20 @@ function corridorFromHash(): CorridorId {
 
 export function App() {
   const [selectedId, setSelectedId] = useState<CorridorId>(corridorFromHash)
+  const [support, setSupport] = useState<CorridorSupportInfo[] | null>(null)
+  const [supportError, setSupportError] = useState<string | null>(null)
   const corridor = CORRIDORS.find((c) => c.id === selectedId) ?? CORRIDORS[0]
 
   useEffect(() => {
     const onHashChange = () => setSelectedId(corridorFromHash())
     window.addEventListener("hashchange", onHashChange)
     return () => window.removeEventListener("hashchange", onHashChange)
+  }, [])
+
+  useEffect(() => {
+    fetchCorridors()
+      .then(setSupport)
+      .catch((err: Error) => setSupportError(err.message))
   }, [])
 
   function select(id: CorridorId) {
@@ -47,13 +50,13 @@ export function App() {
           <Badge variant="outline">Northern Virginia</Badge>
         </div>
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-          Express Lanes toll lookup
+          Express Lanes toll estimate
         </h1>
         <p className="max-w-2xl text-muted-foreground">
           Three corridors, three operators, three separate calculator sites.
-          Pick your corridor here, read the rules that actually matter, then
-          jump straight to the right official calculator for a price. No
-          made-up numbers.
+          Pick your corridor and trip here and we fetch the number the official
+          calculator shows — no made-up prices, and the overhead sign always
+          wins.
         </p>
       </header>
 
@@ -68,6 +71,7 @@ export function App() {
         >
           {CORRIDORS.map((c) => {
             const active = c.id === corridor.id
+            const s = support?.find((x) => x.id === c.id)
             return (
               <button
                 key={c.id}
@@ -82,7 +86,19 @@ export function App() {
                     : "bg-card hover:bg-accent hover:text-accent-foreground",
                 )}
               >
-                <span className="block text-sm font-semibold">{c.name}</span>
+                <span className="flex items-center justify-between gap-2 text-sm font-semibold">
+                  {c.name}
+                  {s && (
+                    <span
+                      className={cn(
+                        "rounded-full px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide",
+                        active ? "bg-primary-foreground/15" : s.supported ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground",
+                      )}
+                    >
+                      {s.supported ? "live" : "link only"}
+                    </span>
+                  )}
+                </span>
                 <span
                   className={cn(
                     "mt-0.5 block text-xs leading-snug",
@@ -98,10 +114,33 @@ export function App() {
       </section>
 
       <div className="space-y-6">
+        {supportError ? (
+          <Card className="border-destructive/40">
+            <CardHeader>
+              <CardTitle className="text-xl">Estimates are offline</CardTitle>
+              <CardDescription>
+                The API isn&apos;t reachable ({supportError}). You can still use the
+                official calculator:{" "}
+                <a className="text-primary underline-offset-4 hover:underline" href={corridor.calculator.url} target="_blank" rel="noreferrer">
+                  {corridor.calculator.host}
+                </a>
+                .
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        ) : (
+          <TripEstimator
+            key={corridor.id}
+            corridor={corridor}
+            support={support?.find((x) => x.id === corridor.id)}
+            onSwitchCorridor={select}
+          />
+        )}
+
         <Card>
           <CardHeader>
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              2. The rules
+              3. Know the rules
             </p>
             <CardTitle className="text-xl">{corridor.name}</CardTitle>
             <CardDescription>{corridor.extent}</CardDescription>
@@ -129,39 +168,12 @@ export function App() {
                 </li>
               ))}
             </ul>
-          </CardContent>
-        </Card>
 
-        <Card className="border-primary/40">
-          <CardHeader>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              3. Get an estimate
-            </p>
-            <CardTitle className="text-xl">
-              Price it on the official {corridor.shortName} calculator
-            </CardTitle>
-            <CardDescription>
-              This site doesn&apos;t show prices. The calculator run by{" "}
-              {corridor.operator} is the source of truth — pick your entry, exit
-              and time there.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-              <Button asChild size="lg" className="h-12 w-full text-base sm:w-auto">
-                <a href={corridor.calculator.url} target="_blank" rel="noreferrer">
-                  {corridor.calculator.label}
-                  <ExternalLink className="size-4" />
-                </a>
-              </Button>
-              <span className="text-xs text-muted-foreground">
-                Opens {corridor.calculator.host} in a new tab
-              </span>
-            </div>
-
-            <div>
-              <p className="mb-1 text-sm font-semibold">What you&apos;ll see there</p>
-              <ul className="space-y-1.5 text-sm text-muted-foreground">
+            <details className="group text-sm">
+              <summary className="cursor-pointer font-semibold text-muted-foreground hover:text-foreground">
+                Using the official {corridor.calculator.host} calculator instead? What to expect
+              </summary>
+              <ul className="mt-2 space-y-1.5 text-muted-foreground">
                 {corridor.calculator.tips.map((tip) => (
                   <li key={tip} className="flex gap-2">
                     <span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-full bg-border" />
@@ -169,24 +181,7 @@ export function App() {
                   </li>
                 ))}
               </ul>
-            </div>
-
-            <div className="border-t pt-4">
-              <p className="mb-2 text-xs text-muted-foreground">
-                Trip continues onto another corridor? That&apos;s a second toll —
-                price it separately:
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {CORRIDORS.filter((c) => c.id !== corridor.id).map((c) => (
-                  <Button key={c.id} asChild variant="outline" size="sm">
-                    <a href={c.calculator.url} target="_blank" rel="noreferrer">
-                      {c.shortName} · {c.calculator.host}
-                      <ExternalLink className="size-3.5" />
-                    </a>
-                  </Button>
-                ))}
-              </div>
-            </div>
+            </details>
           </CardContent>
         </Card>
 
@@ -210,9 +205,10 @@ export function App() {
       </div>
 
       <footer className="mt-10 border-t pt-6 text-xs text-muted-foreground">
-        Unofficial guide. Rules summarized from VDOT, Transurban and 66 Express
-        public pages; confirm on the operator&apos;s site before you drive. Not
-        affiliated with any toll operator or E-ZPass.
+        Unofficial guide. Prices are fetched from the operators&apos; own public
+        calculators and shown as-is; rules summarized from VDOT, Transurban and
+        66 Express public pages. Not affiliated with any toll operator or
+        E-ZPass.
       </footer>
     </div>
   )
