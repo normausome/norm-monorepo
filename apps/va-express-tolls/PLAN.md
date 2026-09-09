@@ -2,73 +2,64 @@
 
 ## Goal
 
-One public, mobile-friendly page where a Northern Virginia driver picks a corridor, reads the rules in plain English, and jumps straight to that corridor's **official** toll calculator — without hunting across three operator sites.
+A public, mobile-friendly site where a Northern Virginia driver picks a corridor and a trip and sees a **dollar estimate in our UI**, sourced live from the operator's own public calculator — clearly labelled as an unofficial estimate that can differ from the overhead sign.
 
-## Single-user MVP
+## Scope pivot (v2)
 
-1. Pick a corridor: **495 Express Lanes** · **I-66 Inside the Beltway** · **I-66 Outside the Beltway**
-2. Read that corridor's rules (hours, HOV-3+ / E-ZPass Flex, what's free)
-3. Tap one primary button that opens the official calculator for that corridor
-4. Read the caveats that trip people up (estimates vs. gantry price, E-ZPass required, 66→495 = two operators = two tolls)
+v1 was link-out only. v2 adds a small Bun backend that automates the official calculators and returns structured prices. Deep-links stay as the secondary "open the official calculator" fallback on every result.
 
-Corridor selection is mirrored into the URL hash (`#66-inside`) so a link can be shared to a specific corridor. No login, no backend, no analytics.
+## What we automate, per corridor
 
-## Field notes folded in
+Findings from reading each calculator's front-end code (no headless browser needed for the two we ship):
 
-Hands-on use of the three official calculators surfaced four pain points, each answered with copy rather than new primitives:
+| Corridor | How the official UI gets its number | Our adapter | Status |
+| --- | --- | --- | --- |
+| I-66 Inside the Beltway (vai66tolls.com, VDOT) | Razor page handlers: `GET /Index?handler=BeginIntPartial&rbEastVal=` (entries), `…ExitIntPartial&bIntId=` (valid exits), `…TollCalcPartial&bIntId&eIntId&datePicked&timePicked&rbEastVal&isCurrent` → JSON `{ decToll }`. `isCurrent=false` gives a historical estimate for a past date/time; off-peak returns 0. | `server/adapters/vai66.ts` — three GETs, parse `<option>`s and JSON. | **Shipped** |
+| 495 Express Lanes (expresslanes.com, Transurban) | Static `/themes/custom/transurbangroup/js/on-the-road/entry_exit.js` maps entry → exit → O/D ids; `GET /maps-api/infra-price-confirmed-all` returns every O/D price with an hourly timestamp. Multi-road trips (e.g. 95→495) list one O/D per road. | `server/adapters/expresslanes.ts` — parse the mapping as JSON (strip comments, no `eval`), filter to `495*` paths, join with the price feed; one leg per O/D. | **Shipped** (current price only — the feed has no historical mode) |
+| I-66 Outside the Beltway (ride66express.com) | WordPress theme `theme-ajax.php`, called from a deliberately obfuscated bundle (`javascript-obfuscator` output). | `server/adapters/ride66.ts` — returns `supported: false` with the deep-link. | **Not automated** — obfuscation is a do-not-automate signal; revisit only with operator OK. |
 
-1. Three brands / three sites → header names it; picker shows operator + site; secondary links to the other two calculators sit under the primary CTA for multi-operator trips.
-2. Map dots, not addresses → per-corridor "What you'll see there" tips (map/gantry pickers, tiny markers on vai66tolls, Refresh button, asterisked historical averages on ride66express).
-3. Estimate vs. sign mismatch → the first "Before you go" note says plainly that the overhead sign is the price.
-4. 66 Inside peak windows easy to miss → the windows are in the picker button itself, in the "When you pay" box, and in the live schedule hint.
-
-Sample dollar figures observed in the field are intentionally **not** in the app or docs.
-
-## Explicitly out of scope
-
-- Live or "estimated" prices rendered by this app — there is no public API and we will **not** fake numbers. The operator calculators are the single source of truth.
-- Scraping operator sites.
-- Accounts, E-ZPass / HOV Flex linking, trip history.
-- 95/395 Express Lanes, Dulles Toll Road (different corridors; easy to add later as data rows).
-
-## What is reused from the monorepo
-
-- Stack and config copied verbatim from `apps/pstack-playbook-demo`: Bun + Vite + React 19 + TypeScript, Tailwind v4, shadcn/ui (`new-york`, neutral), oxlint. Same `tsconfig*`, `vite.config.ts`, `components.json`, `bunfig.toml` (`minimumReleaseAge = 259200`), `index.css` theme.
-- shadcn primitives copied as-is: `button`, `card`, `badge`. Nothing else pulled in.
-
-## What is NOT added
-
-- No router library (URL hash is enough for one screen).
-- No state library, no data fetching, no forms, no select/dialog components.
-- No new shared packages or monorepo-level tooling.
-- No media committed to the branch (screenshots/video live only as PR artifacts).
-
-## Structure
+## API (Bun.serve, `server/`)
 
 ```
-src/
-  data/corridors.ts     — the three corridors: rules, caveats, official calculator URL
-  lib/schedule.ts       — pure helper: is 66 Inside tolling right now (America/New_York)
-  App.tsx               — one screen: picker → rules → CTA → notes
-  components/ui/        — button, card, badge (copied from sibling app)
+GET /api/corridors                       → corridor metadata + { supported, directions[] }
+GET /api/:corridor/points?direction=     → { entries: [{ id, label, exits: [{ id, label }] }] }
+GET /api/:corridor/estimate?direction=&entry=&exit=[&at=ISO]
+    → { corridor, direction, entry, exit, kind: "current" | "historical",
+        total: number | null, currency: "USD",
+        legs: [{ road, price, observedAt, status }],
+        source: { operator, url, fetchedAt }, notes: string[] }
 ```
 
-## Tasks (vertical slices)
+Errors are `{ error: string }` with 4xx/5xx. Everything is cached in memory (points 24h, 495 feed 60s, vai66 current 60s per O/D, historical 24h) with single-flight, so bursts of UI clicks don't fan out to the operators. Upstream calls have a 15s timeout and a browser-like User-Agent.
 
-1. Scaffold from sibling app; `bun install` succeeds.
-2. Corridor data + picker + rules card + official-calculator CTA render for all three corridors.
-3. Shared caveats section; hash-synced selection; 66 Inside "tolling now?" hint.
-4. README, typecheck/lint/build clean, PR with screenshot + video artifacts.
+In dev, Vite proxies `/api` to the Bun server (`bun run dev` starts both). In production the same Bun server also serves `dist/`.
+
+## Front end (one screen)
+
+1. Corridor tabs (unchanged).
+2. Trip form: direction → entry → exit (exit list depends on entry). I-66 Inside adds "Right now" vs "A past weekday time" (historical).
+3. Result card: the dollar figure, big; per-leg breakdown when more than one road is involved; "No toll" state for off-peak I-66 Inside; source + fetched-at; the unofficial-estimate disclaimer; secondary link to the official calculator.
+4. Two-toll hint: when an I-66 Inside trip starts/ends at an I-495 ramp, prompt to price the 495 leg too (one tap switches corridor).
+5. 66 Outside shows the rules and the deep-link only, labelled as not automated.
+
+## Reused from the monorepo
+
+Stack/config from `apps/pstack-playbook-demo` (Bun + Vite + React 19 + Tailwind v4 + shadcn `button`/`card`/`badge`). Added only `@types/bun` (dev) for the server.
+
+## Not added
+
+No headless browser, no database, no scheduler, no third-party toll API, no accounts. No vendored operator data (mappings are fetched and cached at runtime so they stay current).
+
+## Risks (also in the PR body)
+
+- **Fragility**: both adapters depend on undocumented internal endpoints and DOM/JS shapes. A redesign breaks them silently → adapters fail closed (`error`, never a made-up number) and the UI always shows the deep-link.
+- **Rate limits / load**: unknown. Mitigated by caching + single-flight; the 495 feed is one request for all O/Ds.
+- **ToS / robots**: `robots.txt` on both sites allows these paths, but neither site publishes an API or terms for automated use. This is a demo; a production deployment should ask the operators.
+- **Latency**: vai66tolls handler calls have been observed to take several seconds.
 
 ## Deferred
 
-- 95/395 Express Lanes and Dulles Toll Road rows
-- Federal-holiday awareness for the 66 Inside status hint (currently a schedule-only hint with a caveat)
-- Cloudflare Pages preview wiring (monorepo-level, not per app)
-
-## Success criteria
-
-- `bun install && bun run dev` works from `apps/va-express-tolls/`
-- Every corridor shows correct rules and a working deep-link to its official calculator
-- No prices anywhere in the UI
-- PR includes at least one screenshot and one video of the running app
+- 66 Outside automation (needs operator conversation)
+- Auto-summing the I-66 → 495 combination (mapping the hand-off ramp is ambiguous; we prompt instead)
+- 95/395 Express Lanes (already in the Transurban feed — a data filter away)
+- Federal-holiday awareness in the schedule hint
