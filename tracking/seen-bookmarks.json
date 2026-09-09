@@ -7,6 +7,14 @@
       "date": "2026-09-07",
       "tech": "pstack",
       "slug": "pstack-playbook-demo"
+    },
+    {
+      "id": "2090548705929859210",
+      "title": "TeslrBot Tesla manager routine (via @HeresMyEth / @TeslrBot)",
+      "url": "https://x.com/HeresMyEth/status/2090548705929859210",
+      "date": "2026-09-09",
+      "tech": "TeslrBot",
+      "slug": "teslr-cabin-demo"
     }
   ],
   "seen": []
