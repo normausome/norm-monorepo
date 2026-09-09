@@ -13,6 +13,14 @@ interface RawPoint {
   id: string
   label: string
   path: string
+  latitude?: string
+  longitude?: string
+}
+
+function point(p: RawPoint) {
+  const lat = Number(p.latitude)
+  const lng = Number(p.longitude)
+  return Number.isFinite(lat) && Number.isFinite(lng) ? { id: p.id, label: p.label, lat, lng } : { id: p.id, label: p.label }
 }
 interface RawEntry extends RawPoint {
   exits: { id: string; ods: string[] }[]
@@ -82,12 +90,11 @@ async function points(direction: Direction): Promise<TripEntry[]> {
   return Object.values(raw.entries)
     .filter(on495)
     .map((e) => ({
-      id: e.id,
-      label: e.label,
+      ...point(e),
       exits: e.exits
         .map((x) => raw.exits[x.id])
         .filter((x): x is RawPoint => Boolean(x))
-        .map((x) => ({ id: x.id, label: x.label })),
+        .map(point),
     }))
     .filter((e) => e.exits.length > 0)
 }
@@ -130,8 +137,8 @@ async function estimate(req: EstimateRequest): Promise<EstimateResponse> {
   return {
     corridor: "495",
     direction: req.direction,
-    entry: { id: entry.id, label: entry.label },
-    exit: { id: exit.id, label: exit.label },
+    entry: point(entry),
+    exit: point(exit),
     kind: "current",
     total,
     currency: "USD",

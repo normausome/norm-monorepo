@@ -32,6 +32,7 @@ No environment variables or secrets are needed.
 ```
 src/                       React front end (Vite, Tailwind v4, shadcn button/card/badge)
   components/TripEstimator.tsx  direction → entry → exit → estimate; result card; two-toll hint
+  components/TripMap.tsx   Leaflet map of entries / reachable exits, synced with the selects
   data/corridors.ts        rules, hours, official links, calculator tips
   lib/api-types.ts         API contract shared with the server
   lib/schedule.ts          I-66 Inside peak-window helper
@@ -40,7 +41,7 @@ server/                    Bun.serve API
   adapters/vai66.ts        I-66 Inside — VDOT Razor page handlers
   adapters/expresslanes.ts 495 — Transurban entry/exit mapping + price feed
   adapters/ride66.ts       66 Outside — planner's theme-ajax call + the page's per-gantry summation
-  adapters/ride66-map.ts   66 Outside — vendored start → exit-chain table (captured from the planner)
+  adapters/ride66-map.ts   66 Outside — vendored start → exit-chain table and marker coordinates (captured from the planner)
   cache.ts                 TTL cache with single-flight
 ```
 
@@ -53,6 +54,8 @@ GET /api/:corridor/estimate?direction=&entry=&exit=[&at=<ISO, past only, 66 Insi
 ```
 
 Every estimate carries `source.operator`, `source.fetchedAt`, per-leg prices, and `notes`. When an operator can't be reached or returns something unexpected, the API returns an `error` — it never fabricates a number.
+
+Points carry `lat`/`lng` so the UI can draw them: a map under the selects shows the direction's entries, then the exits reachable from your entry, and highlights the chosen pair (tapping a dot selects it). Coordinates come from each operator's own map — vai66tolls and expresslanes ship them with their interchange data; for 66 Outside they were captured once from the planner's markers (a few select-only ramps are placed at the same interchange and commented as approximate). Basemap: OpenStreetMap tiles, fine for a demo; a real deployment must follow the [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/) or bring its own tiles.
 
 ## How each price is obtained
 

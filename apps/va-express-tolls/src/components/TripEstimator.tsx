@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { TripMap } from "@/components/TripMap"
 import type { Corridor, CorridorId } from "@/data/corridors"
 import type { Direction, EstimateResponse, TripEntry } from "@/lib/api-types"
 import { type CorridorSupportInfo, fetchEstimate, fetchPoints, formatTime, formatUsd } from "@/lib/api"
@@ -196,6 +197,26 @@ function EstimatorForm({ corridor, support, onSwitchCorridor }: Props & { suppor
             ))}
           </select>
         </label>
+
+        {entries && entries.some((e) => typeof e.lat === "number") && (
+          <div className="sm:col-span-2">
+            <TripMap
+              entries={entries}
+              entryId={entryId}
+              exitId={exitId}
+              onSelectEntry={(id) => {
+                setEntryId(id)
+                setExitId("")
+                setResult(null)
+              }}
+              onSelectExit={(id) => {
+                if (!entry) return
+                setExitId(id)
+                setResult(null)
+              }}
+            />
+          </div>
+        )}
 
         {support.historical && (
           <div className="space-y-1.5 text-sm sm:col-span-2">

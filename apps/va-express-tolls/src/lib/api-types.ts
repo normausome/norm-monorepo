@@ -16,6 +16,9 @@ export interface CorridorSupport {
 export interface TripPoint {
   id: string
   label: string
+  /** WGS84 position from the operator's own map, when they publish one. */
+  lat?: number
+  lng?: number
 }
 
 export interface TripEntry extends TripPoint {

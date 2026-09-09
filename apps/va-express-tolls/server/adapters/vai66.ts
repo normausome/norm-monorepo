@@ -32,16 +32,32 @@ function easternFormParts(date: Date) {
   }
 }
 
+/**
+ * Each partial also ships the map markers as `new Exit('Name', 0, 0, 'eb', <id>, <lat>, <lng>, …)`
+ * inside an inline script; that is where the interchange coordinates come from.
+ */
+function parseCoords(html: string): Map<string, { lat: number; lng: number }> {
+  const out = new Map<string, { lat: number; lng: number }>()
+  for (const m of html.matchAll(/new Exit\('[^']*',\s*0,\s*0,\s*'[ew]b',\s*(\d+),\s*(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/g)) {
+    out.set(m[1], { lat: Number(m[2]), lng: Number(m[3]) })
+  }
+  return out
+}
+
+function withCoords(opts: { id: string; label: string }[], coords: Map<string, { lat: number; lng: number }>) {
+  return opts.map((o) => ({ ...o, ...coords.get(o.id) }))
+}
+
 async function entriesFor(eb: boolean) {
   const html = await fetchText(`${BASE}/Index?handler=BeginIntPartial&rbEastVal=${eb}`)
   const opts = parseOptions(html)
   if (opts.length === 0) throw new UpstreamError("vai66tolls.com returned no entry interchanges (page layout may have changed)")
-  return opts
+  return withCoords(opts, parseCoords(html))
 }
 
 async function exitsFor(entryId: string, eb: boolean) {
   const html = await fetchText(`${BASE}/Index?handler=ExitIntPartial&bIntId=${encodeURIComponent(entryId)}&rbEastVal=${eb}`)
-  return parseOptions(html)
+  return withCoords(parseOptions(html), parseCoords(html))
 }
 
 async function points(direction: Direction): Promise<TripEntry[]> {
@@ -114,8 +130,8 @@ async function estimate(req: EstimateRequest): Promise<EstimateResponse> {
   return {
     corridor: "66-inside",
     direction: req.direction,
-    entry: { id: entry.id, label: entry.label },
-    exit: { id: exit.id, label: exit.label },
+    entry: { id: entry.id, label: entry.label, lat: entry.lat, lng: entry.lng },
+    exit: { id: exit.id, label: exit.label, lat: exit.lat, lng: exit.lng },
     kind: isCurrent ? "current" : "historical",
     total: price,
     currency: "USD",

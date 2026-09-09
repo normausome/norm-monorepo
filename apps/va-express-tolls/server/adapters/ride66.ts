@@ -1,7 +1,7 @@
 import type { Direction, EstimateResponse, TripEntry } from "../../src/lib/api-types"
 import { HOUR, MINUTE, cached } from "../cache"
 import { UpstreamError, decodeEntities, fetchText } from "../http"
-import { EXITS_BY_START } from "./ride66-map"
+import { ENTRY_COORDS, EXIT_COORDS, EXITS_BY_START } from "./ride66-map"
 import { BadRequest, type CorridorAdapter, type EstimateRequest } from "./types"
 
 const BASE = "https://ride66express.com"
@@ -64,11 +64,13 @@ async function points(direction: Direction): Promise<TripEntry[]> {
   const d = dir(direction)
   return cached(`r66:points:${d}`, 24 * HOUR, async () => {
     const starts = parseStarts(await plannerPage(), d)
+    const at = (ll?: [number, number]) => (ll ? { lat: ll[0], lng: ll[1] } : {})
     const entries = starts
       .filter((s) => EXITS_BY_START[d][s.id])
       .map((s) => ({
         ...s,
-        exits: EXITS_BY_START[d][s.id].map((x) => ({ id: slug(x.label), label: x.label })),
+        ...at(ENTRY_COORDS[d][s.id]),
+        exits: EXITS_BY_START[d][s.id].map((x) => ({ id: slug(x.label), label: x.label, ...at(EXIT_COORDS[d][x.label]) })),
       }))
     if (entries.length === 0) {
       throw new UpstreamError("ride66express.com entry gantries no longer match our exit table; refusing to guess")
@@ -173,7 +175,7 @@ async function estimate(req: EstimateRequest): Promise<EstimateResponse> {
   return {
     corridor: "66-outside",
     direction: d,
-    entry: { id: entry.id, label: entry.label },
+    entry: { id: entry.id, label: entry.label, lat: entry.lat, lng: entry.lng },
     exit,
     kind: "current",
     total: total === null ? null : Math.round(total * 100) / 100,

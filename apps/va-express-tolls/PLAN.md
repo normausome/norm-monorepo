@@ -40,10 +40,11 @@ In dev, Vite proxies `/api` to the Bun server (`bun run dev` starts both). In pr
 2. Trip form: direction → entry → exit (exit list depends on entry). I-66 Inside adds "Right now" vs "A past weekday time" (historical).
 3. Result card: the dollar figure, big; per-leg breakdown when more than one road is involved; "No toll" state for off-peak I-66 Inside; source + fetched-at; the unofficial-estimate disclaimer; secondary link to the official calculator.
 4. Two-toll hint: when an I-66 trip starts/ends at an I-495 ramp (or a 495 trip at I-66), prompt to price the other leg too (one tap switches corridor).
+5. Map (Leaflet + OSM tiles) under the selects: the direction's entries, the exits reachable from the chosen entry, the selected pair highlighted; dots are clickable. Coordinates come from the operators' own map data (`lat`/`lng` on every point).
 
 ## Reused from the monorepo
 
-Stack/config from `apps/pstack-playbook-demo` (Bun + Vite + React 19 + Tailwind v4 + shadcn `button`/`card`/`badge`). Added only `@types/bun` (dev) for the server.
+Stack/config from `apps/pstack-playbook-demo` (Bun + Vite + React 19 + Tailwind v4 + shadcn `button`/`card`/`badge`). Added `@types/bun` (dev) for the server and `leaflet` for the map (no API key, SVG circle markers, no react wrapper).
 
 ## Not added
 
