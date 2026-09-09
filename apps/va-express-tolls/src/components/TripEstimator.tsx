@@ -8,8 +8,20 @@ import { type CorridorSupportInfo, fetchEstimate, fetchPoints, formatTime, forma
 import { cn } from "@/lib/utils"
 import { ArrowRight, ExternalLink, LoaderCircle, TriangleAlert } from "lucide-react"
 
-/** Value for a `datetime-local` input in the browser's local time. */
-const localDateTimeValue = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
+/** Today's date in Eastern time as YYYY-MM-DD (the corridors' own clock). */
+const easternToday = () => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date())
+
+/** Quarter-hour slots inside the tolled window for a direction; only these times can carry a price. */
+function peakSlots(direction: Direction): { value: string; label: string }[] {
+  const [start, end] = direction === "wb" ? [15 * 60, 19 * 60] : [5 * 60 + 30, 9 * 60 + 30]
+  const slots: { value: string; label: string }[] = []
+  for (let m = start; m < end; m += 15) {
+    const h = Math.floor(m / 60)
+    const mm = String(m % 60).padStart(2, "0")
+    slots.push({ value: `${String(h).padStart(2, "0")}:${mm}`, label: `${((h + 11) % 12) + 1}:${mm} ${h < 12 ? "AM" : "PM"}` })
+  }
+  return slots
+}
 
 const selectClass =
   "h-10 w-full rounded-md border bg-background px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-50"
@@ -74,11 +86,14 @@ function EstimatorForm({ corridor, support, onSwitchCorridor }: Props & { suppor
   const [entryId, setEntryId] = useState("")
   const [exitId, setExitId] = useState("")
   const [when, setWhen] = useState<"now" | "past">("now")
-  const [at, setAt] = useState("")
+  const [pastDate, setPastDate] = useState("")
+  const [pastTime, setPastTime] = useState("")
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<EstimateResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [maxPast] = useState(() => localDateTimeValue(new Date()))
+  const [today] = useState(easternToday)
+  const slots = peakSlots(direction)
+  const at = when === "past" && pastDate && pastTime ? `${pastDate}T${pastTime}` : ""
 
   function changeDirection(next: Direction) {
     setDirection(next)
@@ -86,6 +101,7 @@ function EstimatorForm({ corridor, support, onSwitchCorridor }: Props & { suppor
     setPointsError(null)
     setEntryId("")
     setExitId("")
+    setPastTime("")
     setResult(null)
     setError(null)
   }
@@ -114,7 +130,7 @@ function EstimatorForm({ corridor, support, onSwitchCorridor }: Props & { suppor
     setError(null)
     setResult(null)
     try {
-      const params = { direction, entry: entryId, exit: exitId, ...(when === "past" && at ? { at: new Date(at).toISOString() } : {}) }
+      const params = { direction, entry: entryId, exit: exitId, ...(at ? { at } : {}) }
       setResult(await fetchEstimate(corridor.id, params))
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not fetch an estimate")
@@ -201,19 +217,37 @@ function EstimatorForm({ corridor, support, onSwitchCorridor }: Props & { suppor
                 ))}
               </div>
               {when === "past" && (
-                <input
-                  type="datetime-local"
-                  className={cn(selectClass, "sm:w-auto")}
-                  value={at}
-                  max={maxPast}
-                  onChange={(e) => setAt(e.target.value)}
-                  required
-                />
+                <>
+                  <input
+                    type="date"
+                    aria-label="Date"
+                    className={cn(selectClass, "sm:w-auto")}
+                    value={pastDate}
+                    max={today}
+                    onChange={(e) => setPastDate(e.target.value)}
+                    required
+                  />
+                  <select
+                    aria-label="Time (Eastern)"
+                    className={cn(selectClass, "sm:w-auto")}
+                    value={pastTime}
+                    onChange={(e) => setPastTime(e.target.value)}
+                    required
+                  >
+                    <option value="">Time (Eastern)…</option>
+                    {slots.map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                </>
               )}
             </div>
             {when === "past" && (
               <p className="text-xs text-muted-foreground">
-                The VDOT calculator only prices times that have already happened, in Eastern time. Off-peak times return “No toll”.
+                Times are Eastern and limited to this direction’s tolled window — outside it the answer is always “No toll”. The VDOT
+                calculator only prices times that have already happened.
               </p>
             )}
           </div>

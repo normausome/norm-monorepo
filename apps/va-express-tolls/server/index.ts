@@ -24,6 +24,32 @@ const json = (body: unknown, status = 200) =>
     headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
   })
 
+/**
+ * Zone-less `YYYY-MM-DDTHH:mm` from the UI means Eastern wall-clock time (the
+ * corridors' own clock), whatever the browser's zone. Try both EST/EDT offsets
+ * and keep the one that round-trips through America/New_York.
+ */
+function easternWallClockToDate(local: string): Date {
+  const fmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  })
+  for (const offset of ["-04:00", "-05:00"]) {
+    const candidate = new Date(`${local}:00${offset}`)
+    if (Number.isNaN(candidate.getTime())) continue
+    const parts = fmt.formatToParts(candidate)
+    const get = (t: string) => parts.find((p) => p.type === t)?.value ?? ""
+    const roundTrip = `${get("year")}-${get("month")}-${get("day")}T${get("hour").padStart(2, "0").replace("24", "00")}:${get("minute")}`
+    if (roundTrip === local) return candidate
+  }
+  return new Date(Number.NaN)
+}
+
 function adapterFor(id: string): CorridorAdapter {
   if (!isCorridorId(id)) throw new BadRequest(`Unknown corridor "${id}"`)
   return adapters[id]
@@ -65,7 +91,7 @@ async function handleApi(url: URL): Promise<Response> {
     const atRaw = url.searchParams.get("at")
     let at: Date | undefined
     if (atRaw) {
-      at = new Date(atRaw)
+      at = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(atRaw) ? easternWallClockToDate(atRaw) : new Date(atRaw)
       if (Number.isNaN(at.getTime())) throw new BadRequest("at must be an ISO date-time")
     }
     return json(await adapter.estimate({ direction, entry, exit, at }))
