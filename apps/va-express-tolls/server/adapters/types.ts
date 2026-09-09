@@ -11,6 +11,8 @@ export interface EstimateRequest {
 export interface CorridorAdapter {
   support: CorridorSupport
   points(direction: Direction): Promise<TripEntry[]>
+  /** Optional live operator status worth showing above the form (e.g. which way reversible lanes are open). */
+  notice?(direction: Direction): Promise<string | undefined>
   estimate(req: EstimateRequest): Promise<EstimateResponse>
 }
 

@@ -7,7 +7,7 @@ import type { Corridor, CorridorId } from "@/data/corridors"
 import type { Direction, EstimateResponse, TripEntry } from "@/lib/api-types"
 import { type CorridorSupportInfo, fetchEstimate, fetchPoints, formatTime, formatUsd } from "@/lib/api"
 import { cn } from "@/lib/utils"
-import { ArrowRight, ExternalLink, LoaderCircle, TriangleAlert } from "lucide-react"
+import { ArrowRight, ExternalLink, Info, LoaderCircle, TriangleAlert } from "lucide-react"
 
 /** Today's date in Eastern time as YYYY-MM-DD (the corridors' own clock). */
 const easternToday = () => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date())
@@ -83,6 +83,7 @@ function OfficialLink({ corridor, primary = false }: { corridor: Corridor; prima
 function EstimatorForm({ corridor, support, onSwitchCorridor }: Props & { support: CorridorSupportInfo }) {
   const [direction, setDirection] = useState<Direction>(support.directions[0].id)
   const [entries, setEntries] = useState<TripEntry[] | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const [pointsError, setPointsError] = useState<string | null>(null)
   const [entryId, setEntryId] = useState("")
   const [exitId, setExitId] = useState("")
@@ -99,6 +100,7 @@ function EstimatorForm({ corridor, support, onSwitchCorridor }: Props & { suppor
   function changeDirection(next: Direction) {
     setDirection(next)
     setEntries(null)
+    setNotice(null)
     setPointsError(null)
     setEntryId("")
     setExitId("")
@@ -111,7 +113,9 @@ function EstimatorForm({ corridor, support, onSwitchCorridor }: Props & { suppor
     let cancelled = false
     fetchPoints(corridor.id, direction)
       .then((res) => {
-        if (!cancelled) setEntries(res.entries)
+        if (cancelled) return
+        setEntries(res.entries)
+        setNotice(res.notice ?? null)
       })
       .catch((err: Error) => {
         if (!cancelled) setPointsError(err.message)
@@ -156,6 +160,13 @@ function EstimatorForm({ corridor, support, onSwitchCorridor }: Props & { suppor
             ))}
           </select>
         </label>
+
+        {notice && (
+          <p className="flex items-start gap-2 rounded-lg border border-primary/30 bg-accent/60 p-3 text-sm sm:col-span-2">
+            <Info className="mt-0.5 size-4 shrink-0 text-primary" />
+            <span>{notice}</span>
+          </p>
+        )}
 
         <label className="space-y-1.5 text-sm">
           <span className="font-medium">Enter at</span>
@@ -322,8 +333,9 @@ function EstimateResult({
 }) {
   const free = result.total === 0
   const tripText = `${result.entry.label} → ${result.exit.label}`
-  const touches495 = corridor.id !== "495" && /i-495|495 express/i.test(tripText)
-  const touches66 = corridor.id === "495" && /interstate 66|i-66/i.test(tripText)
+  const includes495Leg = result.legs.some((l) => l.road.startsWith("495"))
+  const touches495 = corridor.id !== "495" && !includes495Leg && /i-495|495 express/i.test(tripText)
+  const touches66 = (corridor.id === "495" || corridor.id === "395") && /interstate 66|i-66/i.test(tripText)
 
   return (
     <div className="space-y-4 rounded-xl border bg-muted/40 p-5" aria-live="polite">

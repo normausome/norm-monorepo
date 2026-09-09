@@ -1,4 +1,4 @@
-export type CorridorId = "495" | "66-inside" | "66-outside"
+export type CorridorId = "495" | "395" | "66-inside" | "66-outside"
 
 export interface Corridor {
   id: CorridorId
@@ -47,6 +47,35 @@ export const CORRIDORS: readonly Corridor[] = [
       tips: [
         "It's a map picker: choose your entry and exit interchange on the map, not a street address.",
         "If your trip starts on I-66, the calculator itself warns that the I-66 leg is a separate toll from a different operator.",
+      ],
+    },
+  },
+  {
+    id: "395",
+    name: "395 Express Lanes",
+    shortName: "395",
+    operator: "Transurban",
+    pickerHint: "Reversible · one direction at a time · expresslanes.com",
+    extent:
+      "I-395 from the I-95/I-495 interchange at Springfield north to the Pentagon and the 14th Street Bridge into DC — about 8 miles, continuous with the 95 Express Lanes.",
+    whenTolled:
+      "Tolled whenever the lanes are open, around the clock — but they are reversible, so only one direction is open at a time. Approximate schedule: weekdays northbound 2:30–11 AM and southbound noon–1 AM, closed for reversal about 1–2:30 AM (except Monday) and about 10 AM–noon; Saturday southbound until 2 PM, closed 2–4 PM, northbound from 4 PM; Sunday northbound all day. Holidays, events and incidents change this — trust the signs.",
+    pricing:
+      "Dynamic pricing posted on overhead signs before you enter. The 95 and 395 Express Lanes are priced as one continuous road; a trip that continues onto the 495 Express Lanes is a separate line item.",
+    rules: [
+      "E-ZPass or E-ZPass Flex is required — no cash, no toll booths.",
+      "HOV-3+ rides free whenever the lanes are open, with an E-ZPass Flex switched to HOV mode before you enter.",
+      "Motorcycles ride free; buses ride free with a properly classified E-ZPass.",
+      "Wrong-direction entry is physically impossible — if your direction is closed, the ramps are gated and no price is published for it.",
+    ],
+    calculator: {
+      url: "https://expresslanes.com/map-your-trip/",
+      label: "Open the 395 Express Lanes trip calculator",
+      host: "expresslanes.com",
+      tips: [
+        "Same map picker as 495: choose Northbound or Southbound first, then your entry and exit on the map — not a street address.",
+        "Only the direction that is currently open has prices; the other shows nothing or a stale figure.",
+        "Prices can appear as two line items, \"495 Express Lanes\" and \"95 and 395 Express Lanes\", when a trip uses both.",
       ],
     },
   },
@@ -126,6 +155,6 @@ export const SHARED_NOTES: readonly { title: string; body: string }[] = [
   },
   {
     title: "I-66 to I-495 is two tolls",
-    body: "Three brands, three operators, three calculators. A trip that uses I-66 and the 495 Express Lanes is two separate tolls — price each leg on its own calculator and add them up yourself.",
+    body: "Different operators run I-66 and the 495/395 Express Lanes. A trip that uses both is two separate tolls — price each leg on its own calculator and add them up yourself. (395 → 495 is one operator, so we show both legs together.)",
   },
 ]

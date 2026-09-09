@@ -5,6 +5,7 @@ Public, mobile-friendly toll estimates for Northern Virginia's Express Lanes. Pi
 | Corridor | Operator | Live estimate on this site | Official calculator |
 | --- | --- | --- | --- |
 | 495 Express Lanes | Transurban | Yes (current price) | https://expresslanes.com/map-your-trip/ |
+| 395 Express Lanes (reversible) | Transurban | Yes (current price, open direction only) | https://expresslanes.com/map-your-trip/ |
 | I-66 Inside the Beltway | VDOT | Yes (current, or a past weekday time) | https://vai66tolls.com/ |
 | I-66 Outside the Beltway | I-66 Express Mobility Partners | Yes (current price) | https://ride66express.com/pricing/plan-your-trip/ |
 
@@ -39,7 +40,7 @@ src/                       React front end (Vite, Tailwind v4, shadcn button/car
 server/                    Bun.serve API
   index.ts                 routes, error mapping, static dist/ in production
   adapters/vai66.ts        I-66 Inside — VDOT Razor page handlers
-  adapters/expresslanes.ts 495 — Transurban entry/exit mapping + price feed
+  adapters/expresslanes.ts 495 and 395 — Transurban entry/exit mapping + price feed (one factory, two corridors)
   adapters/ride66.ts       66 Outside — planner's theme-ajax call + the page's per-gantry summation
   adapters/ride66-map.ts   66 Outside — vendored start → exit-chain table and marker coordinates (captured from the planner)
   cache.ts                 TTL cache with single-flight
@@ -61,6 +62,7 @@ Points carry `lat`/`lng` so the UI can draw them: a map under the selects shows 
 
 - **I-66 Inside** — the VDOT page's own Razor handlers (`BeginIntPartial`, `ExitIntPartial`, `TollCalcPartial`); the last one returns `{ decToll }`. Supports "now" and a past date/time.
 - **495** — Transurban's static entry/exit → O/D mapping plus its `infra-price-confirmed-all` JSON feed; one leg per O/D (multi-road trips are summed).
+- **395** — the same mapping and feed, filtered to `395North` / `395South` entries (exits may continue onto 95 or 495 and come back as separate legs, mirroring the operator's "95 and 395 Express Lanes" / "495 Express Lanes" line items). The feed's `direction_95` flag says which way the reversible lanes are open; that's surfaced above the form, and a closed direction returns no total even if the feed still carries a stale figure.
 - **66 Outside** — the planner's `theme-ajax.php` `api_call` (start gantry + the exit's tolling-gantry chain + one constant-named form field read from the live bundle). The response is today's rate-change log for every gantry; like the page, we sum the latest posted class-1 rate at each gantry the trip passes. The start → exit-chain table is vendored (`ride66-map.ts`) because the planner builds it inside an obfuscated bundle; the live entry list is validated against it and mismatches fail closed.
 
 ## Fragility and risk

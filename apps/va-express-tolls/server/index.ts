@@ -2,7 +2,7 @@ import { existsSync } from "node:fs"
 import path from "node:path"
 import { CORRIDORS, isCorridorId } from "../src/data/corridors"
 import type { Direction } from "../src/lib/api-types"
-import { expresslanes } from "./adapters/expresslanes"
+import { expresslanes, expresslanes395 } from "./adapters/expresslanes"
 import { ride66 } from "./adapters/ride66"
 import { BadRequest, type CorridorAdapter } from "./adapters/types"
 import { vai66 } from "./adapters/vai66"
@@ -10,6 +10,7 @@ import { UpstreamError } from "./http"
 
 const adapters: Record<string, CorridorAdapter> = {
   "495": expresslanes,
+  "395": expresslanes395,
   "66-inside": vai66,
   "66-outside": ride66,
 }
@@ -80,7 +81,8 @@ async function handleApi(url: URL): Promise<Response> {
 
   if (action === "points") {
     const direction = directionParam(url, adapter)
-    return json({ corridor: adapter.support.id, direction, entries: await adapter.points(direction) })
+    const [entries, notice] = await Promise.all([adapter.points(direction), adapter.notice?.(direction)])
+    return json({ corridor: adapter.support.id, direction, entries, ...(notice ? { notice } : {}) })
   }
 
   if (action === "estimate") {

@@ -29,6 +29,8 @@ export interface PointsResponse {
   corridor: CorridorId
   direction: Direction
   entries: TripEntry[]
+  /** Live operator status for this direction, when the operator publishes one. */
+  notice?: string
 }
 
 export interface EstimateLeg {

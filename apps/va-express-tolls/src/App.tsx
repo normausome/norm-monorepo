@@ -53,7 +53,7 @@ export function App() {
           Express Lanes toll estimate
         </h1>
         <p className="max-w-2xl text-muted-foreground">
-          Three corridors, three operators, three separate calculator sites.
+          Four corridors, three operators, three separate calculator sites.
           Pick your corridor and trip here and we fetch the number the official
           calculator shows — no made-up prices, and the overhead sign always
           wins.
@@ -67,7 +67,7 @@ export function App() {
         <div
           role="tablist"
           aria-label="Corridor"
-          className="grid grid-cols-1 gap-2 sm:grid-cols-3"
+          className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4"
         >
           {CORRIDORS.map((c) => {
             const active = c.id === corridor.id
