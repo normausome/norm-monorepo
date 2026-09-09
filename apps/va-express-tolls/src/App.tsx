@@ -141,9 +141,9 @@ export function App() {
               Price it on the official {corridor.shortName} calculator
             </CardTitle>
             <CardDescription>
-              This site doesn&apos;t show prices. {corridor.operator}&apos;s
-              calculator is the source of truth — pick your entry, exit and time
-              there.
+              This site doesn&apos;t show prices. The calculator run by{" "}
+              {corridor.operator} is the source of truth — pick your entry, exit
+              and time there.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
