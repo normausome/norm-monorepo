@@ -5,6 +5,8 @@ export interface Corridor {
   name: string
   shortName: string
   operator: string
+  /** Shown under the name in the corridor picker; front-loads the one thing to know. */
+  pickerHint: string
   extent: string
   /** One-line answer to "when am I charged?" */
   whenTolled: string
@@ -15,6 +17,8 @@ export interface Corridor {
     url: string
     label: string
     host: string
+    /** What the official UI is actually like, so drivers aren't surprised. */
+    tips: string[]
   }
 }
 
@@ -24,6 +28,7 @@ export const CORRIDORS: readonly Corridor[] = [
     name: "495 Express Lanes",
     shortName: "495",
     operator: "Transurban",
+    pickerHint: "Tolled 24/7 · expresslanes.com",
     extent:
       "I-495 (Capital Beltway) from the Springfield Interchange north to the George Washington Memorial Parkway, just before the American Legion Bridge.",
     whenTolled: "Tolled 24 hours a day, 7 days a week.",
@@ -39,6 +44,10 @@ export const CORRIDORS: readonly Corridor[] = [
       url: "https://expresslanes.com/map-your-trip/",
       label: "Open the 495 Express Lanes trip calculator",
       host: "expresslanes.com",
+      tips: [
+        "It's a map picker: choose your entry and exit interchange on the map, not a street address.",
+        "If your trip starts on I-66, the calculator itself warns that the I-66 leg is a separate toll from a different operator.",
+      ],
     },
   },
   {
@@ -46,6 +55,7 @@ export const CORRIDORS: readonly Corridor[] = [
     name: "I-66 Inside the Beltway",
     shortName: "66 Inside",
     operator: "VDOT",
+    pickerHint: "Weekday peak only: EB 5:30–9:30 AM, WB 3–7 PM · free otherwise",
     extent:
       "I-66 from I-495 (Capital Beltway) east to US-29 in Rosslyn. All lanes become Express Lanes during peak hours.",
     whenTolled:
@@ -62,6 +72,11 @@ export const CORRIDORS: readonly Corridor[] = [
       url: "https://vai66tolls.com/",
       label: "Open the I-66 Inside the Beltway toll calculator",
       host: "vai66tolls.com",
+      tips: [
+        "Pick a direction first (Eastbound AM or Westbound PM), then tap the small map dots for your entry and exit gantry — they're easy to miss.",
+        "It shows a current estimate or a historical one for a date and time you choose. Tap Refresh for the latest current toll.",
+        "Outside peak hours it simply shows \"No toll\" — that's correct, the lanes are free then.",
+      ],
     },
   },
   {
@@ -69,6 +84,7 @@ export const CORRIDORS: readonly Corridor[] = [
     name: "I-66 Outside the Beltway",
     shortName: "66 Outside",
     operator: "I-66 Express Mobility Partners",
+    pickerHint: "Tolled 24/7 · ride66express.com",
     extent:
       "Two Express Lanes in each direction of I-66 for 22.5 miles between I-495 (Capital Beltway) and US-29 in Gainesville, alongside three free general-purpose lanes.",
     whenTolled: "Tolled 24 hours a day, 7 days a week.",
@@ -84,6 +100,10 @@ export const CORRIDORS: readonly Corridor[] = [
       url: "https://ride66express.com/pricing/plan-your-trip/",
       label: "Open the 66 Express Outside the Beltway trip planner",
       host: "ride66express.com",
+      tips: [
+        "Choose direction, then your entry and exit interchange from the map — again, places on the road, not addresses.",
+        "Prices there are marked with an asterisk because they're historical averages for that day and time, not what the sign will say.",
+      ],
     },
   },
 ]
@@ -97,15 +117,15 @@ export function isCorridorId(value: string): value is CorridorId {
 /** Caveats that apply no matter which corridor is selected. */
 export const SHARED_NOTES: readonly { title: string; body: string }[] = [
   {
-    title: "Estimates are estimates",
-    body: "Web calculators show typical or recent prices. The toll you actually pay is the price shown on the overhead sign when you enter, which can differ from any web estimate.",
+    title: "The sign is the price, not the website",
+    body: "Calculators show a snapshot or a historical average. What you actually pay is the price on the overhead sign when you enter — it can be higher or lower than any web estimate, and the operator apps can disagree with each other.",
   },
   {
     title: "E-ZPass is required",
     body: "All three corridors are all-electronic. Carry a funded, properly mounted E-ZPass. Use an E-ZPass Flex in HOV mode if you qualify as HOV-3+ and want to ride free.",
   },
   {
-    title: "I-66 to I-495 can mean two tolls",
-    body: "I-66 Inside the Beltway, I-66 Outside the Beltway and the 495 Express Lanes are run by different operators. A trip that uses two of them is two separate tolls — estimate each leg on its own calculator.",
+    title: "I-66 to I-495 is two tolls",
+    body: "Three brands, three operators, three calculators. A trip that uses I-66 and the 495 Express Lanes is two separate tolls — price each leg on its own calculator and add them up yourself.",
   },
 ]

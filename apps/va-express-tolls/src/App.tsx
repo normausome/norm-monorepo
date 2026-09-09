@@ -50,9 +50,10 @@ export function App() {
           Express Lanes toll lookup
         </h1>
         <p className="max-w-2xl text-muted-foreground">
-          Pick your corridor, read the rules that actually matter, then open
-          that corridor&apos;s official calculator for a price. Three operators,
-          one page — and no made-up numbers.
+          Three corridors, three operators, three separate calculator sites.
+          Pick your corridor here, read the rules that actually matter, then
+          jump straight to the right official calculator for a price. No
+          made-up numbers.
         </p>
       </header>
 
@@ -84,11 +85,11 @@ export function App() {
                 <span className="block text-sm font-semibold">{c.name}</span>
                 <span
                   className={cn(
-                    "block text-xs",
+                    "mt-0.5 block text-xs leading-snug",
                     active ? "text-primary-foreground/80" : "text-muted-foreground",
                   )}
                 >
-                  {c.operator}
+                  {c.pickerHint}
                 </span>
               </button>
             )
@@ -140,20 +141,52 @@ export function App() {
               Price it on the official {corridor.shortName} calculator
             </CardTitle>
             <CardDescription>
-              This site doesn&apos;t show prices. The operator&apos;s calculator
-              is the source of truth — pick your entry, exit and time there.
+              This site doesn&apos;t show prices. {corridor.operator}&apos;s
+              calculator is the source of truth — pick your entry, exit and time
+              there.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Button asChild size="lg" className="w-full sm:w-auto">
-              <a href={corridor.calculator.url} target="_blank" rel="noreferrer">
-                {corridor.calculator.label}
-                <ExternalLink className="size-4" />
-              </a>
-            </Button>
-            <span className="text-xs text-muted-foreground">
-              Opens {corridor.calculator.host} in a new tab
-            </span>
+          <CardContent className="space-y-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+              <Button asChild size="lg" className="h-12 w-full text-base sm:w-auto">
+                <a href={corridor.calculator.url} target="_blank" rel="noreferrer">
+                  {corridor.calculator.label}
+                  <ExternalLink className="size-4" />
+                </a>
+              </Button>
+              <span className="text-xs text-muted-foreground">
+                Opens {corridor.calculator.host} in a new tab
+              </span>
+            </div>
+
+            <div>
+              <p className="mb-1 text-sm font-semibold">What you&apos;ll see there</p>
+              <ul className="space-y-1.5 text-sm text-muted-foreground">
+                {corridor.calculator.tips.map((tip) => (
+                  <li key={tip} className="flex gap-2">
+                    <span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-full bg-border" />
+                    <span>{tip}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="border-t pt-4">
+              <p className="mb-2 text-xs text-muted-foreground">
+                Trip continues onto another corridor? That&apos;s a second toll —
+                price it separately:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {CORRIDORS.filter((c) => c.id !== corridor.id).map((c) => (
+                  <Button key={c.id} asChild variant="outline" size="sm">
+                    <a href={c.calculator.url} target="_blank" rel="noreferrer">
+                      {c.shortName} · {c.calculator.host}
+                      <ExternalLink className="size-3.5" />
+                    </a>
+                  </Button>
+                ))}
+              </div>
+            </div>
           </CardContent>
         </Card>
 

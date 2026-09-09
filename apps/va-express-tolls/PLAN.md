@@ -13,6 +13,17 @@ One public, mobile-friendly page where a Northern Virginia driver picks a corrid
 
 Corridor selection is mirrored into the URL hash (`#66-inside`) so a link can be shared to a specific corridor. No login, no backend, no analytics.
 
+## Field notes folded in
+
+Hands-on use of the three official calculators surfaced four pain points, each answered with copy rather than new primitives:
+
+1. Three brands / three sites → header names it; picker shows operator + site; secondary links to the other two calculators sit under the primary CTA for multi-operator trips.
+2. Map dots, not addresses → per-corridor "What you'll see there" tips (map/gantry pickers, tiny markers on vai66tolls, Refresh button, asterisked historical averages on ride66express).
+3. Estimate vs. sign mismatch → the first "Before you go" note says plainly that the overhead sign is the price.
+4. 66 Inside peak windows easy to miss → the windows are in the picker button itself, in the "When you pay" box, and in the live schedule hint.
+
+Sample dollar figures observed in the field are intentionally **not** in the app or docs.
+
 ## Explicitly out of scope
 
 - Live or "estimated" prices rendered by this app — there is no public API and we will **not** fake numbers. The operator calculators are the single source of truth.
