@@ -2,7 +2,7 @@ import { existsSync } from "node:fs"
 import path from "node:path"
 import { CORRIDORS, isCorridorId } from "../src/data/corridors"
 import type { Direction } from "../src/lib/api-types"
-import { expresslanes, expresslanes395 } from "./adapters/expresslanes"
+import { expresslanes, expresslanes395, expresslanes95 } from "./adapters/expresslanes"
 import { ride66 } from "./adapters/ride66"
 import { BadRequest, type CorridorAdapter } from "./adapters/types"
 import { vai66 } from "./adapters/vai66"
@@ -11,6 +11,7 @@ import { UpstreamError } from "./http"
 const adapters: Record<string, CorridorAdapter> = {
   "495": expresslanes,
   "395": expresslanes395,
+  "95": expresslanes95,
   "66-inside": vai66,
   "66-outside": ride66,
 }

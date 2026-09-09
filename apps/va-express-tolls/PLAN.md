@@ -14,6 +14,7 @@ Findings from reading each calculator's front-end code and, for 66 Outside, from
 
 | Corridor | How the official UI gets its number | Our adapter | Status |
 | --- | --- | --- | --- |
+| 95 Express Lanes (expresslanes.com, Transurban) | Same mapping (`path: "95"` entries, Route 17 near Fredericksburg → Springfield) and feed; same `direction_95` flag. | Same factory with `pathPrefix: "95"`, `reversible: true`. Labelled "95 Express — Fredericksburg area ↔ north" in the UI. | **Shipped** (current price, open direction only) |
 | I-66 Inside the Beltway (vai66tolls.com, VDOT) | Razor page handlers: `GET /Index?handler=BeginIntPartial&rbEastVal=` (entries), `…ExitIntPartial&bIntId=` (valid exits), `…TollCalcPartial&bIntId&eIntId&datePicked&timePicked&rbEastVal&isCurrent` → JSON `{ decToll }`. `isCurrent=false` gives a historical estimate for a past date/time; off-peak returns 0. | `server/adapters/vai66.ts` — three GETs, parse `<option>`s and JSON. | **Shipped** |
 | 495 Express Lanes (expresslanes.com, Transurban) | Static `/themes/custom/transurbangroup/js/on-the-road/entry_exit.js` maps entry → exit → O/D ids; `GET /maps-api/infra-price-confirmed-all` returns every O/D price with an hourly timestamp. Multi-road trips (e.g. 95→495) list one O/D per road. | `server/adapters/expresslanes.ts` — parse the mapping as JSON (strip comments, no `eval`), filter to `495*` paths, join with the price feed; one leg per O/D. | **Shipped** (current price only — the feed has no historical mode) |
 | 395 Express Lanes (expresslanes.com, Transurban) | Same mapping (`395North` / `395South` entries) and feed. The feed's top-level `direction_95` ("N"/"S") is the operator's live flag for the reversible lanes; rows for the closed direction are `status: closed` with null or stale prices. | Same factory as 495 with `pathPrefix: "395"`, `reversible: true`: surfaces the open direction as a notice, and returns `total: null` for a closed direction instead of a stale figure. Legs onto 95 are labelled "95 and 395 Express Lanes" like the operator's UI; legs onto 495 come back as a second line item. | **Shipped** (current price, open direction only) |
@@ -62,5 +63,4 @@ No headless browser at runtime, no database, no scheduler, no third-party toll A
 
 - Auto-summing the I-66 → 495 combination (mapping the hand-off ramp is ambiguous; we prompt instead)
 - Re-capturing the 66 Outside exit table automatically (today it's a checked-in snapshot validated against the live entry list)
-- 95 Express Lanes south of Springfield as its own corridor (already in the Transurban feed — the same factory with `pathPrefix: "95"`); 395 trips that continue onto 95 are already priced
 - Federal-holiday awareness in the schedule hint

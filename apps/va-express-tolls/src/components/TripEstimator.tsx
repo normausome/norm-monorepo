@@ -333,9 +333,11 @@ function EstimateResult({
 }) {
   const free = result.total === 0
   const tripText = `${result.entry.label} → ${result.exit.label}`
-  const includes495Leg = result.legs.some((l) => l.road.startsWith("495"))
-  const touches495 = corridor.id !== "495" && !includes495Leg && /i-495|495 express/i.test(tripText)
-  const touches66 = (corridor.id === "495" || corridor.id === "395") && /interstate 66|i-66/i.test(tripText)
+  // 495, 395 and 95 share an operator: a 495 leg is already in the result when it applies,
+  // and leaving onto I-495's regular lanes isn't a toll. The prompt is for cross-operator hand-offs.
+  const transurban = corridor.id === "495" || corridor.id === "395" || corridor.id === "95"
+  const touches495 = !transurban && /i-495|495 express/i.test(tripText)
+  const touches66 = transurban && /interstate 66|i-66/i.test(tripText)
 
   return (
     <div className="space-y-4 rounded-xl border bg-muted/40 p-5" aria-live="polite">

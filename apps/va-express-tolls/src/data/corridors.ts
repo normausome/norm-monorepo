@@ -1,4 +1,4 @@
-export type CorridorId = "495" | "395" | "66-inside" | "66-outside"
+export type CorridorId = "495" | "395" | "95" | "66-inside" | "66-outside"
 
 export interface Corridor {
   id: CorridorId
@@ -76,6 +76,35 @@ export const CORRIDORS: readonly Corridor[] = [
         "Same map picker as 495: choose Northbound or Southbound first, then your entry and exit on the map — not a street address.",
         "Only the direction that is currently open has prices; the other shows nothing or a stale figure.",
         "Prices can appear as two line items, \"495 Express Lanes\" and \"95 and 395 Express Lanes\", when a trip uses both.",
+      ],
+    },
+  },
+  {
+    id: "95",
+    name: "95 Express — Fredericksburg area ↔ north",
+    shortName: "95",
+    operator: "Transurban",
+    pickerHint: "Route 17 (Stafford) to Springfield · reversible · expresslanes.com",
+    extent:
+      "I-95 from Route 17 near Fredericksburg (Stafford County) north through Garrisonville, Quantico, Dumfries, Woodbridge and Lorton to the I-395/I-495 interchange at Springfield — about 40 miles of reversible lanes, continuous with the 395 Express Lanes into DC.",
+    whenTolled:
+      "Tolled whenever the lanes are open, around the clock — but they are reversible, so only one direction is open at a time. Approximate schedule: weekdays northbound 2:30–11 AM and southbound noon–1 AM, closed for reversal about 1–2:30 AM (except Monday) and about 10 AM–noon; Saturday southbound until 2 PM, closed 2–4 PM, northbound from 4 PM; Sunday northbound all day. Holidays, events and incidents change this — trust the signs.",
+    pricing:
+      "Dynamic pricing posted on overhead signs before you enter, in segments. The 95 and 395 Express Lanes are priced as one continuous road; a trip that continues onto the 495 Express Lanes is a separate line item.",
+    rules: [
+      "E-ZPass or E-ZPass Flex is required — no cash, no toll booths.",
+      "HOV-3+ rides free whenever the lanes are open, with an E-ZPass Flex switched to HOV mode before you enter.",
+      "Motorcycles ride free; buses ride free with a properly classified E-ZPass.",
+      "During the weekday morning reversal, northbound traffic is briefly detoured off the lanes near Route 123 in Woodbridge (about 10–10:30 AM in summer, 11–11:30 AM otherwise).",
+    ],
+    calculator: {
+      url: "https://expresslanes.com/map-your-trip/",
+      label: "Open the 95 Express Lanes trip calculator",
+      host: "expresslanes.com",
+      tips: [
+        "Same map picker as 495 and 395: choose Northbound or Southbound first, then your entry and exit on the map — not a street address.",
+        "Only the direction that is currently open has prices; the other shows nothing or a stale figure.",
+        "Prices can appear as two line items, \"95 and 395 Express Lanes\" and \"495 Express Lanes\", when a trip uses both.",
       ],
     },
   },

@@ -164,7 +164,7 @@ function transurban(c: TransurbanCorridor): CorridorAdapter {
       })
     }
 
-    const closed = legs.length > 0 && legs.every((l) => l.status === "closed")
+    const closed = legs.some((l) => l.status === "closed")
     const directionClosed = c.reversible && open95 !== null && open95 !== req.direction
     // A closed reversible direction may still carry a stale figure in the feed; never present it as a price.
     const total = legs.length > 0 && !missing && !closed && !directionClosed ? legs.reduce((s, l) => s + l.price, 0) : null
@@ -174,7 +174,7 @@ function transurban(c: TransurbanCorridor): CorridorAdapter {
         `The reversible 95/395 lanes are open ${open95 === "nb" ? "northbound" : "southbound"} right now, so there is no ${req.direction === "nb" ? "northbound" : "southbound"} price — the operator publishes prices only for the open direction.`,
       )
     } else if (closed) {
-      notes.push("The operator's feed marks this trip closed right now, so no price applies.")
+      notes.push("The operator's feed marks part of this trip closed right now, so no price applies.")
     } else if (missing) {
       notes.push("The operator's feed has no price for part of this trip right now (the lanes may be closed or reversed).")
     }
@@ -220,6 +220,17 @@ export const expresslanes = transurban({
   directions: [
     { id: "nb", label: "Northbound (toward Tysons / American Legion Bridge)" },
     { id: "sb", label: "Southbound (toward Springfield)" },
+  ],
+})
+
+export const expresslanes95 = transurban({
+  id: "95",
+  name: "95 Express Lanes",
+  pathPrefix: "95",
+  reversible: true,
+  directions: [
+    { id: "nb", label: "Northbound (Fredericksburg area → Springfield / DC) · usually mornings" },
+    { id: "sb", label: "Southbound (Springfield → Fredericksburg area) · usually afternoons & evenings" },
   ],
 })
 
