@@ -6,7 +6,7 @@ Public, mobile-friendly toll estimates for Northern Virginia's Express Lanes. Pi
 | --- | --- | --- | --- |
 | 495 Express Lanes | Transurban | Yes (current price) | https://expresslanes.com/map-your-trip/ |
 | I-66 Inside the Beltway | VDOT | Yes (current, or a past weekday time) | https://vai66tolls.com/ |
-| I-66 Outside the Beltway | I-66 Express Mobility Partners | No — link only (see below) | https://ride66express.com/pricing/plan-your-trip/ |
+| I-66 Outside the Beltway | I-66 Express Mobility Partners | Yes (current price) | https://ride66express.com/pricing/plan-your-trip/ |
 
 ## Quick start
 
@@ -39,7 +39,8 @@ server/                    Bun.serve API
   index.ts                 routes, error mapping, static dist/ in production
   adapters/vai66.ts        I-66 Inside — VDOT Razor page handlers
   adapters/expresslanes.ts 495 — Transurban entry/exit mapping + price feed
-  adapters/ride66.ts       66 Outside — not automated (returns the reason)
+  adapters/ride66.ts       66 Outside — planner's theme-ajax call + the page's per-gantry summation
+  adapters/ride66-map.ts   66 Outside — vendored start → exit-chain table (captured from the planner)
   cache.ts                 TTL cache with single-flight
 ```
 
@@ -53,19 +54,21 @@ GET /api/:corridor/estimate?direction=&entry=&exit=[&at=<ISO, past only, 66 Insi
 
 Every estimate carries `source.operator`, `source.fetchedAt`, per-leg prices, and `notes`. When an operator can't be reached or returns something unexpected, the API returns an `error` — it never fabricates a number.
 
-## Why 66 Outside is link-only
+## How each price is obtained
 
-`ride66express.com` serves its trip planner from a deliberately obfuscated JavaScript bundle that posts to a theme `ajax.php`. We read that as a do-not-automate signal and did not reverse it. The adapter slot exists; enabling it should start with a conversation with the operator.
+- **I-66 Inside** — the VDOT page's own Razor handlers (`BeginIntPartial`, `ExitIntPartial`, `TollCalcPartial`); the last one returns `{ decToll }`. Supports "now" and a past date/time.
+- **495** — Transurban's static entry/exit → O/D mapping plus its `infra-price-confirmed-all` JSON feed; one leg per O/D (multi-road trips are summed).
+- **66 Outside** — the planner's `theme-ajax.php` `api_call` (start gantry + the exit's tolling-gantry chain + one constant-named form field read from the live bundle). The response is today's rate-change log for every gantry; like the page, we sum the latest posted class-1 rate at each gantry the trip passes. The start → exit-chain table is vendored (`ride66-map.ts`) because the planner builds it inside an obfuscated bundle; the live entry list is validated against it and mismatches fail closed.
 
 ## Fragility and risk
 
-- **Undocumented endpoints.** Both adapters use the internal endpoints the operators' own pages call. A site redesign breaks them silently; the adapters then fail closed and the UI shows the official link.
-- **Rate limits are unknown.** Responses are cached (mappings 24h, 495 feed and current I-66 prices 60s, historical I-66 prices 24h) with single-flight, so bursts of clicks don't fan out to the operators.
-- **Terms of use.** `robots.txt` on both sites allows these paths, but neither publishes an API or terms for automated access. This is a demo; a public deployment should get the operators' OK.
+- **Undocumented endpoints.** All three adapters use the internal endpoints the operators' own pages call. A site redesign breaks them silently; the adapters then fail closed and the UI shows the official link. 66 Outside is the most fragile (obfuscated bundle, vendored exit table, constant-named field, reproduced formula).
+- **Rate limits are unknown.** Responses are cached (mappings 24h, current prices 60s, historical I-66 prices 24h) with single-flight, so bursts of clicks don't fan out to the operators. The 66 Outside response is ~350 KB per trip.
+- **Terms of use.** `robots.txt` on all three sites allows these paths, but none publishes an API or terms for automated access, and ride66express.com obfuscates its planner. This is a demo; a public deployment should get the operators' OK.
 - **Latency.** `vai66tolls.com` handlers can take several seconds; upstream calls time out at 15s.
 
 ## Out of scope
 
-Live prices for 66 Outside, accounts, E-ZPass / HOV Flex linking, scraping beyond the calls above. See [PLAN.md](./PLAN.md).
+Historical pricing for 495 / 66 Outside (their sites don't offer it), accounts, E-ZPass / HOV Flex linking, scraping beyond the calls above. See [PLAN.md](./PLAN.md).
 
 Rules are summarized from VDOT, Transurban and 66 Express public pages (checked Sep 2026). Unofficial; not affiliated with any operator or E-ZPass.
