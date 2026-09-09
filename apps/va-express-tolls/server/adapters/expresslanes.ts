@@ -184,7 +184,11 @@ function transurban(c: TransurbanCorridor): CorridorAdapter {
     if (c.reversible && total !== null) {
       notes.push("Reversible lanes: the schedule is approximate and changes for holidays, events and incidents. Trust the signs and gates.")
     }
-    notes.push("Current price from Transurban's public feed, refreshed roughly hourly by the operator. The price on the overhead sign when you enter is what you pay.")
+    notes.push(
+      total === null
+        ? "Try again once the lanes have reversed, or check the operator's calculator."
+        : "Current price from Transurban's public feed, refreshed roughly hourly by the operator. The price on the overhead sign when you enter is what you pay.",
+    )
 
     return {
       corridor: c.id,
