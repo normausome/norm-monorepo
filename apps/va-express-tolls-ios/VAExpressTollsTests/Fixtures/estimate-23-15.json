@@ -1,0 +1,22 @@
+{
+  "corridor": "495",
+  "direction": "nb",
+  "entry": { "id": "e1", "label": "I-66", "lat": 38.881, "lng": -77.226 },
+  "exit": { "id": "x1", "label": "George Washington Memorial Parkway" },
+  "kind": "current",
+  "total": 23.15,
+  "currency": "USD",
+  "legs": [
+    { "road": "495 Express Lanes", "price": 18.10, "observedAt": "2026-09-10T12:00:00.000Z", "status": "open" },
+    { "road": "95 and 395 Express Lanes", "price": 5.05, "observedAt": null, "status": null }
+  ],
+  "source": {
+    "operator": "Transurban (expresslanes.com)",
+    "url": "https://expresslanes.com/map-your-trip/",
+    "fetchedAt": "2026-09-10T12:00:00.000Z"
+  },
+  "notes": ["This trip crosses more than one Express Lanes road, so it is billed as separate line items; the total below adds them up."],
+  "cache": "miss",
+  "cachedAt": "2026-09-10T12:00:00.000Z",
+  "expiresAt": "2026-09-10T12:03:00.000Z"
+}
