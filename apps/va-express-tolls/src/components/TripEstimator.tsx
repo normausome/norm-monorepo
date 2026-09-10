@@ -178,7 +178,7 @@ function EstimatorForm({ corridor, support, onSwitchCorridor }: Props & { suppor
           {schedule && (
             <span className="block text-xs text-muted-foreground">
               {schedule.open
-                ? `Pre-selected ${word(schedule.open)}: the published schedule has the lanes running ${word(schedule.open)} until ${schedule.until} Eastern.`
+                ? `${direction === schedule.open ? "Pre-selected" : "Schedule says"} ${word(schedule.open)}: the published schedule has the lanes running ${word(schedule.open)} until ${schedule.until} Eastern.`
                 : `Probably closed for reversal right now; ${word(schedule.next)} usually opens ${schedule.opensAt} Eastern. Wait for the operator’s live status below.`}{" "}
               Approximate — holidays, events and incidents differ, and the signs win. Change it if you know better.{" "}
               <a className="text-primary underline-offset-4 hover:underline" href={SCHEDULE_URL} target="_blank" rel="noreferrer">
