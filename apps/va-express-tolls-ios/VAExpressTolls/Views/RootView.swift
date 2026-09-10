@@ -2,6 +2,16 @@ import SwiftUI
 
 struct RootView: View {
     @Bindable var store: EstimatorStore
+    @Binding var themeRaw: String
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var theme: ThemePreference {
+        ThemePreference(rawValue: themeRaw) ?? .system
+    }
+
+    private var isEffectivelyDark: Bool {
+        theme == .dark || (theme == .system && colorScheme == .dark)
+    }
 
     var body: some View {
         NavigationStack {
@@ -22,6 +32,18 @@ struct RootView: View {
             }
             .background(Color(uiColor: .systemGroupedBackground))
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        var next = theme
+                        next.toggle(against: colorScheme == .dark)
+                        themeRaw = next.rawValue
+                    } label: {
+                        Image(systemName: isEffectivelyDark ? "sun.max" : "moon")
+                    }
+                    .accessibilityLabel(isEffectivelyDark ? "Switch to light mode" : "Switch to dark mode")
+                }
+            }
         }
         .task { await store.appear() }
     }
@@ -164,5 +186,5 @@ private struct CorridorRow: View {
 }
 
 #Preview {
-    RootView(store: EstimatorStore(client: TollAPIClient()))
+    RootView(store: EstimatorStore(client: TollAPIClient()), themeRaw: .constant(ThemePreference.system.rawValue))
 }

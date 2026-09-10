@@ -12,6 +12,7 @@
 		2129BDA60C3ADB7F43821653 /* Schedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F04EE4B08BF8F29EF757F10 /* Schedule.swift */; };
 		3BB2E814B91C2145B7D377CE /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94EC8EE259D9BDD405AE49F0 /* Formatters.swift */; };
 		3C41F8247EBA66F2D0BEFB52 /* DecimalJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C20651B4D2497594353BC1 /* DecimalJSON.swift */; };
+		4942220B9734ECBF6ADC96EF /* ThemePreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1781FCDCB5976346662A1489 /* ThemePreference.swift */; };
 		5160816964E9A356F0EFA811 /* estimate-23-15.json in Resources */ = {isa = PBXBuildFile; fileRef = 2FE1501CB15D4AB295A47B03 /* estimate-23-15.json */; };
 		569B02DD9247B3F601C6BED7 /* APITypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D75E10E324DAC0552717B31 /* APITypes.swift */; };
 		58DC1E005480D051CF6597AD /* EstimateDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18633287085569E2E3FF9B68 /* EstimateDecodingTests.swift */; };
@@ -41,6 +42,7 @@
 /* Begin PBXFileReference section */
 		0536EE3E4EF18E868B3ACC67 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		120477A997C5664BAD255F3E /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		1781FCDCB5976346662A1489 /* ThemePreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemePreference.swift; sourceTree = "<group>"; };
 		18633287085569E2E3FF9B68 /* EstimateDecodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EstimateDecodingTests.swift; sourceTree = "<group>"; };
 		19BDCB624E448EFE31522C71 /* CatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogTests.swift; sourceTree = "<group>"; };
 		2FE1501CB15D4AB295A47B03 /* estimate-23-15.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "estimate-23-15.json"; sourceTree = "<group>"; };
@@ -96,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				761BE0492FA5A3D700240423 /* EstimatorStore.swift */,
+				1781FCDCB5976346662A1489 /* ThemePreference.swift */,
 			);
 			path = Store;
 			sourceTree = "<group>";
@@ -270,6 +273,7 @@
 				9F1BF0F9826871D4F7809399 /* RootView.swift in Sources */,
 				D54AECBD606D309ED50D63A6 /* RulesSection.swift in Sources */,
 				2129BDA60C3ADB7F43821653 /* Schedule.swift in Sources */,
+				4942220B9734ECBF6ADC96EF /* ThemePreference.swift in Sources */,
 				7C3F7E65940E8A356EAB9F45 /* TollAPIClient.swift in Sources */,
 				BD48FCCA1F790EB943C4EEBD /* TripFormView.swift in Sources */,
 				BC3565A3A9E89A61CE5BBCEF /* VAExpressTollsApp.swift in Sources */,

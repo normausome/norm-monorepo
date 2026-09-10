@@ -51,6 +51,14 @@ struct TripFormView: View {
                 .pickerStyle(.menu)
             }
 
+            if let schedule = store.reversibleSchedule {
+                ReversibleScheduleHint(
+                    schedule: schedule,
+                    selected: store.direction,
+                    overridden: store.directionOverridden
+                )
+            }
+
             if let notice = store.notice {
                 Label(notice, systemImage: "info.circle")
                     .font(.subheadline)
@@ -266,5 +274,32 @@ struct OfficialCalculatorLink: View {
         }
         .buttonStyle(.bordered)
         .controlSize(prominent ? .large : .regular)
+    }
+}
+
+private struct ReversibleScheduleHint: View {
+    let schedule: ReversibleStatus
+    let selected: Direction
+    let overridden: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(hintBody)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Link("Schedule", destination: ReversibleSchedule.learnURL)
+                .font(.caption.weight(.semibold))
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private var hintBody: String {
+        switch schedule {
+        case .open(let direction, let until):
+            let lead = (!overridden && selected == direction.asDirection) ? "Pre-selected" : "Schedule says"
+            return "\(lead) \(direction.word): the published schedule has the lanes running \(direction.word) until \(until) Eastern. Approximate — holidays, events and incidents differ, and the signs win. Change it if you know better."
+        case .closed(let next, let opensAt):
+            return "Probably closed for reversal right now; \(next.word) usually opens \(opensAt) Eastern. Wait for the operator’s live status below. Approximate — holidays, events and incidents differ, and the signs win. Change it if you know better."
+        }
     }
 }

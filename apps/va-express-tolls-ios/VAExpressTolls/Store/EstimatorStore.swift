@@ -25,6 +25,11 @@ final class EstimatorStore {
 
     var quote: QuoteState = .idle
 
+    /// Published reversible schedule for 395/95, snapped when the corridor is selected.
+    var reversibleSchedule: ReversibleStatus?
+    /// True after the user picks a direction that differs from the schedule default.
+    var directionOverridden = false
+
     @ObservationIgnored private var pointsTask: Task<Void, Never>?
     @ObservationIgnored private var estimateTask: Task<Void, Never>?
     @ObservationIgnored private var pointsGeneration = 0
@@ -34,8 +39,14 @@ final class EstimatorStore {
         self.catalog = catalog
         let start = catalog.defaultCorridor
         selectedId = start
-        direction = catalog[start].bundledDirections[0].id
         pastDate = InsideBeltwaySchedule.easternCalendar.date(byAdding: .day, value: -1, to: Date()) ?? Date()
+        let schedule = Self.schedule(for: start)
+        reversibleSchedule = schedule
+        direction = Self.defaultDirection(
+            options: catalog[start].bundledDirections,
+            schedule: schedule
+        )
+        directionOverridden = false
     }
 
     var selectedCorridor: Corridor { catalog[selectedId] }
@@ -85,13 +96,18 @@ final class EstimatorStore {
         estimateTask?.cancel()
         selectedId = id
         resetDraft(keepingCorridor: true)
-        direction = directions[0].id
+        applyScheduledDirection()
         await loadPoints()
     }
 
     func selectDirection(_ next: Direction) async {
         guard next != direction else { return }
         estimateTask?.cancel()
+        if let scheduled = reversibleSchedule?.preferredDirection.asDirection {
+            directionOverridden = next != scheduled
+        } else {
+            directionOverridden = true
+        }
         direction = next
         entryId = ""
         exitId = ""
@@ -167,6 +183,29 @@ final class EstimatorStore {
         when = .now
         pastTimeSlot = ""
         quote = .idle
+        directionOverridden = false
+    }
+
+    private func applyScheduledDirection() {
+        let schedule = Self.schedule(for: selectedId)
+        reversibleSchedule = schedule
+        direction = Self.defaultDirection(options: directions, schedule: schedule)
+        directionOverridden = false
+    }
+
+    private static func schedule(for id: CorridorId) -> ReversibleStatus? {
+        ReversibleSchedule.isReversible(id) ? ReversibleSchedule.status() : nil
+    }
+
+    private static func defaultDirection(
+        options: [DirectionOption],
+        schedule: ReversibleStatus?
+    ) -> Direction {
+        let preferred = schedule?.preferredDirection.asDirection
+        if let preferred, options.contains(where: { $0.id == preferred }) {
+            return preferred
+        }
+        return options[0].id
     }
 
     private func refreshSupport() async {
@@ -174,8 +213,10 @@ final class EstimatorStore {
             let list = try await client.corridors()
             supportById = Dictionary(uniqueKeysWithValues: list.map { ($0.id, $0) })
             supportError = nil
-            if !directions.contains(where: { $0.id == direction }) {
-                direction = directions[0].id
+            if !directionOverridden {
+                applyScheduledDirection()
+            } else if !directions.contains(where: { $0.id == direction }) {
+                applyScheduledDirection()
             }
         } catch {
             supportError = (error as? TollAPIError)?.message ?? error.localizedDescription

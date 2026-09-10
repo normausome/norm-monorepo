@@ -45,6 +45,31 @@ final class ScheduleTests: XCTestCase {
         XCTAssertFalse(slots.contains(where: { $0.value == "09:30" }))
     }
 
+    func testWeekdayMorningReversibleIsNorthbound() {
+        let status = ReversibleSchedule.status(at: eastern(2026, 9, 9, 8, 0))
+        XCTAssertEqual(status, .open(direction: .nb, until: "about 10 AM"))
+    }
+
+    func testWeekdayAfternoonReversibleIsSouthbound() {
+        let status = ReversibleSchedule.status(at: eastern(2026, 9, 9, 16, 0))
+        XCTAssertEqual(status, .open(direction: .sb, until: "about 1 AM"))
+    }
+
+    func testWeekdayMiddayReversibleIsClosed() {
+        let status = ReversibleSchedule.status(at: eastern(2026, 9, 9, 11, 0))
+        XCTAssertEqual(status, .closed(next: .sb, opensAt: "about noon"))
+    }
+
+    func testSundayReversibleIsNorthbound() {
+        let status = ReversibleSchedule.status(at: eastern(2026, 9, 13, 15, 0))
+        XCTAssertEqual(status, .open(direction: .nb, until: "about 10 AM Monday"))
+    }
+
+    func testSaturdayAfternoonReversibleIsClosed() {
+        let status = ReversibleSchedule.status(at: eastern(2026, 9, 12, 15, 0))
+        XCTAssertEqual(status, .closed(next: .nb, opensAt: "about 4 PM"))
+    }
+
     private func eastern(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int) -> Date {
         var components = DateComponents()
         components.year = year
