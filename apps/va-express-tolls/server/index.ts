@@ -1,11 +1,12 @@
 import { existsSync } from "node:fs"
 import path from "node:path"
 import { CORRIDORS, isCorridorId } from "../src/data/corridors"
-import type { Direction } from "../src/lib/api-types"
+import type { ApiError, CacheInfo, Direction, EstimateResponse } from "../src/lib/api-types"
 import { expresslanes, expresslanes395, expresslanes95 } from "./adapters/expresslanes"
 import { ride66 } from "./adapters/ride66"
 import { BadRequest, type CorridorAdapter } from "./adapters/types"
 import { vai66 } from "./adapters/vai66"
+import { MINUTE, type Outcome, SECOND, cachedOutcome } from "./cache"
 import { UpstreamError } from "./http"
 
 const adapters: Record<string, CorridorAdapter> = {
@@ -20,11 +21,32 @@ const PORT = Number(process.env.PORT ?? 8787)
 const DIST = path.resolve(import.meta.dir, "../dist")
 const serveStatic = existsSync(DIST)
 
-const json = (body: unknown, status = 200) =>
+const json = (body: unknown, status = 200, headers: Record<string, string> = {}) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...headers },
   })
+
+function errorResponse(err: unknown, extra: Partial<CacheInfo> = {}, headers?: Record<string, string>): Response {
+  const body = (message: string, status: number) => json({ error: message, ...extra } satisfies ApiError, status, headers)
+  if (err instanceof BadRequest) return body(err.message, err.status)
+  if (err instanceof UpstreamError) return body(err.message, err.status)
+  console.error(err)
+  return body("Unexpected server error", 500)
+}
+
+/**
+ * Prices are dynamic, so a priced estimate is reused for 3 minutes. A trip with
+ * no price (closed / reversing lanes) or an operator failure is kept only briefly
+ * so a recovery shows up quickly, while a burst of retries still doesn't fan out.
+ * Bad requests are deterministic and cost no upstream call, so they aren't kept.
+ */
+const ESTIMATE_TTL = 3 * MINUTE
+const NEGATIVE_TTL = 30 * SECOND
+function estimateTtl(outcome: Outcome<EstimateResponse>): number {
+  if (outcome.ok) return outcome.value.total === null ? NEGATIVE_TTL : ESTIMATE_TTL
+  return outcome.error instanceof BadRequest ? 0 : NEGATIVE_TTL
+}
 
 /**
  * Zone-less `YYYY-MM-DDTHH:mm` from the UI means Eastern wall-clock time (the
@@ -97,7 +119,17 @@ async function handleApi(url: URL): Promise<Response> {
       at = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(atRaw) ? easternWallClockToDate(atRaw) : new Date(atRaw)
       if (Number.isNaN(at.getTime())) throw new BadRequest("at must be an ISO date-time")
     }
-    return json(await adapter.estimate({ direction, entry, exit, at }))
+    // `at` is normalized to UTC so the same wall-clock minute written two ways shares an entry.
+    const key = `estimate:${JSON.stringify([adapter.support.id, direction, entry, exit, at?.toISOString() ?? "now"])}`
+    const { outcome, hit, cachedAt, expiresAt } = await cachedOutcome(
+      key,
+      () => adapter.estimate({ direction, entry, exit, at }),
+      estimateTtl,
+    )
+    const cache: CacheInfo = { cache: hit ? "hit" : "miss", cachedAt, expiresAt }
+    const headers = { "x-cache": hit ? "HIT" : "MISS" }
+    if (!outcome.ok) return errorResponse(outcome.error, cache, headers)
+    return json({ ...outcome.value, ...cache }, 200, headers)
   }
 
   throw new BadRequest("Not found")
@@ -119,10 +151,7 @@ Bun.serve({
       try {
         return await handleApi(url)
       } catch (err) {
-        if (err instanceof BadRequest) return json({ error: err.message }, err.status)
-        if (err instanceof UpstreamError) return json({ error: err.message }, err.status)
-        console.error(err)
-        return json({ error: "Unexpected server error" }, 500)
+        return errorResponse(err)
       }
     }
     if (serveStatic && req.method === "GET") return serveFile(url.pathname)

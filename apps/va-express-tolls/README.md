@@ -57,6 +57,17 @@ GET /api/:corridor/estimate?direction=&entry=&exit=[&at=<ISO, past only, 66 Insi
 
 Every estimate carries `source.operator`, `source.fetchedAt`, per-leg prices, and `notes`. When an operator can't be reached or returns something unexpected, the API returns an `error` — it never fabricates a number.
 
+### Estimate caching
+
+Identical estimate requests don't re-run the operator automation. The server keeps an in-process response cache (`server/cache.ts`, single-flight so concurrent identical requests share one upstream call):
+
+- **Key**: corridor + direction + entry + exit + `at` (normalized to UTC; absent means "now").
+- **TTL**: **3 minutes** for a priced estimate (prices are dynamic). A `total: null` answer (closed or reversing lanes, missing feed rows) and operator failures (`502`) are kept **30 s** — long enough to absorb a burst of retries, short enough that a recovery shows quickly. `400` bad requests are never cached.
+- **Labels**: every estimate response (and any cached error) includes `cache: "hit" | "miss"`, `cachedAt` and `expiresAt` (ISO 8601), plus an `X-Cache: HIT|MISS` header. `expiresAt` is when the server will ask the operator again; the UI shows it as "refreshes HH:MM". `source.fetchedAt` remains the operator fetch time and the "unofficial estimate — the overhead sign is the price you pay" wording is unchanged.
+- Beneath that, the adapters still cache their *upstream* payloads (mappings 24h, the Transurban price feed 60 s shared by every 495/395/95 trip, historical I-66 Inside prices 24h), so different trips on one corridor also share operator calls.
+
+Memory only: a single-node MVP has no Redis/KV in the stack, and a restart just means the first request per trip goes upstream again. The [iOS app](../va-express-tolls-ios/) calls the same `/api/:corridor/estimate` endpoint and therefore gets the same cached answers; the new fields are additive, so its decoder needs no change.
+
 Points carry `lat`/`lng` so the UI can draw them: a map under the selects shows the direction's entries, then the exits reachable from your entry, and highlights the chosen pair (tapping a dot selects it). Coordinates come from each operator's own map — vai66tolls and expresslanes ship them with their interchange data; for 66 Outside they were captured once from the planner's markers (a few select-only ramps are placed at the same interchange and commented as approximate). Basemap: OpenStreetMap tiles, fine for a demo; a real deployment must follow the [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/) or bring its own tiles.
 
 ## How each price is obtained
@@ -69,7 +80,7 @@ Points carry `lat`/`lng` so the UI can draw them: a map under the selects shows 
 ## Fragility and risk
 
 - **Undocumented endpoints.** All three adapters use the internal endpoints the operators' own pages call. A site redesign breaks them silently; the adapters then fail closed and the UI shows the official link. 66 Outside is the most fragile (obfuscated bundle, vendored exit table, constant-named field, reproduced formula).
-- **Rate limits are unknown.** Responses are cached (mappings 24h, current prices 60s, historical I-66 prices 24h) with single-flight, so bursts of clicks don't fan out to the operators. The 66 Outside response is ~350 KB per trip.
+- **Rate limits are unknown.** Estimates are cached for 3 minutes per trip (see above) on top of the adapters' upstream caches (mappings 24h, price feeds 60s, historical I-66 prices 24h), all with single-flight, so bursts of clicks don't fan out to the operators. The 66 Outside response is ~350 KB per trip.
 - **Terms of use.** `robots.txt` on all three sites allows these paths, but none publishes an API or terms for automated access, and ride66express.com obfuscates its planner. This is a demo; a public deployment should get the operators' OK.
 - **Latency.** `vai66tolls.com` handlers can take several seconds; upstream calls time out at 15s.
 

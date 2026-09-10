@@ -55,6 +55,18 @@ export interface EstimateResponse {
   notes: string[]
 }
 
-export interface ApiError {
+/**
+ * Server-side response cache labels on `/estimate`. Identical requests within the
+ * TTL share one answer; `expiresAt` is when the server will ask the operator again.
+ */
+export interface CacheInfo {
+  cache: "hit" | "miss"
+  cachedAt: string
+  expiresAt: string
+}
+
+export type CachedEstimateResponse = EstimateResponse & CacheInfo
+
+export interface ApiError extends Partial<CacheInfo> {
   error: string
 }

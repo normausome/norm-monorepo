@@ -32,7 +32,7 @@ GET /api/:corridor/estimate?direction=&entry=&exit=[&at=ISO]
         source: { operator, url, fetchedAt }, notes: string[] }
 ```
 
-Errors are `{ error: string }` with 4xx/5xx. Everything is cached in memory (points 24h, 495 feed 60s, vai66 current 60s per O/D, historical 24h) with single-flight, so bursts of UI clicks don't fan out to the operators. Upstream calls have a 15s timeout and a browser-like User-Agent.
+Errors are `{ error: string }` with 4xx/5xx. Everything is cached in memory with single-flight, so bursts of UI clicks don't fan out to the operators: the estimate route caches each trip (corridor + direction + entry + exit + `at`) for 3 minutes when priced, 30 s when unpriced or failed, never for bad requests, and labels responses with `cache: "hit" | "miss"`, `cachedAt`, `expiresAt`; beneath it the adapters cache upstream payloads (points 24h, 495 feed 60s, vai66 historical 24h). Upstream calls have a 15s timeout and a browser-like User-Agent.
 
 In dev, Vite proxies `/api` to the Bun server (`bun run dev` starts both). In production the same Bun server also serves `dist/`.
 
