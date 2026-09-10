@@ -70,3 +70,66 @@ export type CachedEstimateResponse = EstimateResponse & CacheInfo
 export interface ApiError extends Partial<CacheInfo> {
   error: string
 }
+
+/** A geocoded place (Advanced mode "from" / "to"). */
+export interface Place {
+  label: string
+  lat: number
+  lng: number
+}
+
+export interface GeocodeResponse {
+  query: string
+  results: Place[]
+  provider: string
+}
+
+/**
+ * One Express Lanes trip the driven route implies: the operator's entry and exit
+ * points that lie along the route, priced through the corridor's adapter.
+ */
+export interface RouteLeg {
+  corridor: CorridorId
+  corridorName: string
+  direction: Direction
+  entry: TripPoint
+  exit: TripPoint
+  /**
+   * "on-route": both points sit on the route itself. "near-ends": at least one was
+   * matched at the start or end of the interstate stretch, where ramps diverge from
+   * the route by up to ~1 km — the interchange is right, the exact gantry may not be.
+   */
+  match: "on-route" | "near-ends"
+  /** Null when the operator could not be priced; see `error`. */
+  estimate: CachedEstimateResponse | null
+  error: string | null
+  /** Live operator status for this direction (reversible 95/395), when published. */
+  notice?: string
+  calculatorUrl: string
+}
+
+/** An interstate with Express Lanes that the route drives on, but with no matchable entry/exit pair. */
+export interface UnmatchedCorridor {
+  corridor: CorridorId
+  corridorName: string
+  calculatorUrl: string
+  reason: string
+}
+
+export interface RouteTollsResponse {
+  from: Place
+  to: Place
+  route: {
+    provider: string
+    distanceMeters: number
+    durationSeconds: number
+    /** [lat, lng] pairs, full route. */
+    geometry: [number, number][]
+  }
+  legs: RouteLeg[]
+  unmatched: UnmatchedCorridor[]
+  /** Sum of every leg's total when all legs are priced; null if any leg has no price. */
+  total: number | null
+  currency: "USD"
+  notes: string[]
+}
