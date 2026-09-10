@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { AdvancedEstimator, type LegAdjustment } from "@/components/AdvancedEstimator"
 import { ThemeToggle } from "@/components/ThemeToggle"
-import { TripEstimator } from "@/components/TripEstimator"
+import { TripEstimator, type TripPreset } from "@/components/TripEstimator"
 import {
   CORRIDORS,
   DEFAULT_CORRIDOR,
@@ -15,19 +16,35 @@ import { insideBeltwayStatus } from "@/lib/schedule"
 import { cn } from "@/lib/utils"
 import { CircleAlert, Clock, MapPinned } from "lucide-react"
 
-function corridorFromHash(): CorridorId {
+type Mode = "simple" | "advanced"
+const ADVANCED_HASH = "advanced"
+
+/** `#advanced` selects Advanced mode; a corridor id selects that corridor in Simple mode. */
+function fromHash(): { mode: Mode; corridor: CorridorId } {
   const hash = window.location.hash.replace(/^#/, "")
-  return isCorridorId(hash) ? hash : DEFAULT_CORRIDOR
+  if (hash === ADVANCED_HASH) return { mode: "advanced", corridor: DEFAULT_CORRIDOR }
+  return { mode: "simple", corridor: isCorridorId(hash) ? hash : DEFAULT_CORRIDOR }
 }
 
+const MODES: { id: Mode; label: string; hint: string }[] = [
+  { id: "simple", label: "Simple", hint: "Pick a corridor, then your entry and exit" },
+  { id: "advanced", label: "Advanced", hint: "Address to address — every corridor on the way" },
+]
+
 export function App() {
-  const [selectedId, setSelectedId] = useState<CorridorId>(corridorFromHash)
+  const [mode, setMode] = useState<Mode>(() => fromHash().mode)
+  const [selectedId, setSelectedId] = useState<CorridorId>(() => fromHash().corridor)
+  const [preset, setPreset] = useState<{ corridor: CorridorId; trip: TripPreset } | null>(null)
   const [support, setSupport] = useState<CorridorSupportInfo[] | null>(null)
   const [supportError, setSupportError] = useState<string | null>(null)
   const corridor = CORRIDORS.find((c) => c.id === selectedId) ?? CORRIDORS[0]
 
   useEffect(() => {
-    const onHashChange = () => setSelectedId(corridorFromHash())
+    const onHashChange = () => {
+      const next = fromHash()
+      setMode(next.mode)
+      if (next.mode === "simple") setSelectedId(next.corridor)
+    }
     window.addEventListener("hashchange", onHashChange)
     return () => window.removeEventListener("hashchange", onHashChange)
   }, [])
@@ -39,8 +56,25 @@ export function App() {
   }, [])
 
   function select(id: CorridorId) {
+    setMode("simple")
     setSelectedId(id)
+    setPreset(null)
     history.replaceState(null, "", `#${id}`)
+  }
+
+  function switchMode(next: Mode) {
+    setMode(next)
+    setPreset(null)
+    history.replaceState(null, "", `#${next === "advanced" ? ADVANCED_HASH : selectedId}`)
+  }
+
+  /** Advanced mode found a trip; open it in Simple mode with the same corridor, direction, entry and exit pre-filled. */
+  function adjustLeg(leg: LegAdjustment) {
+    setPreset({ corridor: leg.corridor, trip: { direction: leg.direction, entry: leg.entry, exit: leg.exit } })
+    setMode("simple")
+    setSelectedId(leg.corridor)
+    history.replaceState(null, "", `#${leg.corridor}`)
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   return (
@@ -64,7 +98,31 @@ export function App() {
         </p>
       </header>
 
-      <section aria-label="Choose a corridor" className="mb-6">
+      <section aria-label="Choose a mode" className="mb-6">
+        <div role="tablist" aria-label="Mode" className="inline-flex w-full rounded-lg border bg-card p-1 sm:w-auto">
+          {MODES.map((m) => {
+            const active = m.id === mode
+            return (
+              <button
+                key={m.id}
+                role="tab"
+                type="button"
+                aria-selected={active}
+                onClick={() => switchMode(m.id)}
+                className={cn(
+                  "flex-1 rounded-md px-4 py-2 text-left transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:flex-none sm:min-w-56",
+                  active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                )}
+              >
+                <span className="block text-sm font-semibold">{m.label}</span>
+                <span className={cn("block text-xs leading-snug", active ? "text-primary-foreground/80" : "text-muted-foreground")}>{m.hint}</span>
+              </button>
+            )
+          })}
+        </div>
+      </section>
+
+      <section aria-label="Choose a corridor" className={cn("mb-6", mode === "advanced" && "hidden")}>
         <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           1. Choose corridor
         </p>
@@ -132,16 +190,19 @@ export function App() {
               </CardDescription>
             </CardHeader>
           </Card>
+        ) : mode === "advanced" ? (
+          <AdvancedEstimator onAdjustLeg={adjustLeg} />
         ) : (
           <TripEstimator
-            key={corridor.id}
+            key={`${corridor.id}:${preset?.corridor === corridor.id ? `${preset.trip.direction}/${preset.trip.entry}/${preset.trip.exit}` : ""}`}
             corridor={corridor}
             support={support?.find((x) => x.id === corridor.id)}
             onSwitchCorridor={select}
+            preset={preset?.corridor === corridor.id ? preset.trip : undefined}
           />
         )}
 
-        <Card>
+        <Card className={cn(mode === "advanced" && "hidden")}>
           <CardHeader>
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               3. Know the rules

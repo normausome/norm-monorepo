@@ -42,13 +42,21 @@ function defaultDirection(support: CorridorSupportInfo, schedule: ReversibleStat
 
 const word = (d: "nb" | "sb") => (d === "nb" ? "northbound" : "southbound")
 
+/** A trip handed over from Advanced mode, pre-filled so it can be adjusted by hand. */
+export interface TripPreset {
+  direction: Direction
+  entry: string
+  exit: string
+}
+
 interface Props {
   corridor: Corridor
   support: CorridorSupportInfo | undefined
   onSwitchCorridor: (id: CorridorId) => void
+  preset?: TripPreset
 }
 
-export function TripEstimator({ corridor, support, onSwitchCorridor }: Props) {
+export function TripEstimator({ corridor, support, onSwitchCorridor, preset }: Props) {
   if (!support) return <EstimatorShell corridor={corridor} description="Checking which calculators are automated…" />
 
   if (!support.supported) {
@@ -60,7 +68,7 @@ export function TripEstimator({ corridor, support, onSwitchCorridor }: Props) {
     )
   }
 
-  return <EstimatorForm corridor={corridor} support={support} onSwitchCorridor={onSwitchCorridor} />
+  return <EstimatorForm corridor={corridor} support={support} onSwitchCorridor={onSwitchCorridor} preset={preset} />
 }
 
 function EstimatorShell({
@@ -95,14 +103,15 @@ function OfficialLink({ corridor, primary = false }: { corridor: Corridor; prima
   )
 }
 
-function EstimatorForm({ corridor, support, onSwitchCorridor }: Props & { support: CorridorSupportInfo }) {
+function EstimatorForm({ corridor, support, onSwitchCorridor, preset }: Props & { support: CorridorSupportInfo }) {
   const [schedule] = useState(() => (isReversible(corridor.id) ? reversibleStatus() : null))
-  const [direction, setDirection] = useState<Direction>(() => defaultDirection(support, schedule))
+  const presetDirection = support.directions.find((d) => d.id === preset?.direction)?.id
+  const [direction, setDirection] = useState<Direction>(() => presetDirection ?? defaultDirection(support, schedule))
   const [entries, setEntries] = useState<TripEntry[] | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [pointsError, setPointsError] = useState<string | null>(null)
-  const [entryId, setEntryId] = useState("")
-  const [exitId, setExitId] = useState("")
+  const [entryId, setEntryId] = useState(presetDirection ? (preset?.entry ?? "") : "")
+  const [exitId, setExitId] = useState(presetDirection ? (preset?.exit ?? "") : "")
   const [when, setWhen] = useState<"now" | "past">("now")
   const [pastDate, setPastDate] = useState("")
   const [pastTime, setPastTime] = useState("")
