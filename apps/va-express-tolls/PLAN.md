@@ -52,6 +52,7 @@ Goal: the API on Railway, public `*.up.railway.app` URL first, `api.dmvtolls.com
 3. Result card: the dollar figure, big; per-leg breakdown when more than one road is involved; "No toll" state for off-peak I-66 Inside; source + fetched-at; the unofficial-estimate disclaimer; secondary link to the official calculator.
 4. Two-toll hint: when an I-66 trip starts/ends at an I-495 ramp (or a 495 trip at I-66), prompt to price the other leg too (one tap switches corridor).
 5. Map (Leaflet + OSM tiles) under the selects: the direction's entries, the exits reachable from the chosen entry, the selected pair highlighted; dots are clickable. Coordinates come from the operators' own map data (`lat`/`lng` on every point).
+6. Smart default direction for the reversible 395 and 95: `reversibleStatus()` in `src/lib/schedule.ts` reads day-of-week + Eastern time against Transurban's approximate schedule (learn-the-lanes) and the form pre-selects that direction. It is only an initial value: the user can change it, and the operator's live `direction_95` notice (already fetched with the entry points) stays the source of truth for whether a direction is actually open. In a scheduled reversal window the hint says "probably closed" and pre-selects the direction that opens next rather than pretending either is open. The hint is labelled approximate (holidays, events, incidents) and links the schedule. No server or API change.
 
 ## Reused from the monorepo
 
