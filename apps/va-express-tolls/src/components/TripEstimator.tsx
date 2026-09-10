@@ -6,6 +6,7 @@ import { TripMap } from "@/components/TripMap"
 import type { Corridor, CorridorId } from "@/data/corridors"
 import type { CachedEstimateResponse, Direction, TripEntry } from "@/lib/api-types"
 import { type CorridorSupportInfo, fetchEstimate, fetchPoints, formatTime, formatUsd } from "@/lib/api"
+import { type ReversibleStatus, reversibleStatus } from "@/lib/schedule"
 import { cn } from "@/lib/utils"
 import { ArrowRight, ExternalLink, Info, LoaderCircle, TriangleAlert } from "lucide-react"
 
@@ -26,6 +27,20 @@ function peakSlots(direction: Direction): { value: string; label: string }[] {
 
 const selectClass =
   "h-10 w-full rounded-md border bg-background px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-50"
+
+const SCHEDULE_URL = "https://www.expresslanes.com/learn-the-lanes/"
+
+/** 395 and 95 are reversible: pre-select the direction the published schedule says is open right now. */
+function isReversible(id: CorridorId) {
+  return id === "395" || id === "95"
+}
+
+function defaultDirection(support: CorridorSupportInfo, schedule: ReversibleStatus | null): Direction {
+  const scheduled = schedule ? (schedule.open ?? schedule.next) : null
+  return support.directions.find((d) => d.id === scheduled)?.id ?? support.directions[0].id
+}
+
+const word = (d: "nb" | "sb") => (d === "nb" ? "northbound" : "southbound")
 
 interface Props {
   corridor: Corridor
@@ -81,7 +96,8 @@ function OfficialLink({ corridor, primary = false }: { corridor: Corridor; prima
 }
 
 function EstimatorForm({ corridor, support, onSwitchCorridor }: Props & { support: CorridorSupportInfo }) {
-  const [direction, setDirection] = useState<Direction>(support.directions[0].id)
+  const [schedule] = useState(() => (isReversible(corridor.id) ? reversibleStatus() : null))
+  const [direction, setDirection] = useState<Direction>(() => defaultDirection(support, schedule))
   const [entries, setEntries] = useState<TripEntry[] | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [pointsError, setPointsError] = useState<string | null>(null)
@@ -159,6 +175,17 @@ function EstimatorForm({ corridor, support, onSwitchCorridor }: Props & { suppor
               </option>
             ))}
           </select>
+          {schedule && (
+            <span className="block text-xs text-muted-foreground">
+              {schedule.open
+                ? `Pre-selected ${word(schedule.open)}: the published schedule has the lanes running ${word(schedule.open)} until ${schedule.until} Eastern.`
+                : `Probably closed for reversal right now; ${word(schedule.next)} usually opens ${schedule.opensAt} Eastern. Wait for the operator’s live status below.`}{" "}
+              Approximate — holidays, events and incidents differ, and the signs win. Change it if you know better.{" "}
+              <a className="text-primary underline-offset-4 hover:underline" href={SCHEDULE_URL} target="_blank" rel="noreferrer">
+                Schedule
+              </a>
+            </span>
+          )}
         </label>
 
         {notice && (
