@@ -1,8 +1,11 @@
 import Foundation
 
 enum APIConfiguration {
-    /// Simulator shares the Mac loopback, so this reaches `bun run dev` on the host.
-    static let simulatorDefault = URL(string: "http://127.0.0.1:8787")!
+    /// Production Railway deploy behind Cloudflare (same origin as the web UI).
+    static let production = URL(string: "https://dmvtolls.com")!
+
+    /// Local Bun API from `apps/va-express-tolls` (`bun run dev`).
+    static let localDev = URL(string: "http://127.0.0.1:8787")!
 
     static var baseURL: URL {
         if let raw = ProcessInfo.processInfo.environment["TOLL_API_BASE"],
@@ -10,7 +13,9 @@ enum APIConfiguration {
         {
             return url
         }
-        return simulatorDefault
+        // Production by default so Simulator/device work without a local Bun process.
+        // Override: TOLL_API_BASE=http://127.0.0.1:8787
+        return production
     }
 }
 
