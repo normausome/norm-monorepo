@@ -8,6 +8,11 @@ enum EstimateCodec {
         return try JSONDecoder().decode(CachedEstimateResponse.self, from: prepared)
     }
 
+    static func decodeRouteTolls(_ data: Data) throws -> RouteTollsResponse {
+        let prepared = try quoteMoneyLiterals(in: data)
+        return try JSONDecoder().decode(RouteTollsResponse.self, from: prepared)
+    }
+
     /// Turns `"total": 23.15` / `"price": 0` into quoted strings; leaves `null` alone.
     static func quoteMoneyLiterals(in data: Data) throws -> Data {
         guard let text = String(data: data, encoding: .utf8) else {

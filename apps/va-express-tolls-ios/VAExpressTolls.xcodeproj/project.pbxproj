@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		055FE971005EC02C5E2EE4E1 /* route-tolls-tysons-pentagon.json in Resources */ = {isa = PBXBuildFile; fileRef = 4D7BF80CDA95A6997F68D2CD /* route-tolls-tysons-pentagon.json */; };
 		0A7450FF25331D46BD188FFD /* EstimatorStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761BE0492FA5A3D700240423 /* EstimatorStore.swift */; };
+		0C97537270710AF93BA70862 /* AdvancedEstimatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E2242614B3D5B3C5170E9E /* AdvancedEstimatorView.swift */; };
 		0FA5FEDEBD5100CB6CB61F41 /* CorridorCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E956458970E308B8BE375F /* CorridorCatalog.swift */; };
 		2129BDA60C3ADB7F43821653 /* Schedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F04EE4B08BF8F29EF757F10 /* Schedule.swift */; };
 		3BB2E814B91C2145B7D377CE /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94EC8EE259D9BDD405AE49F0 /* Formatters.swift */; };
@@ -18,11 +20,13 @@
 		58DC1E005480D051CF6597AD /* EstimateDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18633287085569E2E3FF9B68 /* EstimateDecodingTests.swift */; };
 		7C3F7E65940E8A356EAB9F45 /* TollAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C6833F5B7B9415B9C9380A /* TollAPIClient.swift */; };
 		7C61CC9960AE5E3117088282 /* CatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BDCB624E448EFE31522C71 /* CatalogTests.swift */; };
+		7F1EDD017D9E0BBDBBCE3CC7 /* AdvancedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EFCD5A7874EDA5D3430EBA3 /* AdvancedStore.swift */; };
 		96B84F2D1EC4C138E1090EDD /* estimate-zero.json in Resources */ = {isa = PBXBuildFile; fileRef = 7F313AD6A82EA278B2479516 /* estimate-zero.json */; };
 		9F1BF0F9826871D4F7809399 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120477A997C5664BAD255F3E /* RootView.swift */; };
 		B1284B38AAB3B0D23C2B686F /* QuoteCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5765D0410286CEC88AEDFCF /* QuoteCardView.swift */; };
 		BC3565A3A9E89A61CE5BBCEF /* VAExpressTollsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631B69F7C76D4CF865AAF345 /* VAExpressTollsApp.swift */; };
 		BD48FCCA1F790EB943C4EEBD /* TripFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F353EB421CF947AF6FC884D2 /* TripFormView.swift */; };
+		C4A46B83576FF8EF5AD318C9 /* geocode-tysons.json in Resources */ = {isa = PBXBuildFile; fileRef = A34AD79F059328111ADD1DD0 /* geocode-tysons.json */; };
 		CE9403531041F637AB632923 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0536EE3E4EF18E868B3ACC67 /* Assets.xcassets */; };
 		D54AECBD606D309ED50D63A6 /* RulesSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77262FC3E7FA73FE979C3064 /* RulesSection.swift */; };
 		DC7E449E84908AE0E28CB572 /* ScheduleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6ADC8523640B667EDF0FFAC /* ScheduleTests.swift */; };
@@ -49,6 +53,8 @@
 		39C6833F5B7B9415B9C9380A /* TollAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TollAPIClient.swift; sourceTree = "<group>"; };
 		3F04EE4B08BF8F29EF757F10 /* Schedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Schedule.swift; sourceTree = "<group>"; };
 		41E956458970E308B8BE375F /* CorridorCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorridorCatalog.swift; sourceTree = "<group>"; };
+		4D7BF80CDA95A6997F68D2CD /* route-tolls-tysons-pentagon.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "route-tolls-tysons-pentagon.json"; sourceTree = "<group>"; };
+		4EFCD5A7874EDA5D3430EBA3 /* AdvancedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedStore.swift; sourceTree = "<group>"; };
 		4F04A0C4E52246219160E85C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		631B69F7C76D4CF865AAF345 /* VAExpressTollsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VAExpressTollsApp.swift; sourceTree = "<group>"; };
 		6D75E10E324DAC0552717B31 /* APITypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APITypes.swift; sourceTree = "<group>"; };
@@ -56,7 +62,9 @@
 		77262FC3E7FA73FE979C3064 /* RulesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RulesSection.swift; sourceTree = "<group>"; };
 		7F313AD6A82EA278B2479516 /* estimate-zero.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "estimate-zero.json"; sourceTree = "<group>"; };
 		94EC8EE259D9BDD405AE49F0 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
+		A34AD79F059328111ADD1DD0 /* geocode-tysons.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "geocode-tysons.json"; sourceTree = "<group>"; };
 		C7C20651B4D2497594353BC1 /* DecimalJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecimalJSON.swift; sourceTree = "<group>"; };
+		D2E2242614B3D5B3C5170E9E /* AdvancedEstimatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedEstimatorView.swift; sourceTree = "<group>"; };
 		D6ADC8523640B667EDF0FFAC /* ScheduleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleTests.swift; sourceTree = "<group>"; };
 		D8ADD97597CCE3DA80FBA953 /* VAExpressTollsTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VAExpressTollsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE0EB364B042C4BA0F7EB8C8 /* VAExpressTolls.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VAExpressTolls.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -97,6 +105,7 @@
 		356D06D32CC23211E9D79324 /* Store */ = {
 			isa = PBXGroup;
 			children = (
+				4EFCD5A7874EDA5D3430EBA3 /* AdvancedStore.swift */,
 				761BE0492FA5A3D700240423 /* EstimatorStore.swift */,
 				1781FCDCB5976346662A1489 /* ThemePreference.swift */,
 			);
@@ -109,6 +118,8 @@
 				2FE1501CB15D4AB295A47B03 /* estimate-23-15.json */,
 				F980C1A89FC84C0736C00E86 /* estimate-null-total.json */,
 				7F313AD6A82EA278B2479516 /* estimate-zero.json */,
+				A34AD79F059328111ADD1DD0 /* geocode-tysons.json */,
+				4D7BF80CDA95A6997F68D2CD /* route-tolls-tysons-pentagon.json */,
 			);
 			path = Fixtures;
 			sourceTree = "<group>";
@@ -134,6 +145,7 @@
 		B8DE29413DB9E01B8F8BB1C4 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				D2E2242614B3D5B3C5170E9E /* AdvancedEstimatorView.swift */,
 				94EC8EE259D9BDD405AE49F0 /* Formatters.swift */,
 				E5765D0410286CEC88AEDFCF /* QuoteCardView.swift */,
 				120477A997C5664BAD255F3E /* RootView.swift */,
@@ -254,6 +266,8 @@
 				5160816964E9A356F0EFA811 /* estimate-23-15.json in Resources */,
 				E1332359D5C28A85B1D8ACD0 /* estimate-null-total.json in Resources */,
 				96B84F2D1EC4C138E1090EDD /* estimate-zero.json in Resources */,
+				C4A46B83576FF8EF5AD318C9 /* geocode-tysons.json in Resources */,
+				055FE971005EC02C5E2EE4E1 /* route-tolls-tysons-pentagon.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -265,6 +279,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				569B02DD9247B3F601C6BED7 /* APITypes.swift in Sources */,
+				0C97537270710AF93BA70862 /* AdvancedEstimatorView.swift in Sources */,
+				7F1EDD017D9E0BBDBBCE3CC7 /* AdvancedStore.swift in Sources */,
 				0FA5FEDEBD5100CB6CB61F41 /* CorridorCatalog.swift in Sources */,
 				3C41F8247EBA66F2D0BEFB52 /* DecimalJSON.swift in Sources */,
 				0A7450FF25331D46BD188FFD /* EstimatorStore.swift in Sources */,

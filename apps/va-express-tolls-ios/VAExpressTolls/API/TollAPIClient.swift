@@ -76,6 +76,24 @@ struct TollAPIClient: Sendable {
         return try EstimateCodec.decode(data)
     }
 
+    func geocode(_ query: String) async throws -> GeocodeResponse {
+        let data = try await get(path: "/api/geocode", query: ["q": query])
+        return try JSONDecoder().decode(GeocodeResponse.self, from: data)
+    }
+
+    func routeTolls(from: Place, to: Place) async throws -> RouteTollsResponse {
+        let data = try await get(
+            path: "/api/route-tolls",
+            query: [
+                "from": "\(from.lat),\(from.lng)",
+                "to": "\(to.lat),\(to.lng)",
+                "fromLabel": String(from.label.prefix(200)),
+                "toLabel": String(to.label.prefix(200)),
+            ]
+        )
+        return try EstimateCodec.decodeRouteTolls(data)
+    }
+
     private func get(path: String, query: [String: String] = [:]) async throws -> Data {
         let url = try makeURL(path: path, query: query)
         var request = URLRequest(url: url)

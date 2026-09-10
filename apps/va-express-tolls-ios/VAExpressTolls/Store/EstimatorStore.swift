@@ -129,6 +129,23 @@ final class EstimatorStore {
         quote = .idle
     }
 
+    /// Prefill from Advanced mode's "Adjust in Simple mode".
+    func applyPreset(_ preset: TripPreset) async {
+        estimateTask?.cancel()
+        selectedId = preset.corridor
+        resetDraft(keepingCorridor: true)
+        reversibleSchedule = Self.schedule(for: preset.corridor)
+        direction = preset.direction
+        directionOverridden = true
+        await loadPoints()
+        if entries.contains(where: { $0.id == preset.entry }) {
+            entryId = preset.entry
+            if selectedEntry?.exits.contains(where: { $0.id == preset.exit }) == true {
+                exitId = preset.exit
+            }
+        }
+    }
+
     func fetchEstimate() async {
         guard canEstimate else { return }
         let previous: CachedEstimateResponse? = switch quote {

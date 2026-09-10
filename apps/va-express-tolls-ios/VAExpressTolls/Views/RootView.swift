@@ -2,7 +2,9 @@ import SwiftUI
 
 struct RootView: View {
     @Bindable var store: EstimatorStore
+    @Bindable var advanced: AdvancedStore
     @Binding var themeRaw: String
+    @State private var mode: AppMode = .simple
     @Environment(\.colorScheme) private var colorScheme
 
     private var theme: ThemePreference {
@@ -18,12 +20,22 @@ struct RootView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     header
-                    corridorPicker
-                    if let supportError = store.supportError {
-                        offlineBanner(supportError)
+                    modePicker
+                    if mode == .simple {
+                        corridorPicker
+                        if let supportError = store.supportError {
+                            offlineBanner(supportError)
+                        }
+                        TripFormView(store: store)
+                        RulesSection(store: store)
+                    } else {
+                        AdvancedEstimatorView(store: advanced) { preset in
+                            Task {
+                                mode = .simple
+                                await store.applyPreset(preset)
+                            }
+                        }
                     }
-                    TripFormView(store: store)
-                    RulesSection(store: store)
                     sharedNotes
                     footer
                 }
@@ -57,12 +69,26 @@ struct RootView: View {
                 .font(.largeTitle.bold())
                 .fixedSize(horizontal: false, vertical: true)
             Text(
-                "Five corridors, three operators, three separate calculator sites. Pick your corridor and trip here and we fetch the number the official calculator shows — no made-up prices, and the overhead sign always wins."
+                "Five corridors, three operators, three separate calculator sites. Pick a corridor or paste a whole route — we fetch the number the official calculator shows. Unofficial; the overhead sign always wins."
             )
             .font(.subheadline)
             .foregroundStyle(.secondary)
         }
         .accessibilityElement(children: .combine)
+    }
+
+    private var modePicker: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Picker("Mode", selection: $mode) {
+                ForEach(AppMode.allCases) { option in
+                    Text(option.title).tag(option)
+                }
+            }
+            .pickerStyle(.segmented)
+            Text(mode.hint)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
     }
 
     private var corridorPicker: some View {
@@ -186,5 +212,9 @@ private struct CorridorRow: View {
 }
 
 #Preview {
-    RootView(store: EstimatorStore(client: TollAPIClient()), themeRaw: .constant(ThemePreference.system.rawValue))
+    RootView(
+        store: EstimatorStore(client: TollAPIClient()),
+        advanced: AdvancedStore(client: TollAPIClient()),
+        themeRaw: .constant(ThemePreference.system.rawValue)
+    )
 }

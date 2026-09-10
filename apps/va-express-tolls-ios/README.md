@@ -12,7 +12,7 @@ Default is the Railway production host:
 https://dmvtolls.com
 ```
 
-Same paths as the web app (`/api/corridors`, `/api/:corridor/points`, `/api/:corridor/estimate`). Native `URLSession` does not need CORS. HTTPS needs no ATS exception.
+Same paths as the web app (`/api/corridors`, `/api/:corridor/points`, `/api/:corridor/estimate`, plus Advanced `/api/geocode` and `/api/route-tolls`). Native `URLSession` does not need CORS. HTTPS needs no ATS exception.
 
 For a local Bun server instead:
 
@@ -32,7 +32,7 @@ xcodegen generate
 open VAExpressTolls.xcodeproj
 ```
 
-Pick the **iPhone 17** simulator and Run. The five corridors render from the bundled catalog even if the API is down. With production (or local Bun) up, choose a direction / entry / exit and tap **Get estimate**.
+Pick the **iPhone 17** simulator and Run. The five corridors render from the bundled catalog even if the API is down. **Simple** mode: choose a direction / entry / exit and tap **Get estimate**. **Advanced** mode: type from/to addresses (suggestions via `/api/geocode`), then **Estimate tolls** for a whole-route price via `/api/route-tolls`.
 
 ### App Transport Security
 
@@ -61,7 +61,7 @@ xcodebuild \
   build
 ```
 
-Unit tests decode fixture estimates (`total` 23.15, `0`, and `null`) through `Decimal(string:)` so money never round-trips a `Double`. Those tests do not need the API. A live estimate still needs `bun run dev`.
+Unit tests decode fixture estimates (`total` 23.15, `0`, and `null`) and Advanced fixtures (geocode + route-tolls) through `Decimal(string:)` so money never round-trips a `Double`. Those tests do not need the API. A live estimate still needs production or `bun run dev`.
 
 ## API used
 
@@ -71,18 +71,22 @@ Same contract as `apps/va-express-tolls/src/lib/api.ts`:
 GET /api/corridors
 GET /api/:corridor/points?direction=
 GET /api/:corridor/estimate?direction=&entry=&exit=[&at=ISO]
+GET /api/geocode?q=
+GET /api/route-tolls?from=lat,lng&to=lat,lng[&fromLabel=][&toLabel=]
 ```
 
-`at` is a zone-less `YYYY-MM-DDTHH:mm` Eastern wall-clock, used only for I-66 Inside historical times.
+`at` is a zone-less `YYYY-MM-DDTHH:mm` Eastern wall-clock, used only for I-66 Inside historical times. Advanced mode uses geocode + route-tolls (same as the web Advanced tab).
 
 ## Layout
 
 ```
 VAExpressTolls/           SwiftUI app (iOS 17+)
-  API/TollAPIClient.swift URLSession
-  Store/EstimatorStore.swift  corridor + draft trip + QuoteState
-  Catalog/                bundled corridors + I-66 Inside schedule
+  API/TollAPIClient.swift URLSession (Simple + Advanced)
+  Store/EstimatorStore.swift  Simple: corridor + draft trip + QuoteState
+  Store/AdvancedStore.swift   Advanced: places + route-tolls
+  Catalog/                bundled corridors + schedules
   Domain/                 api-types.swift shapes, Decimal estimate decode
+  Views/                  Root (Simple|Advanced), trip form, Advanced estimator
 VAExpressTollsTests/      JSON fixtures + schedule tests
 project.yml               XcodeGen
 ```

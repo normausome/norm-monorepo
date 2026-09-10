@@ -157,3 +157,131 @@ enum QuoteState: Hashable, Sendable {
 struct APIErrorBody: Decodable, Sendable {
     var error: String
 }
+
+// MARK: - Advanced mode (address → address)
+
+struct Place: Codable, Hashable, Sendable, Identifiable {
+    var label: String
+    var lat: Double
+    var lng: Double
+
+    var id: String { "\(lat),\(lng)" }
+}
+
+struct GeocodeResponse: Codable, Hashable, Sendable {
+    var query: String
+    var results: [Place]
+    var provider: String
+}
+
+enum RouteMatch: String, Codable, Hashable, Sendable {
+    case onRoute = "on-route"
+    case nearEnds = "near-ends"
+}
+
+struct RouteLeg: Hashable, Sendable, Identifiable, Decodable {
+    var corridor: CorridorId
+    var corridorName: String
+    var direction: Direction
+    var entry: TripPoint
+    var exit: TripPoint
+    var match: RouteMatch
+    var estimate: CachedEstimateResponse?
+    var error: String?
+    var notice: String?
+    var calculatorUrl: String
+
+    var id: String { "\(corridor.rawValue)-\(entry.id)-\(exit.id)" }
+
+    enum CodingKeys: String, CodingKey {
+        case corridor, corridorName, direction, entry, exit, match
+        case estimate, error, notice, calculatorUrl
+    }
+}
+
+struct UnmatchedCorridor: Codable, Hashable, Sendable, Identifiable {
+    var corridor: CorridorId
+    var corridorName: String
+    var calculatorUrl: String
+    var reason: String
+
+    var id: CorridorId { corridor }
+}
+
+struct RouteSummary: Hashable, Sendable, Decodable {
+    var provider: String
+    var distanceMeters: Int
+    var durationSeconds: Int
+    /// `[lat, lng]` pairs from the API.
+    var geometry: [[Double]]
+
+    enum CodingKeys: String, CodingKey {
+        case provider, distanceMeters, durationSeconds, geometry
+    }
+}
+
+struct RouteTollsResponse: Hashable, Sendable, Decodable {
+    var from: Place
+    var to: Place
+    var route: RouteSummary
+    var legs: [RouteLeg]
+    var unmatched: [UnmatchedCorridor]
+    var total: Decimal?
+    var currency: String
+    var notes: [String]
+
+    enum CodingKeys: String, CodingKey {
+        case from, to, route, legs, unmatched, total, currency, notes
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        from = try container.decode(Place.self, forKey: .from)
+        to = try container.decode(Place.self, forKey: .to)
+        route = try container.decode(RouteSummary.self, forKey: .route)
+        legs = try container.decode([RouteLeg].self, forKey: .legs)
+        unmatched = try container.decode([UnmatchedCorridor].self, forKey: .unmatched)
+        total = try container.decodeIfPresent(LiteralDecimal.self, forKey: .total)?.value
+        currency = try container.decode(String.self, forKey: .currency)
+        notes = try container.decode([String].self, forKey: .notes)
+    }
+}
+
+struct TripPreset: Hashable, Sendable {
+    var corridor: CorridorId
+    var direction: Direction
+    var entry: String
+    var exit: String
+}
+
+enum AppMode: String, CaseIterable, Identifiable, Sendable {
+    case simple
+    case advanced
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .simple: "Simple"
+        case .advanced: "Advanced"
+        }
+    }
+
+    var hint: String {
+        switch self {
+        case .simple: "Pick a corridor, then your entry and exit"
+        case .advanced: "Address to address — every corridor on the way"
+        }
+    }
+}
+
+extension Direction {
+    var word: String {
+        switch self {
+        case .nb: "Northbound"
+        case .sb: "Southbound"
+        case .eb: "Eastbound"
+        case .wb: "Westbound"
+        }
+    }
+}
