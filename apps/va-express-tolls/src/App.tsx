@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ThemeToggle } from "@/components/ThemeToggle"
 import { TripEstimator } from "@/components/TripEstimator"
 import {
   CORRIDORS,
@@ -48,6 +49,9 @@ export function App() {
         <div className="flex items-center gap-2">
           <MapPinned className="size-5 text-primary" />
           <Badge variant="outline">Northern Virginia</Badge>
+          <div className="ml-auto">
+            <ThemeToggle />
+          </div>
         </div>
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
           Express Lanes toll estimate
