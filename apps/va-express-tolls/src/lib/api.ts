@@ -1,5 +1,5 @@
 import type { CorridorId } from "@/data/corridors"
-import type { ApiError, CorridorSupport, Direction, EstimateResponse, PointsResponse } from "@/lib/api-types"
+import type { ApiError, CachedEstimateResponse, CorridorSupport, Direction, PointsResponse } from "@/lib/api-types"
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(path, { headers: { accept: "application/json" } })
@@ -23,7 +23,7 @@ export function fetchEstimate(
   params: { direction: Direction; entry: string; exit: string; at?: string },
 ) {
   const qs = new URLSearchParams(params.at ? params : { direction: params.direction, entry: params.entry, exit: params.exit })
-  return get<EstimateResponse>(`/api/${corridor}/estimate?${qs}`)
+  return get<CachedEstimateResponse>(`/api/${corridor}/estimate?${qs}`)
 }
 
 export const formatUsd = (n: number) =>

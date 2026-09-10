@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { TripMap } from "@/components/TripMap"
 import type { Corridor, CorridorId } from "@/data/corridors"
-import type { Direction, EstimateResponse, TripEntry } from "@/lib/api-types"
+import type { CachedEstimateResponse, Direction, TripEntry } from "@/lib/api-types"
 import { type CorridorSupportInfo, fetchEstimate, fetchPoints, formatTime, formatUsd } from "@/lib/api"
 import { cn } from "@/lib/utils"
 import { ArrowRight, ExternalLink, Info, LoaderCircle, TriangleAlert } from "lucide-react"
@@ -91,7 +91,7 @@ function EstimatorForm({ corridor, support, onSwitchCorridor }: Props & { suppor
   const [pastDate, setPastDate] = useState("")
   const [pastTime, setPastTime] = useState("")
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<EstimateResponse | null>(null)
+  const [result, setResult] = useState<CachedEstimateResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [today] = useState(easternToday)
   const slots = peakSlots(direction)
@@ -327,7 +327,7 @@ function EstimateResult({
   corridor,
   onSwitchCorridor,
 }: {
-  result: EstimateResponse
+  result: CachedEstimateResponse
   corridor: Corridor
   onSwitchCorridor: (id: CorridorId) => void
 }) {
@@ -345,7 +345,8 @@ function EstimateResult({
         <Badge variant="outline">Unofficial estimate</Badge>
         <Badge variant="secondary">{result.kind === "current" ? "Current" : "Historical"}</Badge>
         <span className="text-xs text-muted-foreground">
-          from {result.source.operator} · fetched {formatTime(result.source.fetchedAt)}
+          from {result.source.operator} · fetched {formatTime(result.source.fetchedAt)} · refreshes{" "}
+          {formatTime(result.expiresAt)}
         </span>
       </div>
 
