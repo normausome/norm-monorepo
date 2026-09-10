@@ -9,6 +9,15 @@
       content="Pick a Northern Virginia Express Lanes corridor (495, I-66 Inside or Outside the Beltway), read the tolling rules, and open the official toll calculator."
     />
     <title>VA Express Lanes toll lookup</title>
+    <script>
+      // Runs before paint so a stored/system dark preference never flashes light.
+      try {
+        var t = localStorage.getItem("theme")
+        if (t === "dark" || (t !== "light" && matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.classList.add("dark")
+        }
+      } catch (_) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
