@@ -36,6 +36,15 @@ Errors are `{ error: string }` with 4xx/5xx. Everything is cached in memory with
 
 In dev, Vite proxies `/api` to the Bun server (`bun run dev` starts both). In production the same Bun server also serves `dist/`.
 
+## Hosting (v3: Railway for dmvtolls.com)
+
+Goal: the API on Railway, public `*.up.railway.app` URL first, `api.dmvtolls.com` later; front end to Vercel later. Decisions (details and Norman's click-through in the README's *Deploying the API* section):
+
+- Fetch-only adapters → runtime is Bun alone: no `node_modules`, no Chromium. Don't add a browser layer until an adapter actually needs one.
+- `Dockerfile` on the official `oven/bun:1.4` image rather than `railway.json`/Nixpacks — Railway's config-as-code is deprecated for new services, and a Dockerfile is self-describing and reproducible locally.
+- Server: bind `0.0.0.0`:`PORT`, `idleTimeout` 60 s (operators can take 15 s), `GET /api/health`, allow-list CORS (`CORS_ORIGINS`) for dmvtolls.com / www / Vite dev ports.
+- Out: buying/configuring Cloudflare (DNS records are documented only), Vercel deploy, Redis, scrape changes.
+
 ## Front end (one screen)
 
 1. Corridor tabs (unchanged).

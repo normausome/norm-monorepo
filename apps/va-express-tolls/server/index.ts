@@ -7,6 +7,7 @@ import { ride66 } from "./adapters/ride66"
 import { BadRequest, type CorridorAdapter } from "./adapters/types"
 import { vai66 } from "./adapters/vai66"
 import { MINUTE, type Outcome, SECOND, cachedOutcome } from "./cache"
+import { allowedOrigins, preflight, withCors } from "./cors"
 import { UpstreamError } from "./http"
 
 const adapters: Record<string, CorridorAdapter> = {
@@ -17,9 +18,12 @@ const adapters: Record<string, CorridorAdapter> = {
   "66-outside": ride66,
 }
 
+// Railway (and most PaaS) inject PORT and route to whatever listens on all interfaces.
 const PORT = Number(process.env.PORT ?? 8787)
+const HOST = process.env.HOST ?? "0.0.0.0"
 const DIST = path.resolve(import.meta.dir, "../dist")
 const serveStatic = existsSync(DIST)
+const startedAt = new Date()
 
 const json = (body: unknown, status = 200, headers: Record<string, string> = {}) =>
   new Response(JSON.stringify(body), {
@@ -89,6 +93,18 @@ function directionParam(url: URL, adapter: CorridorAdapter): Direction {
 async function handleApi(url: URL): Promise<Response> {
   const [, , corridorId, action] = url.pathname.split("/")
 
+  // Deploy health check: must stay cheap and never touch an operator.
+  if (corridorId === "health" && !action) {
+    return json({
+      ok: true,
+      service: "va-express-tolls",
+      startedAt: startedAt.toISOString(),
+      uptimeSeconds: Math.round(process.uptime()),
+      corridors: Object.keys(adapters),
+      static: serveStatic,
+    })
+  }
+
   if (corridorId === "corridors" && !action) {
     return json(
       CORRIDORS.map((c) => ({
@@ -145,13 +161,19 @@ async function serveFile(pathname: string): Promise<Response> {
 
 Bun.serve({
   port: PORT,
+  hostname: HOST,
+  // Bun drops a connection idle for 10 s by default; a cold estimate can wait up to
+  // 15 s on an operator (see http.ts), so give in-flight requests room to finish.
+  idleTimeout: 60,
   async fetch(req) {
     const url = new URL(req.url)
     if (url.pathname.startsWith("/api/")) {
+      const pre = preflight(req)
+      if (pre) return pre
       try {
-        return await handleApi(url)
+        return withCors(req, await handleApi(url))
       } catch (err) {
-        return errorResponse(err)
+        return withCors(req, errorResponse(err))
       }
     }
     if (serveStatic && req.method === "GET") return serveFile(url.pathname)
@@ -159,4 +181,7 @@ Bun.serve({
   },
 })
 
-console.log(`va-express-tolls API on http://127.0.0.1:${PORT}${serveStatic ? " (also serving dist/)" : ""}`)
+console.log(
+  `va-express-tolls API on http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}` +
+    `${serveStatic ? " (also serving dist/)" : ""}; CORS origins: ${[...allowedOrigins].join(", ")}`,
+)
