@@ -1,8 +1,17 @@
 import type { CorridorId } from "@/data/corridors"
-import type { ApiError, CachedEstimateResponse, CorridorSupport, Direction, PointsResponse } from "@/lib/api-types"
+import type {
+  ApiError,
+  CachedEstimateResponse,
+  CorridorSupport,
+  Direction,
+  GeocodeResponse,
+  Place,
+  PointsResponse,
+  RouteTollsResponse,
+} from "@/lib/api-types"
 
-async function get<T>(path: string): Promise<T> {
-  const res = await fetch(path, { headers: { accept: "application/json" } })
+async function get<T>(path: string, signal?: AbortSignal): Promise<T> {
+  const res = await fetch(path, { headers: { accept: "application/json" }, signal })
   const body: unknown = await res.json().catch(() => null)
   if (!res.ok || body === null) {
     const apiError = typeof body === "object" && body !== null && "error" in body ? (body as ApiError).error : null
@@ -25,6 +34,19 @@ export function fetchEstimate(
   const qs = new URLSearchParams(params.at ? params : { direction: params.direction, entry: params.entry, exit: params.exit })
   return get<CachedEstimateResponse>(`/api/${corridor}/estimate?${qs}`)
 }
+
+export const fetchGeocode = (q: string, signal?: AbortSignal) =>
+  get<GeocodeResponse>(`/api/geocode?${new URLSearchParams({ q })}`, signal)
+
+export const fetchRouteTolls = (from: Place, to: Place) =>
+  get<RouteTollsResponse>(
+    `/api/route-tolls?${new URLSearchParams({
+      from: `${from.lat},${from.lng}`,
+      to: `${to.lat},${to.lng}`,
+      fromLabel: from.label,
+      toLabel: to.label,
+    })}`,
+  )
 
 export const formatUsd = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n)

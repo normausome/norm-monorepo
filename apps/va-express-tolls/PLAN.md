@@ -47,12 +47,29 @@ Goal: the API on Railway, public `*.up.railway.app` URL first, `api.dmvtolls.com
 
 ## Front end (one screen)
 
+0. Mode toggle: **Simple** (everything below) / **Advanced** (address → address, see v4 above).
 1. Corridor tabs (unchanged).
 2. Trip form: direction → entry → exit (exit list depends on entry). I-66 Inside adds "Right now" vs "A past weekday time" (historical).
 3. Result card: the dollar figure, big; per-leg breakdown when more than one road is involved; "No toll" state for off-peak I-66 Inside; source + fetched-at; the unofficial-estimate disclaimer; secondary link to the official calculator.
 4. Two-toll hint: when an I-66 trip starts/ends at an I-495 ramp (or a 495 trip at I-66), prompt to price the other leg too (one tap switches corridor).
 5. Map (Leaflet + OSM tiles) under the selects: the direction's entries, the exits reachable from the chosen entry, the selected pair highlighted; dots are clickable. Coordinates come from the operators' own map data (`lat`/`lng` on every point).
 6. Smart default direction for the reversible 395 and 95: `reversibleStatus()` in `src/lib/schedule.ts` reads day-of-week + Eastern time against Transurban's approximate schedule (learn-the-lanes) and the form pre-selects that direction. It is only an initial value: the user can change it, and the operator's live `direction_95` notice (already fetched with the entry points) stays the source of truth for whether a direction is actually open. In a scheduled reversal window the hint says "probably closed" and pre-selects the direction that opens next rather than pretending either is open. The hint is labelled approximate (holidays, events, incidents) and links the schedule. No server or API change.
+
+## Advanced mode (v4: address → address)
+
+Goal in one sentence: a driver types where they're leaving from and going to, and gets the Express Lanes tolls the drive implies — every corridor on the way, each priced by its own operator, added up — without knowing which corridor is which.
+
+MVP boundary: leaving *now* only; two inputs with suggestions (or raw `lat, lng`); a total, a per-leg breakdown and a map. Out: departure time, alternatives/avoid-tolls routing, HOV pricing, saving trips, turn-by-turn.
+
+Decisions, in the order they were made:
+
+1. **Inspect first.** Every adapter already returns `lat`/`lng` for every entry and exit (the operators' own map data), and `/estimate` is the only pricing surface. So Advanced mode is *routing + matching in front of the same adapters*, not new pricing. The estimate cache moved to `server/estimate.ts` so both modes share it.
+2. **Routing provider: OSRM-format Directions, keyless by default.** The public OSRM demo router answers in ~0.5 s from here and gives per-step road refs (`I 495`, `I 66`, `I 395; US 1`), which is exactly what detection needs. It has no SLA and isn't meant for production traffic, so `MAPBOX_TOKEN` switches to Mapbox Directions — same response format, one parser — and `ROUTING_URL` allows a self-hosted OSRM. Google was rejected (no keyless path, incompatible step shape). Geocoding follows the same split: Photon (komoot) by default, Mapbox Geocoding v6 with the token; Nominatim rejected because its policy forbids autocomplete. All calls are server-side and cached; the browser never sees a provider or a key.
+3. **Detection is geometric, against the operators' own points.** Prototyped on real routes before any UI work. Per network (95/395 · 495 · 66 Outside · 66 Inside): the route's contiguous steps on that interstate form a stretch; the operator's entries for the direction of travel are projected onto it (≤ 400 m, or ≤ 1200 m in the first/last 300 m where ramps diverge); earliest entry → furthest reachable exit → continue past it. Ambiguities are surfaced rather than papered over: `match: "near-ends"` flags a looser match, `unmatched` reports a stretch that couldn't be lined up (with the official link), a closed reversible direction stays unpriced with the operator's notice, and every leg carries *Adjust in Simple mode* with the same corridor/direction/entry/exit pre-filled. The premise — "you take the Express Lanes wherever your route runs beside them" — is stated on every result, because a router can't know whether you'd pick the free lanes.
+4. **95/395 and 495 are separate networks even though Transurban prices a cross-road trip as one.** Tested both ways: merged gave one leg with two line items ($11.85 + $23.85), split gave two legs with the same figures, but merged hid the priceable 495 leg whenever the reversible 95/395 direction was closed. Split matches the operator's own bill lines and degrades better.
+5. **Smallest surface.** Two server routes (`/api/geocode`, `/api/route-tolls`), one mode toggle in `App.tsx` (`#advanced`), `AdvancedEstimator` + `RouteMap`, an optional `preset` on `TripEstimator`. Simple mode's behaviour is unchanged.
+
+Deferred: departure time for the 66 Inside historical mode; "avoid tolls" comparison; using OSRM `annotations` to detect when the router itself chose an Express Lanes way; an automated regression check of the verified trips in the README against the live providers.
 
 ## Reused from the monorepo
 

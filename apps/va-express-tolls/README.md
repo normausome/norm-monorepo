@@ -29,22 +29,34 @@ Other scripts:
 
 No environment variables or secrets are needed locally. See [Deploying the API (Railway)](#deploying-the-api-railway) for the optional production knobs.
 
+## Two modes
+
+- **Simple** (default) — pick a corridor, then your entry and exit; the price comes from that operator's calculator. This is the original flow and is unchanged.
+- **Advanced** (`#advanced`) — type a *from* and a *to* (address, place name, or `lat, lng`). The server routes the drive, works out which Express Lanes it runs beside, and prices every one through the same adapters, giving a total and a per-leg breakdown on a map of the route. See [Advanced mode](#advanced-mode-address--address) below for how detection works and its limits.
+
 ## How it works
 
 ```
 src/                       React front end (Vite, Tailwind v4, shadcn button/card/badge)
-  components/TripEstimator.tsx  direction → entry → exit → estimate; result card; two-toll hint
+  components/TripEstimator.tsx  Simple: direction → entry → exit → estimate; result card; two-toll hint
   components/TripMap.tsx   Leaflet map of entries / reachable exits, synced with the selects
+  components/AdvancedEstimator.tsx  Advanced: from/to with suggestions → route → per-corridor legs + total
+  components/RouteMap.tsx  Leaflet map of the driven route with each matched entry/exit pinned
   data/corridors.ts        rules, hours, official links, calculator tips
   lib/api-types.ts         API contract shared with the server
-  lib/schedule.ts          I-66 Inside peak-window helper
+  lib/schedule.ts          I-66 Inside peak-window and 95/395 reversible-schedule helpers
 server/                    Bun.serve API
   index.ts                 routes, health check, error mapping, static dist/ in production
+  estimate.ts              adapter registry + the 3-minute per-trip estimate cache (shared by Simple and Advanced)
   cors.ts                  allow-list CORS for a front end on another origin (dmvtolls.com, Vite dev)
   adapters/vai66.ts        I-66 Inside — VDOT Razor page handlers
   adapters/expresslanes.ts 495, 395 and 95 — Transurban entry/exit mapping + price feed (one factory, three corridors)
   adapters/ride66.ts       66 Outside — planner's theme-ajax call + the page's per-gantry summation
   adapters/ride66-map.ts   66 Outside — vendored start → exit-chain table and marker coordinates (captured from the planner)
+  route/providers.ts       Advanced: routing (OSRM demo / Mapbox / self-hosted OSRM) and geocoding (Photon / Mapbox)
+  route/detect.ts          Advanced: which Express Lanes trips a route implies (geometry against the operators' points)
+  route/geometry.ts        haversine + point-to-polyline projection
+  route/index.ts           /api/geocode and /api/route-tolls handlers
   cache.ts                 TTL cache with single-flight
 ```
 
@@ -55,6 +67,13 @@ GET /api/health
 GET /api/corridors
 GET /api/:corridor/points?direction=nb|sb|eb|wb
 GET /api/:corridor/estimate?direction=&entry=&exit=[&at=<ISO, past only, 66 Inside>]
+GET /api/geocode?q=<text, 3+ chars>                     → { results: [{ label, lat, lng }], provider }
+GET /api/route-tolls?from=<lat,lng>&to=<lat,lng>[&fromLabel=&toLabel=]
+    → { from, to, route: { provider, distanceMeters, durationSeconds, geometry: [[lat,lng]…] },
+        legs: [{ corridor, corridorName, direction, entry, exit, match: "on-route" | "near-ends",
+                 estimate: <same shape as /estimate> | null, error: string | null, notice?, calculatorUrl }],
+        unmatched: [{ corridor, corridorName, calculatorUrl, reason }],
+        total: number | null, currency: "USD", notes: string[] }
 ```
 
 `/api/health` is the deploy health check: `200 {"ok":true, …}` with `startedAt`, `uptimeSeconds`, the corridor ids and whether `dist/` is being served. It never calls an operator.
@@ -81,8 +100,46 @@ Points carry `lat`/`lng` so the UI can draw them: a map under the selects shows 
 - **395** and **95** — the same mapping and feed, filtered to `395North` / `395South` or `95` entries (the 95 set runs from Route 17 near Fredericksburg to Springfield). Exits may continue onto the other road or onto 495 and come back as separate legs, mirroring the operator's "95 and 395 Express Lanes" / "495 Express Lanes" line items. The feed's `direction_95` flag says which way the reversible lanes are open; that's surfaced above the form, and a closed direction — or any leg the feed marks `closed` — returns no total even if the feed still carries a stale figure.
 - **66 Outside** — the planner's `theme-ajax.php` `api_call` (start gantry + the exit's tolling-gantry chain + one constant-named form field read from the live bundle). The response is today's rate-change log for every gantry; like the page, we sum the latest posted class-1 rate at each gantry the trip passes. The start → exit-chain table is vendored (`ride66-map.ts`) because the planner builds it inside an obfuscated bundle; the live entry list is validated against it and mismatches fail closed.
 
+## Advanced mode (address → address)
+
+Advanced mode is additive: it reuses the corridor adapters and the estimate cache and adds a routing step in front of them. Everything runs server-side, so the browser only talks to `/api` and no third-party key is ever shipped to the client.
+
+### Providers
+
+| Job | Default (no keys) | With `MAPBOX_TOKEN` | Notes |
+| --- | --- | --- | --- |
+| Driving route | Public **OSRM demo server** (`router.project-osrm.org`), OpenStreetMap data | **Mapbox Directions** (`driving` profile) | Both return the OSRM response format, including a road `ref` per step (`I 495`, `I 66`, …), so one parser serves both. `ROUTING_URL` points the OSRM client at a self-hosted instance instead. |
+| Address → coordinates | **Photon** (komoot, OpenStreetMap data), biased to a Fredericksburg–Baltimore / Front Royal–Bay bounding box | **Mapbox Geocoding v6** forward search, same bias | Suggestions appear as you type (350 ms debounce, 3+ characters). Nominatim was ruled out because its usage policy forbids autocomplete. `PHOTON_URL` selects another Photon instance. |
+
+Why this shape: the zero-key default is genuinely usable for a demo (the OSRM demo and Photon both answer in well under a second from Railway's region and were verified against real trips below), but neither has an SLA and the OSRM demo explicitly asks not to carry production traffic. Mapbox is the smallest paid step up — a single token covers both jobs, its free tier (100k directions and 100k geocodes a month at the time of writing) is far above this site's traffic, and switching is one Railway variable with no code change. Google Maps was not chosen: its Directions/Routes responses don't carry per-step road refs in a compatible shape, so it would need a second parser, and it has no keyless path. Responses are cached server-side (routes 10 min, geocodes 24 h, single-flight) on top of the 3-minute estimate cache, so a burst of clicks doesn't fan out to any provider.
+
+### Corridor detection
+
+The route is a polyline plus steps with road refs. For each *network* — the 95/395 Express Lanes (one continuous reversible road, billed as one line item), the 495 Express Lanes, I-66 Outside the Beltway, I-66 Inside the Beltway — the server:
+
+1. Takes the contiguous stretch(es) of steps whose `ref` matches that network's interstate(s) (`I 95`/`I 395`, `I 495`, `I 66`). Unnamed connector ramps under 3 km between two matching steps are bridged so 95 → 395 stays one stretch.
+2. Loads the operator's own entry/exit points for the direction of travel (the same `lat`/`lng` the Simple-mode map uses; direction comes from the stretch's displacement — latitude for 95/395/495, longitude for I-66).
+3. Projects each entry onto the stretch and keeps those within **400 m** of it, or within **1200 m** when they sit at the first/last 300 m of the stretch (there the route is on an on/off ramp while the Express Lanes' own ramp can land ~1 km away — Route 7 at Tysons, Route 17 at Fredericksburg). The earliest such entry wins; among *its* reachable exits, the furthest along the stretch that passes the same test is the exit. The search then continues past that exit, so a route can use a network twice.
+4. Prices each (corridor, direction, entry, exit) through the corridor's adapter — the identical call Simple mode makes — and attaches the operator's live notice (`direction_95`) for the reversible lanes.
+
+What the answer means: **"if you take the Express Lanes wherever your route runs beside them, this is what you'd pay."** The route itself is usually drawn on the free general-purpose lanes; a router can't make that choice for you (and routers generally keep off the reversible 95/395 lanes). I-66 Inside the Beltway tolls every lane at peak, so there it's not a choice.
+
+Where it is honest about not knowing:
+
+- **Ends of a stretch.** An entry or exit matched under the looser end radius is flagged `match: "near-ends"` and the UI shows an amber "check the interchange" badge: the interchange is right, the exact gantry may be one ramp off. Every leg names its entry and exit, and *Adjust in Simple mode* opens that corridor with the same direction/entry/exit pre-filled so you can move them.
+- **Nearby but unmatched.** If the route drives on an interstate with Express Lanes and an entry lies within 1 km but no entry→exit pair passes the tests, the network is reported under `unmatched` with the official calculator link, and nothing is priced for it. No guess is ever made.
+- **Closed reversible direction.** 95/395 return `total: null` with the operator's notice when the direction you'd travel is closed; the other legs (e.g. 495) are still priced individually and the overall total is withheld.
+- **Time.** Advanced mode prices "leaving now" only. The published 95/395 schedule hint from Simple mode is shown on those legs; the operator's live flag decides.
+
+Verified trips (Sep 2026, ~2 PM Eastern, lanes running southbound): Springfield → Tysons: 495 NB Braddock Rd → Route 7, $9.05. Tysons → Fredericksburg: 495 SB Route 7 → Braddock Rd $11.85 + 95 SB Springfield → Courthouse Rd $23.85 = $35.70 (the same $35.70 Transurban quotes for the single cross-road trip). Gainesville → Rosslyn: 66 Outside Western Entry → EB GP Exit $32.90 (three gantries) + 66 Inside I-66 West → Rosslyn, no toll off-peak. Fredericksburg → DC: 95 NB Route 17 → Washington D.C. correctly returns no price with "lanes are open southbound right now". Old Town Alexandria → College Park (GW Parkway, 14th Street Bridge, I-295): no Express Lanes toll.
+
+### Railway
+
+Nothing is required: without variables the deployed site uses the keyless defaults. To move to Mapbox, add **`MAPBOX_TOKEN`** under the service's *Variables* and redeploy — no other change. Because all provider calls originate from the Bun server, there is no CORS or referrer configuration on the Mapbox side (the token can still be restricted by URL if you prefer; the requests come from Railway's egress, not from dmvtolls.com). `/api/health` reports which providers are active under `advanced`. The existing `CORS_ORIGINS` list already covers dmvtolls.com for the two new `/api` routes.
+
 ## Fragility and risk
 
+- **Advanced mode's providers.** The OSRM demo server and Photon are best-effort community services with no SLA; if either is down, Advanced mode returns an error (Simple mode is unaffected) and the UI points to Simple mode and the official calculators. `MAPBOX_TOKEN` removes that dependency. OpenStreetMap tags drive the `ref` matching; a retag of a ramp could shift where a stretch begins.
 - **Undocumented endpoints.** All three adapters use the internal endpoints the operators' own pages call. A site redesign breaks them silently; the adapters then fail closed and the UI shows the official link. 66 Outside is the most fragile (obfuscated bundle, vendored exit table, constant-named field, reproduced formula).
 - **Rate limits are unknown.** Estimates are cached for 3 minutes per trip (see above) on top of the adapters' upstream caches (mappings 24h, price feeds 60s, historical I-66 prices 24h), all with single-flight, so bursts of clicks don't fan out to the operators. The 66 Outside response is ~350 KB per trip.
 - **Terms of use.** `robots.txt` on all three sites allows these paths, but none publishes an API or terms for automated access, and ride66express.com obfuscates its planner. This is a demo; a public deployment should get the operators' OK.
@@ -102,13 +159,16 @@ Target: the estimate API hosted on Railway for **dmvtolls.com** — first on Rai
 
 ### Environment variables
 
-All optional; there are no secrets. Bun also loads a local `.env` (see [`.env.example`](./.env.example)).
+All optional; the only secret-ish one is `MAPBOX_TOKEN`, and only if you opt into Mapbox. Bun also loads a local `.env` (see [`.env.example`](./.env.example)).
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `PORT` | `8787` | Port to listen on. **Railway injects this** — do not set it yourself there. |
 | `HOST` | `0.0.0.0` | Interface to bind. Leave the default on Railway; `127.0.0.1` keeps a local run off the LAN. |
 | `CORS_ORIGINS` | `https://dmvtolls.com, https://www.dmvtolls.com, http://localhost:5173, http://127.0.0.1:5173, http://localhost:4173, http://127.0.0.1:4173` | Comma-separated browser origins allowed to call `/api` cross-origin (Vite dev/preview ports included for local front-end work against the hosted API). Setting it **replaces** the list; `*` allows any origin. |
+| `MAPBOX_TOKEN` | unset | Advanced mode: when set, routing uses Mapbox Directions and geocoding uses Mapbox Geocoding v6 instead of the keyless OSRM demo + Photon. Server-side only; never sent to the browser. See [Advanced mode](#advanced-mode-address--address). |
+| `ROUTING_URL` | `https://router.project-osrm.org` | Advanced mode: any OSRM-compatible router to use instead of the demo server (ignored when `MAPBOX_TOKEN` is set). |
+| `PHOTON_URL` | `https://photon.komoot.io` | Advanced mode: alternative Photon geocoder instance (ignored when `MAPBOX_TOKEN` is set). |
 
 CORS behaviour: same-origin requests (the API serving `dist/`, or a curl) send no `Origin` header and are untouched. An allowed cross-origin request gets `Access-Control-Allow-Origin: <that origin>`, `Vary: Origin` and `Access-Control-Expose-Headers: x-cache`, on successes and API errors alike; a disallowed origin gets the normal response with no CORS headers (so the browser blocks it). Preflights (`OPTIONS` with `Access-Control-Request-Method`) return `204` for allowed origins, `403` otherwise; methods `GET, HEAD, OPTIONS`, `max-age` 24 h, no credentials.
 
