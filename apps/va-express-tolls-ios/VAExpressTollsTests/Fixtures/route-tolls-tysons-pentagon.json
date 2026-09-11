@@ -1,0 +1,207 @@
+{
+  "from": {
+    "label": "Tysons Corner",
+    "lat": 38.9169789,
+    "lng": -77.223114
+  },
+  "to": {
+    "label": "Pentagon",
+    "lat": 38.8691306,
+    "lng": -77.054076
+  },
+  "route": {
+    "provider": "OSRM demo server",
+    "distanceMeters": 20302,
+    "durationSeconds": 1288,
+    "geometry": [
+      [
+        38.91724,
+        -77.22388
+      ],
+      [
+        38.91513,
+        -77.22293
+      ],
+      [
+        38.91197,
+        -77.22067
+      ],
+      [
+        38.90745,
+        -77.21101
+      ],
+      [
+        38.90263,
+        -77.20295
+      ],
+      [
+        38.89868,
+        -77.19903
+      ],
+      [
+        38.89774,
+        -77.19749
+      ],
+      [
+        38.89826,
+        -77.19591
+      ],
+      [
+        38.89961,
+        -77.1939
+      ],
+      [
+        38.90047,
+        -77.18882
+      ],
+      [
+        38.89957,
+        -77.18312
+      ],
+      [
+        38.8948,
+        -77.17036
+      ],
+      [
+        38.88763,
+        -77.16144
+      ],
+      [
+        38.87996,
+        -77.13935
+      ],
+      [
+        38.87919,
+        -77.13514
+      ],
+      [
+        38.88003,
+        -77.12536
+      ],
+      [
+        38.88302,
+        -77.12048
+      ],
+      [
+        38.88697,
+        -77.117
+      ],
+      [
+        38.89066,
+        -77.10375
+      ],
+      [
+        38.89215,
+        -77.10135
+      ],
+      [
+        38.8957,
+        -77.09919
+      ],
+      [
+        38.89749,
+        -77.0953
+      ],
+      [
+        38.8983,
+        -77.08786
+      ],
+      [
+        38.89674,
+        -77.0833
+      ],
+      [
+        38.89834,
+        -77.07728
+      ],
+      [
+        38.89834,
+        -77.07008
+      ],
+      [
+        38.89369,
+        -77.0677
+      ],
+      [
+        38.8896,
+        -77.06782
+      ],
+      [
+        38.88307,
+        -77.06311
+      ],
+      [
+        38.87533,
+        -77.05417
+      ]
+    ]
+  },
+  "legs": [
+    {
+      "corridor": "66-inside",
+      "corridorName": "I-66 Inside the Beltway",
+      "direction": "eb",
+      "entry": {
+        "id": "4",
+        "label": "Route 7 - Leesburg Pike",
+        "lat": 38.900478,
+        "lng": -77.188532
+      },
+      "exit": {
+        "id": "16",
+        "label": "Washington",
+        "lat": 38.892908,
+        "lng": -77.055412
+      },
+      "match": "near-ends",
+      "estimate": {
+        "corridor": "66-inside",
+        "direction": "eb",
+        "entry": {
+          "id": "4",
+          "label": "Route 7 - Leesburg Pike",
+          "lat": 38.900478,
+          "lng": -77.188532
+        },
+        "exit": {
+          "id": "16",
+          "label": "Washington",
+          "lat": 38.892908,
+          "lng": -77.055412
+        },
+        "kind": "current",
+        "total": 0,
+        "currency": "USD",
+        "legs": [
+          {
+            "road": "I-66 Inside the Beltway",
+            "price": 0,
+            "observedAt": "2026-09-10T22:24:28.415Z",
+            "status": "free"
+          }
+        ],
+        "source": {
+          "operator": "VDOT (vai66tolls.com)",
+          "url": "https://vai66tolls.com/",
+          "fetchedAt": "2026-09-10T22:24:28.415Z"
+        },
+        "notes": [
+          "The operator reports no toll right now \u2014 I-66 Inside the Beltway is only tolled weekdays EB 5:30\u20139:30 AM and WB 3\u20137 PM."
+        ],
+        "cache": "miss",
+        "cachedAt": "2026-09-10T22:24:28.415Z",
+        "expiresAt": "2026-09-10T22:27:28.415Z"
+      },
+      "error": null,
+      "calculatorUrl": "https://vai66tolls.com/"
+    }
+  ],
+  "unmatched": [],
+  "total": 0,
+  "currency": "USD",
+  "notes": [
+    "Assumes you take the Express Lanes wherever your route runs beside them. The regular lanes on 495, 395, 95 and I-66 outside the Beltway are free; I-66 inside the Beltway tolls every lane at peak.",
+    "Each corridor is priced by asking its operator's own calculator for the matched entry and exit; the total just adds them up. Unofficial \u2014 the overhead sign when you enter is the price you pay.",
+    "Where your route joins or leaves the interstate, the matched Express Lanes ramp may be one interchange off. Check the entry and exit named on each leg."
+  ]
+}

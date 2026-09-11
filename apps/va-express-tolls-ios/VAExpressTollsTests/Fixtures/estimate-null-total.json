@@ -1,0 +1,21 @@
+{
+  "corridor": "395",
+  "direction": "sb",
+  "entry": { "id": "e2", "label": "Pentagon" },
+  "exit": { "id": "x2", "label": "Springfield" },
+  "kind": "current",
+  "total": null,
+  "currency": "USD",
+  "legs": [],
+  "source": {
+    "operator": "Transurban (expresslanes.com)",
+    "url": "https://expresslanes.com/map-your-trip/",
+    "fetchedAt": "2026-09-10T16:00:00.000Z"
+  },
+  "notes": [
+    "The reversible 95/395 lanes are open northbound right now, so there is no southbound price — the operator publishes prices only for the open direction."
+  ],
+  "cache": "miss",
+  "cachedAt": "2026-09-10T16:00:00.000Z",
+  "expiresAt": "2026-09-10T16:00:30.000Z"
+}

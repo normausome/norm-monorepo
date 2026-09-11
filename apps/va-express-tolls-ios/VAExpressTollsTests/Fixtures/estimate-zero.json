@@ -1,0 +1,23 @@
+{
+  "corridor": "66-inside",
+  "direction": "eb",
+  "entry": { "id": "4", "label": "Route 7" },
+  "exit": { "id": "16", "label": "Washington Blvd" },
+  "kind": "current",
+  "total": 0,
+  "currency": "USD",
+  "legs": [
+    { "road": "I-66 Inside the Beltway", "price": 0, "observedAt": "2026-09-10T14:00:00.000Z", "status": "free" }
+  ],
+  "source": {
+    "operator": "VDOT (vai66tolls.com)",
+    "url": "https://vai66tolls.com/",
+    "fetchedAt": "2026-09-10T14:00:00.000Z"
+  },
+  "notes": [
+    "The operator reports no toll right now — I-66 Inside the Beltway is only tolled weekdays EB 5:30–9:30 AM and WB 3–7 PM."
+  ],
+  "cache": "hit",
+  "cachedAt": "2026-09-10T14:00:00.000Z",
+  "expiresAt": "2026-09-10T14:03:00.000Z"
+}
