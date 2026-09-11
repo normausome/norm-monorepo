@@ -15,6 +15,14 @@
       "date": "2026-09-09",
       "tech": "TeslrBot",
       "slug": "teslr-cabin-demo"
+    },
+    {
+      "id": "2097816493065154861",
+      "title": "Grok Build /learn \u2014 trace-driven harness updates (@aksheyd)",
+      "url": "https://x.com/aksheyd/status/2097816493065154861",
+      "date": "2026-09-11",
+      "tech": "Grok Build /learn",
+      "slug": "learn-harness-demo"
     }
   ],
   "seen": []
