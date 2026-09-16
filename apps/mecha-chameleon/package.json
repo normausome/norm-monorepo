@@ -1,0 +1,16 @@
+{
+  "name": "mecha-chameleon",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 4317 --host",
+    "build": "tsc && vite build",
+    "start": "bun run server.ts",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
+  }
+}
