@@ -55,12 +55,10 @@ This repo is configured for [Railway](https://railway.app/) via `railway.toml`:
 
 1. Open [railway.app/new](https://railway.app/new) and sign in.
 2. Choose **Deploy from Git repo**.
-3. Connect the Origin repo (or push this project to GitHub first and connect that):
-   - **Codebase:** https://cursor.com/codebase/normausome/tmp-5f1226f7ae1cb26e
-   - **Clone URL:** `https://origin.cursor.com/git/normausome/tmp-5f1226f7ae1cb26e.git`
+3. Connect the GitHub repo `normausome/norm-monorepo`.
 4. Select the repo and branch **`main`**.
-5. Set **Root Directory** to `/` (repo root).
-6. Railway reads `railway.toml` automatically. Confirm:
+5. Set **Root Directory** to `apps/mecha-chameleon`. This app lives in a monorepo, so Railway needs the app folder, not the repo root.
+6. Railway reads `railway.toml` from that folder. Confirm:
    - **Build command:** `bun install && bun run build`
    - **Start command:** `bun run start`
 7. Deploy. Railway sets `$PORT`; no extra env vars required.
