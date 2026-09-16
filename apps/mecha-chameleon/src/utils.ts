@@ -3,49 +3,27 @@ export interface Vec2 {
   y: number;
 }
 
+export interface Rect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export type Rgb = readonly [number, number, number];
+
 export function clamp(v: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, v));
 }
 
 export function dist(a: Vec2, b: Vec2): number {
-  const dx = a.x - b.x;
-  const dy = a.y - b.y;
-  return Math.hypot(dx, dy);
+  return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-export function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
+export function inRect(p: Vec2, r: Rect): boolean {
+  return p.x >= r.x && p.x < r.x + r.w && p.y >= r.y && p.y < r.y + r.h;
 }
 
-export function randRange(min: number, max: number): number {
-  return min + Math.random() * (max - min);
-}
-
-export function circleRectOverlap(
-  cx: number,
-  cy: number,
-  cr: number,
-  rx: number,
-  ry: number,
-  rw: number,
-  rh: number
-): boolean {
-  const closestX = clamp(cx, rx, rx + rw);
-  const closestY = clamp(cy, ry, ry + rh);
-  const dx = cx - closestX;
-  const dy = cy - closestY;
-  return dx * dx + dy * dy <= cr * cr;
-}
-
-export function rectRectOverlap(
-  ax: number,
-  ay: number,
-  aw: number,
-  ah: number,
-  bx: number,
-  by: number,
-  bw: number,
-  bh: number
-): boolean {
-  return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+export function rgbCss([r, g, b]: Rgb): string {
+  return `rgb(${r}, ${g}, ${b})`;
 }
