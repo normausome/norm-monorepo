@@ -1,8 +1,10 @@
 # Mecha Chameleon
 
-A browser mini-game where you pilot a chrome mech against the **Mecha Chameleon** — an original mecha lizard boss in the Chrome Lizard Arena. Dodge telegraphed attacks, shoot, and melee your way to victory.
+A browser hide-and-seek game. You are a white mannequin on a patterned floor. Paint your body to match the floor, pick a pose, and hold still while one seeker sweeps the stage.
 
-All art is procedurally drawn on canvas. No third-party or copyrighted assets are used.
+## Originality
+
+The game takes only its loop from the hide-and-seek genre. Prepare, paint, freeze, get hunted. Every other part is original. The stage, the art, the names, and the code were made for this repo. No third-party assets, logos, level layouts, or names are used.
 
 ## Quick start
 
@@ -11,67 +13,62 @@ bun install
 bun run dev
 ```
 
-Open the URL shown in the terminal (default: `http://localhost:4317`).
+Open the URL Vite prints (default `http://localhost:4317`).
+
+## How a round plays
+
+1. Lobby. Press **Start** or Enter.
+2. Prep, 45 seconds. Move, paint, and pose. Press **Ready** or Enter to skip the rest of the timer.
+3. Hunt, 90 seconds. You cannot move or paint. The seeker patrols and tags you if you enter its detection circle.
+4. Win if the hunt timer reaches zero. Lose if the seeker tags you. **Play again** starts a new prep with a clean white body. **Lobby** or Escape returns to the lobby.
+
+The detection circle is drawn around the seeker. Its size comes from your camouflage score and your pose. A white body standing on the slate floor gives a radius of about 200 px. A fully matched body gives a radius of 40 px, which is close to the 30 px tag distance.
 
 ## Controls
 
-| Action | Desktop | Mobile |
-|--------|---------|--------|
-| Move | WASD or Arrow keys | On-screen D-pad |
-| Dash | Shift | DASH button |
-| Shoot | J or Space | FIRE button |
-| Melee | K or E | HIT button |
-| Start / Restart | Enter or click | Tap screen |
+| Action | Input |
+|--------|-------|
+| Move (prep only) | WASD or arrow keys |
+| Pick a colour | Click the floor. The swatch in the toolbar shows the pick. |
+| Paint | Click or drag on your body |
+| Brush size | Slider, or `[` and `]` |
+| Pose | `1` Stand, `2` Crouch, `3` Wall flat, or the toolbar buttons |
+| Ready, Start, Play again | Enter or the on-screen button |
+| Back to lobby | Escape |
 
-Use the **Sound** toggle in the top-right to mute procedural audio.
+The HUD shows the phase, the timer, and a live camouflage percentage during prep.
 
-## Boss phases
+## Timers
 
-The Mecha Chameleon escalates through three phases as its HP drops:
-
-1. **Phase I** — Tongue swipe and jump slam
-2. **Phase II** — Adds camouflage fade (harder to see) and faster patterns
-3. **Phase III** — Laser sweeps and shorter telegraphs
-
-Every attack shows a clear telegraph (red zones, slam circles, pink laser warnings) before it lands.
+`PREP_SECONDS` (45) and `HUNT_SECONDS` (90) are in `src/config.ts`. For a short demo, override both from the URL. `?prep=8&hunt=12` runs a full round in under 30 seconds. Values are seconds and cap at 600.
 
 ## Scripts
 
-- `bun run dev` — Start the Vite dev server
-- `bun run build` — Production build to `dist/`
-- `bun run start` — Serve `dist/` on `$PORT` (production)
-- `bun run preview` — Preview the production build locally
+- `bun run dev` starts the Vite dev server on port 4317.
+- `bun run build` type-checks with `tsc` and writes `dist/`.
+- `bun run start` serves `dist/` with `server.ts` on `$PORT` (default 3000).
+- `bun run preview` previews the production build with Vite.
 
 ## Deploy on Railway
 
-This repo is configured for [Railway](https://railway.app/) via `railway.toml`:
+`railway.toml` sets the build command to `bun install && bun run build` and the start command to `bun run start`. `server.ts` binds `0.0.0.0` on the `PORT` Railway injects. No other environment variables are read.
 
-| Phase | Command |
-|-------|---------|
-| Build | `bun install && bun run build` |
-| Start | `bun run start` (Bun static server on `$PORT`) |
+1. Create a project from the GitHub repo `normausome/norm-monorepo`, branch `main`.
+2. Set **Root Directory** to `apps/mecha-chameleon`. The app is one folder in a monorepo, so Railway needs the folder, not the repo root.
+3. Deploy, then open **Settings**, **Networking**, **Generate Domain**.
 
-### Dashboard steps (Norman)
-
-1. Open [railway.app/new](https://railway.app/new) and sign in.
-2. Choose **Deploy from Git repo**.
-3. Connect the GitHub repo `normausome/norm-monorepo`.
-4. Select the repo and branch **`main`**.
-5. Set **Root Directory** to `apps/mecha-chameleon`. This app lives in a monorepo, so Railway needs the app folder, not the repo root.
-6. Railway reads `railway.toml` from that folder. Confirm:
-   - **Build command:** `bun install && bun run build`
-   - **Start command:** `bun run start`
-7. Deploy. Railway sets `$PORT`; no extra env vars required.
-8. Open **Settings → Networking → Generate Domain** to get the public URL.
-
-### Local production test
+Local production check:
 
 ```bash
 bun run build
 PORT=4317 bun run start
 ```
 
-## Tech
+## Code map
 
-- Vite + TypeScript + HTML Canvas 2D
-- Bun package manager (`bunfig.toml` sets `minimumReleaseAge = 259200`)
+- `src/game.ts` owns the `Phase` union, the frame loop, input, drawing, and the HTML overlay.
+- `src/hider.ts` holds `POSE_SHAPE`, the body rect per pose, and movement.
+- `src/paint.ts` is `PaintBuffer`, the 48x96 body texture, the brush, and the camouflage score.
+- `src/seeker.ts` is the AI. Fixed waypoints, a detection radius, a patrol or chase mode, and the tag check.
+- `src/stage.ts` draws the stage once and exposes pixel sampling.
+- `src/config.ts` holds the stage size, the timers, and `readTimers`.
