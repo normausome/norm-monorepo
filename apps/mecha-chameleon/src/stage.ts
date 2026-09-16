@@ -1,10 +1,26 @@
 import { STAGE_H, STAGE_W } from "./config";
-import type { Rgb } from "./utils";
+import { inRect, type Rect, type Rgb, type Vec2 } from "./utils";
 
-/** The stage renders once. `pixels` is what the eyedropper and the camouflage score read. */
+/** The floor renders once. `pixels` is what the eyedropper and the camouflage score read. It is also the floor texture. */
 export interface Stage {
   canvas: HTMLCanvasElement;
   pixels: ImageData;
+}
+
+/** Raised solid blocks. Drawn into the floor texture and built as boxes in the 3D room. `height` is in world units. */
+export interface Pad extends Rect {
+  color: string;
+  rgb: Rgb;
+  height: number;
+}
+
+export const PADS: readonly Pad[] = [
+  { x: 430, y: 200, w: 100, h: 140, color: "#1d3557", rgb: [29, 53, 87], height: 0.3 },
+  { x: 400, y: 390, w: 90, h: 60, color: "#c1121f", rgb: [193, 18, 31], height: 0.3 },
+];
+
+export function padHeightAt(p: Vec2): number {
+  return PADS.find((pad) => inRect(p, pad))?.height ?? 0;
 }
 
 export function buildStage(): Stage {
@@ -25,7 +41,7 @@ export function sampleStage(stage: Stage, x: number, y: number): Rgb | null {
   return [d[i], d[i + 1], d[i + 2]];
 }
 
-/** Original abstract map. Four patterned regions and two solid crates on a slate floor. */
+/** Original abstract map. Four patterned regions and two solid pads on a slate floor. */
 function drawTessellateYard(ctx: CanvasRenderingContext2D): void {
   ctx.fillStyle = "#2b3340";
   ctx.fillRect(0, 0, STAGE_W, STAGE_H);
@@ -65,10 +81,10 @@ function drawTessellateYard(ctx: CanvasRenderingContext2D): void {
     }
   });
 
-  ctx.fillStyle = "#1d3557";
-  ctx.fillRect(430, 200, 100, 140);
-  ctx.fillStyle = "#c1121f";
-  ctx.fillRect(400, 390, 90, 60);
+  for (const pad of PADS) {
+    ctx.fillStyle = pad.color;
+    ctx.fillRect(pad.x, pad.y, pad.w, pad.h);
+  }
 }
 
 function region(

@@ -1,9 +1,10 @@
-import { STAGE_H, STAGE_W, type Timers } from "./config";
-import { hiderRect, moveHider, POSE_SHAPE, POSES, spawnHider, type Hider, type Pose } from "./hider";
-import { PaintBuffer, TEX_H, TEX_W } from "./paint";
-import { detectRadiusFor, spawnSeeker, TAG_RADIUS, updateSeeker, type Seeker } from "./seeker";
-import { buildStage, sampleStage, type Stage } from "./stage";
-import { inRect, rgbCss, type Rgb, type Vec2 } from "./utils";
+import type { Timers } from "./config";
+import { hiderFootprint, moveHider, POSE_SHAPE, POSES, spawnHider, type Hider, type Pose } from "./hider";
+import { PaintBuffer } from "./paint";
+import { World } from "./scene";
+import { detectRadiusFor, spawnSeeker, updateSeeker, type Seeker } from "./seeker";
+import { buildStage, type Stage } from "./stage";
+import { rgbCss, type Rgb, type Vec2 } from "./utils";
 
 export type Phase =
   | { kind: "lobby" }
@@ -30,6 +31,15 @@ const MOVE_KEYS: Record<string, Vec2> = {
 
 const POSE_KEYS: Record<string, Pose> = { Digit1: "stand", Digit2: "crouch", Digit3: "wallflat" };
 
+/** Radians per second while a key is held. yaw, pitch. */
+const ORBIT_KEYS: Record<string, [number, number]> = {
+  KeyQ: [1.8, 0],
+  KeyE: [-1.8, 0],
+  KeyR: [0, 1.2],
+  KeyF: [0, -1.2],
+};
+const ORBIT_DRAG_RADIANS_PER_PX = 0.006;
+
 export class Game {
   phase: Phase = { kind: "lobby" };
   readonly stage: Stage = buildStage();
@@ -37,9 +47,11 @@ export class Game {
   brush: Brush = { size: 14, color: [31, 138, 128] };
   camouflage = 0;
 
-  private readonly ctx: CanvasRenderingContext2D;
+  readonly world: World;
+
   private readonly keys = new Set<string>();
   private painting = false;
+  private orbiting: Vec2 | null = null;
   private last = 0;
   private readonly ui: Ui;
 
@@ -48,9 +60,7 @@ export class Game {
     overlay: HTMLElement,
     private readonly timers: Timers,
   ) {
-    canvas.width = STAGE_W;
-    canvas.height = STAGE_H;
-    this.ctx = canvas.getContext("2d")!;
+    this.world = new World(canvas, this.stage, this.hider.paint);
     this.ui = buildUi(overlay, {
       primary: () => this.advance(),
       lobby: () => this.toLobby(),
@@ -91,7 +101,7 @@ export class Game {
   }
 
   toHunt(): void {
-    const camouflage = this.hider.paint.camouflage(this.stage, hiderRect(this.hider));
+    const camouflage = this.hider.paint.camouflage(this.stage, hiderFootprint(this.hider));
     const seeker = spawnSeeker(detectRadiusFor(camouflage, this.hider.pose));
     this.phase = { kind: "hunt", remaining: this.timers.hunt, seeker, camouflage };
   }
@@ -105,6 +115,10 @@ export class Game {
     const dt = Math.min(0.05, (now - this.last) / 1000 || 0);
     this.last = now;
     this.update(dt);
+    for (const code of this.keys) {
+      const o = ORBIT_KEYS[code];
+      if (o) this.world.rotate(o[0] * dt, o[1] * dt);
+    }
     this.draw();
     this.ui.sync(this.phase, this.hider, this.brush, this.camouflage);
     requestAnimationFrame((t) => this.frame(t));
@@ -127,7 +141,7 @@ export class Game {
           }
         }
         moveHider(this.hider, dir, dt);
-        this.camouflage = this.hider.paint.camouflage(this.stage, hiderRect(this.hider));
+        this.camouflage = this.hider.paint.camouflage(this.stage, hiderFootprint(this.hider));
         phase.remaining -= dt;
         if (phase.remaining <= 0) this.toHunt();
         return;
@@ -145,45 +159,10 @@ export class Game {
   }
 
   private draw(): void {
-    const { ctx, phase } = this;
-    ctx.drawImage(this.stage.canvas, 0, 0);
-
-    const rect = hiderRect(this.hider);
-    ctx.save();
-    ctx.beginPath();
-    ctx.roundRect(rect.x, rect.y, rect.w, rect.h, Math.min(rect.w, rect.h) * 0.3);
-    ctx.clip();
-    ctx.drawImage(this.hider.paint.canvas, 0, 0, TEX_W, TEX_H, rect.x, rect.y, rect.w, rect.h);
-    ctx.restore();
-
-    if (phase.kind !== "hunt") {
-      ctx.setLineDash([4, 4]);
-      ctx.strokeStyle = "rgba(255,255,255,0.8)";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.roundRect(rect.x - 3, rect.y - 3, rect.w + 6, rect.h + 6, 6);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
-
-    if ("seeker" in phase) this.drawSeeker(phase.seeker);
-  }
-
-  private drawSeeker(s: Seeker): void {
-    const { ctx } = this;
-    ctx.fillStyle = s.mode.kind === "chase" ? "rgba(255, 64, 96, 0.18)" : "rgba(255, 220, 90, 0.12)";
-    ctx.beginPath();
-    ctx.arc(s.pos.x, s.pos.y, s.detectRadius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#14060f";
-    ctx.beginPath();
-    ctx.arc(s.pos.x, s.pos.y, TAG_RADIUS * 0.7, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = s.mode.kind === "chase" ? "#ff4060" : "#ffd45a";
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.arc(s.pos.x, s.pos.y, TAG_RADIUS * 0.45, 0, Math.PI * 2);
-    ctx.stroke();
+    const phase = this.phase;
+    this.world.syncHider(this.hider, phase.kind !== "hunt");
+    this.world.syncSeeker("seeker" in phase ? phase.seeker : null);
+    this.world.render();
   }
 
   private bindInput(): void {
@@ -200,34 +179,54 @@ export class Game {
     window.addEventListener("keyup", (e) => this.keys.delete(e.code));
     window.addEventListener("blur", () => this.keys.clear());
 
+    this.canvas.addEventListener("contextmenu", (e) => e.preventDefault());
     this.canvas.addEventListener("pointerdown", (e) => {
-      if (this.phase.kind !== "prep") return;
-      const p = this.toStage(e);
-      if (inRect(p, hiderRect(this.hider))) {
-        this.painting = true;
-        this.paintAt(p);
-      } else {
-        const picked = sampleStage(this.stage, p.x, p.y);
-        if (picked) this.brush.color = picked;
+      if (e.button === 2) {
+        this.orbiting = { x: e.clientX, y: e.clientY };
+        return;
+      }
+      if (e.button !== 0 || this.phase.kind !== "prep") return;
+      const pick = this.world.pick(this.toNdc(e), false);
+      switch (pick.kind) {
+        case "body":
+          this.painting = true;
+          this.paintAt(pick.u, pick.v);
+          return;
+        case "surface":
+          this.brush.color = pick.rgb;
+          return;
+        case "none":
+          return;
       }
     });
     this.canvas.addEventListener("pointermove", (e) => {
-      if (this.painting && this.phase.kind === "prep") this.paintAt(this.toStage(e));
+      if (this.orbiting) {
+        this.world.rotate(-(e.clientX - this.orbiting.x) * ORBIT_DRAG_RADIANS_PER_PX, (e.clientY - this.orbiting.y) * ORBIT_DRAG_RADIANS_PER_PX);
+        this.orbiting = { x: e.clientX, y: e.clientY };
+        return;
+      }
+      if (!this.painting || this.phase.kind !== "prep") return;
+      const pick = this.world.pick(this.toNdc(e), true);
+      if (pick.kind === "body") this.paintAt(pick.u, pick.v);
     });
-    const stop = () => (this.painting = false);
+    const stop = () => {
+      this.painting = false;
+      this.orbiting = null;
+    };
     window.addEventListener("pointerup", stop);
     window.addEventListener("pointercancel", stop);
   }
 
-  private toStage(e: PointerEvent): Vec2 {
+  private toNdc(e: PointerEvent): Vec2 {
     const r = this.canvas.getBoundingClientRect();
-    return { x: ((e.clientX - r.left) * STAGE_W) / r.width, y: ((e.clientY - r.top) * STAGE_H) / r.height };
+    return { x: ((e.clientX - r.left) / r.width) * 2 - 1, y: -(((e.clientY - r.top) / r.height) * 2 - 1) };
   }
 
-  private paintAt(p: Vec2): void {
-    const rect = hiderRect(this.hider);
-    const texelsPerPx = (TEX_W / rect.w + TEX_H / rect.h) / 2;
-    this.hider.paint.dab((p.x - rect.x) / rect.w, (p.y - rect.y) / rect.h, this.brush.size * texelsPerPx * 0.5, this.brush.color);
+  /** The capsule's u wraps around the body, so a dab near the seam is repeated one texture width to each side. */
+  private paintAt(u: number, v: number): void {
+    const radius = this.brush.size * 0.6;
+    for (const du of [-1, 0, 1]) this.hider.paint.dab(u + du, v, radius, this.brush.color);
+    this.world.markSkinPainted();
   }
 }
 
