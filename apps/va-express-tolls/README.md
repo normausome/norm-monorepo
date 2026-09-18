@@ -33,6 +33,7 @@ No environment variables or secrets are needed locally. See [Deploying the API (
 
 - **Simple** (default) — pick a corridor, then your entry and exit; the price comes from that operator's calculator. This is the original flow and is unchanged.
 - **Advanced** (`#advanced`) — type a *from* and a *to* (address, place name, or `lat, lng`). The server routes the drive, works out which Express Lanes it runs beside, and prices every one through the same adapters, giving a total and a per-leg breakdown on a map of the route. See [Advanced mode](#advanced-mode-address--address) below for how detection works and its limits.
+- **History** (`#history`) — posted min / avg / max over recent scraper snapshots for each corridor, read from the sibling `dmv-tolls-scraper` Postgres when `DATABASE_URL` is set.
 
 ## How it works
 
@@ -47,6 +48,7 @@ src/                       React front end (Vite, Tailwind v4, shadcn button/car
   lib/schedule.ts          I-66 Inside peak-window and 95/395 reversible-schedule helpers
 server/                    Bun.serve API
   index.ts                 routes, health check, error mapping, static dist/ in production
+  history.ts               /api/history/* — scraper snapshots from Postgres (optional DATABASE_URL)
   estimate.ts              adapter registry + the 3-minute per-trip estimate cache (shared by Simple and Advanced)
   cors.ts                  allow-list CORS for a front end on another origin (dmvtolls.com, Vite dev)
   adapters/vai66.ts        I-66 Inside — VDOT Razor page handlers
@@ -67,6 +69,11 @@ GET /api/health
 GET /api/corridors
 GET /api/:corridor/points?direction=nb|sb|eb|wb
 GET /api/:corridor/estimate?direction=&entry=&exit=[&at=<ISO, past only, 66 Inside>]
+GET /api/history/summary
+    → { available, latestRun: { startedAt, finishedAt, status } | null,
+        corridors: [{ id, latest: HistorySample | null, samples24h }] }
+GET /api/history/:corridor?hours=24                       (hours clamped 1–168)
+    → { corridor, hours, samples: [{ scrapedAt, min, max, avg, openDirection95?, currentlyTolled?, error }] }
 GET /api/geocode?q=<text, 3+ chars>                     → { results: [{ label, lat, lng }], provider }
 GET /api/route-tolls?from=<lat,lng>&to=<lat,lng>[&fromLabel=&toLabel=]
     → { from, to, route: { provider, distanceMeters, durationSeconds, geometry: [[lat,lng]…] },
@@ -76,7 +83,7 @@ GET /api/route-tolls?from=<lat,lng>&to=<lat,lng>[&fromLabel=&toLabel=]
         total: number | null, currency: "USD", notes: string[] }
 ```
 
-`/api/health` is the deploy health check: `200 {"ok":true, …}` with `startedAt`, `uptimeSeconds`, the corridor ids and whether `dist/` is being served. It never calls an operator.
+`/api/health` is the deploy health check: `200 {"ok":true, …}` with `startedAt`, `uptimeSeconds`, the corridor ids, whether `dist/` is being served, and `history` (whether `DATABASE_URL` is set). It never calls an operator.
 
 Every estimate carries `source.operator`, `source.fetchedAt`, per-leg prices, and `notes`. When an operator can't be reached or returns something unexpected, the API returns an `error` — it never fabricates a number.
 
@@ -90,6 +97,10 @@ Identical estimate requests don't re-run the operator automation. The server kee
 - Beneath that, the adapters still cache their *upstream* payloads (mappings 24h, the Transurban price feed 60 s shared by every 495/395/95 trip, historical I-66 Inside prices 24h), so different trips on one corridor also share operator calls.
 
 Memory only: a single-node MVP has no Redis/KV in the stack, and a restart just means the first request per trip goes upstream again. The [iOS app](../va-express-tolls-ios/) calls the same `/api/:corridor/estimate` endpoint and therefore gets the same cached answers; the new fields are additive, so its decoder needs no change.
+
+### History (Postgres)
+
+The History tab reads `/api/history/*`, which serves snapshots written every 30 minutes by `apps/dmv-tolls-scraper` into a shared Postgres (`scrape_runs` + `corridor_snapshots`). Each row's corridor-specific `summary` JSONB is normalized to `{ scrapedAt, min, avg, max }` (plus `openDirection95` on Transurban corridors and `currentlyTolled` on I-66 Inside). Without `DATABASE_URL` the summary endpoint reports `available: false` and the tab shows a setup message.
 
 Points carry `lat`/`lng` so the UI can draw them: a map under the selects shows the direction's entries, then the exits reachable from your entry, and highlights the chosen pair (tapping a dot selects it). Coordinates come from each operator's own map — vai66tolls and expresslanes ship them with their interchange data; for 66 Outside they were captured once from the planner's markers (a few select-only ramps are placed at the same interchange and commented as approximate). Basemap: OpenStreetMap tiles, fine for a demo; a real deployment must follow the [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/) or bring its own tiles.
 
@@ -151,9 +162,9 @@ Target: the estimate API hosted on Railway for **dmvtolls.com** — first on Rai
 
 ### Design notes
 
-- **What the server needs at runtime: Bun, and nothing else.** The adapters talk to the operators with plain `fetch` (Transurban's JSON feed, VDOT's Razor handlers, the 66 Outside `theme-ajax` call). There is no Playwright/Puppeteer/Chromium anywhere in `package.json`, and `server/` imports no npm package at all — only `src/data/corridors.ts` and `src/lib/api-types.ts`. So the production image needs **no `node_modules`, no browser, no Nixpacks/Railpack browser layer**. If a future adapter ever needs a headless browser, that is the moment to add one, not before.
+- **What the server needs at runtime: Bun, and the `postgres` client.** The adapters talk to the operators with plain `fetch` (Transurban's JSON feed, VDOT's Razor handlers, the 66 Outside `theme-ajax` call). There is no Playwright/Puppeteer/Chromium anywhere in `package.json`. The only npm runtime dependency is `postgres` (for `/api/history/*`); everything else the server imports is first-party (`src/data/corridors.ts`, `src/lib/api-types.ts`). The production image copies `node_modules` for that client and still needs **no browser, no Nixpacks/Railpack browser layer**. If a future adapter ever needs a headless browser, that is the moment to add one, not before.
 - **Dockerfile, not `railway.json`/Nixpacks.** Railway's per-service config file (`railway.json` / `railway.toml`, "Config as Code") is deprecated: new services can't opt in and existing files stop being read on 2026‑12‑01. Its replacement, Infrastructure as Code (`.railway/railway.ts`), needs the Railway CLI and an npm package and describes a whole project — more than one API service warrants. A `Dockerfile` needs neither: Railway always builds a Dockerfile when it finds one in the service's root directory, and the file itself carries the build and start commands, so the only dashboard settings left are the root directory and the health-check path. Railpack (Railway's zero-config builder) would also boot this app, but it installs "latest Bun" and re-derives the build each deploy; the Dockerfile pins `oven/bun:1.4` (the official image) and is reproducible locally with `docker build`.
-- **Image shape.** Two stages: `oven/bun:1.4` runs `bun install --frozen-lockfile` and `bun run build` (typecheck + Vite); `oven/bun:1.4-slim` then gets only `server/`, `src/`, `dist/`, `package.json` and the `tsconfig*.json`, runs as the non-root `bun` user, and starts `bun server/index.ts`. `.dockerignore` keeps `node_modules`, `dist` and `.git` out of the build context.
+- **Image shape.** Two stages: `oven/bun:1.4` runs `bun install --frozen-lockfile` and `bun run build` (typecheck + Vite); `oven/bun:1.4-slim` then gets `server/`, `src/`, `dist/`, `package.json`, the `tsconfig*.json` and `node_modules` (for the `postgres` client), runs as the non-root `bun` user, and starts `bun server/index.ts`. `.dockerignore` keeps `node_modules`, `dist` and `.git` out of the build context.
 - **Server changes made for hosting.** `Bun.serve` binds `0.0.0.0` explicitly (Railway routes to all interfaces) on `PORT`; `idleTimeout` is raised to 60 s because Bun's 10 s default would cut off a cold estimate while an operator takes up to 15 s to answer; `/api/health` added; CORS added for the future cross-origin front end (below). Scrape logic, caching and the API contract are unchanged.
 - **Caching.** The 3‑minute estimate cache is in-process memory. One Railway replica is the intended shape; with several replicas each would hold its own cache (still correct, just more operator calls). No Redis.
 
@@ -169,6 +180,7 @@ All optional; the only secret-ish one is `MAPBOX_TOKEN`, and only if you opt int
 | `MAPBOX_TOKEN` | unset | Advanced mode: when set, routing uses Mapbox Directions and geocoding uses Mapbox Geocoding v6 instead of the keyless OSRM demo + Photon. Server-side only; never sent to the browser. See [Advanced mode](#advanced-mode-address--address). |
 | `ROUTING_URL` | `https://router.project-osrm.org` | Advanced mode: any OSRM-compatible router to use instead of the demo server (ignored when `MAPBOX_TOKEN` is set). |
 | `PHOTON_URL` | `https://photon.komoot.io` | Advanced mode: alternative Photon geocoder instance (ignored when `MAPBOX_TOKEN` is set). |
+| `DATABASE_URL` | unset | Optional Postgres URL for `/api/history/*`. When set, the History tab serves scraper snapshots from the same database the `dmv-tolls-scraper` cron writes to (on Railway, reference that Postgres service's `DATABASE_URL`). When unset, `/api/history/summary` returns `available: false` and `/api/health` reports `history: false`. |
 
 CORS behaviour: same-origin requests (the API serving `dist/`, or a curl) send no `Origin` header and are untouched. An allowed cross-origin request gets `Access-Control-Allow-Origin: <that origin>`, `Vary: Origin` and `Access-Control-Expose-Headers: x-cache`, on successes and API errors alike; a disallowed origin gets the normal response with no CORS headers (so the browser blocks it). Preflights (`OPTIONS` with `Access-Control-Request-Method`) return `204` for allowed origins, `403` otherwise; methods `GET, HEAD, OPTIONS`, `max-age` 24 h, no credentials.
 
