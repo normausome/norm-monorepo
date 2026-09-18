@@ -1,0 +1,20 @@
+{
+  "name": "dmv-tolls-scraper",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "scrape": "bun src/main.ts",
+    "scrape:dry": "bun src/main.ts --dry-run",
+    "lint": "oxlint src",
+    "start": "bun src/main.ts"
+  },
+  "dependencies": {
+    "postgres": "^3.4.7"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.1",
+    "oxlint": "^1.79.0",
+    "typescript": "~6.0.2"
+  }
+}

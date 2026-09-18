@@ -5,6 +5,7 @@ import type { ApiError, CacheInfo, Direction } from "../src/lib/api-types"
 import { BadRequest, type CorridorAdapter } from "./adapters/types"
 import { allowedOrigins, preflight, withCors } from "./cors"
 import { adapterFor, adapters, cachedEstimate } from "./estimate"
+import { handleHistory, handleHistorySummary, historyConfigured } from "./history"
 import { UpstreamError } from "./http"
 import { handleGeocode, handleRouteTolls } from "./route"
 import { geocodingProvider, routingProvider } from "./route/providers"
@@ -76,12 +77,15 @@ async function handleApi(url: URL): Promise<Response> {
       corridors: Object.keys(adapters),
       static: serveStatic,
       advanced: { routing: routingProvider, geocoding: geocodingProvider },
+      history: historyConfigured,
     })
   }
 
   // Advanced mode: address → address. Both proxy third parties server-side (see route/providers.ts).
   if (corridorId === "geocode" && !action) return json(await handleGeocode(url))
   if (corridorId === "route-tolls" && !action) return json(await handleRouteTolls(url))
+  if (corridorId === "history" && action === "summary") return json(await handleHistorySummary())
+  if (corridorId === "history" && action) return json(await handleHistory(action, url))
 
   if (corridorId === "corridors" && !action) {
     return json(
