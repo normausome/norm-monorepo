@@ -116,6 +116,46 @@ export interface UnmatchedCorridor {
   reason: string
 }
 
+/**
+ * One scraper snapshot for a corridor, normalized from the dmv-tolls-scraper
+ * `corridor_snapshots.summary` JSONB (see apps/dmv-tolls-scraper). Prices are the
+ * operator's posted per-segment/per-trip figures at that moment, in USD.
+ */
+export interface HistorySample {
+  scrapedAt: string
+  /** Lowest / highest / mean posted price across the corridor at that moment; null when the scrape failed or nothing was tolled. */
+  min: number | null
+  max: number | null
+  avg: number | null
+  /** Which way the reversible 95/395 lanes were open (Transurban corridors only). */
+  openDirection95?: "nb" | "sb" | null
+  /** I-66 Inside only: whether the operator reported a non-zero toll. */
+  currentlyTolled?: boolean
+  /** Scraper-recorded failure for this corridor, if any. */
+  error: string | null
+}
+
+export interface HistoryCorridorStatus {
+  id: CorridorId
+  latest: HistorySample | null
+  /** Snapshots recorded in the last 24 hours. */
+  samples24h: number
+}
+
+export interface HistorySummaryResponse {
+  /** False when the API has no DATABASE_URL; the UI then explains how to enable history. */
+  available: boolean
+  latestRun: { startedAt: string; finishedAt: string; status: "ok" | "partial" | "failed" } | null
+  corridors: HistoryCorridorStatus[]
+}
+
+export interface HistoryResponse {
+  corridor: CorridorId
+  /** Window length actually applied (clamped server-side, 1–168). */
+  hours: number
+  samples: HistorySample[]
+}
+
 export interface RouteTollsResponse {
   from: Place
   to: Place
