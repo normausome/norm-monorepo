@@ -5,6 +5,8 @@ import type {
   CorridorSupport,
   Direction,
   GeocodeResponse,
+  HistoryResponse,
+  HistorySummaryResponse,
   Place,
   PointsResponse,
   RouteTollsResponse,
@@ -47,6 +49,11 @@ export const fetchRouteTolls = (from: Place, to: Place) =>
       toLabel: to.label,
     })}`,
   )
+
+export const fetchHistorySummary = () => get<HistorySummaryResponse>("/api/history/summary")
+
+export const fetchHistory = (corridor: CorridorId, hours: number) =>
+  get<HistoryResponse>(`/api/history/${encodeURIComponent(corridor)}?hours=${hours}`)
 
 export const formatUsd = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n)

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { AdvancedEstimator, type LegAdjustment } from "@/components/AdvancedEstimator"
+import History from "@/components/History"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { TripEstimator, type TripPreset } from "@/components/TripEstimator"
 import {
@@ -16,19 +17,22 @@ import { insideBeltwayStatus } from "@/lib/schedule"
 import { cn } from "@/lib/utils"
 import { CircleAlert, Clock, MapPinned } from "lucide-react"
 
-type Mode = "simple" | "advanced"
+type Mode = "simple" | "advanced" | "history"
 const ADVANCED_HASH = "advanced"
+const HISTORY_HASH = "history"
 
-/** `#advanced` selects Advanced mode; a corridor id selects that corridor in Simple mode. */
+/** `#advanced` / `#history` select those modes; a corridor id selects that corridor in Simple mode. */
 function fromHash(): { mode: Mode; corridor: CorridorId } {
   const hash = window.location.hash.replace(/^#/, "")
   if (hash === ADVANCED_HASH) return { mode: "advanced", corridor: DEFAULT_CORRIDOR }
+  if (hash === HISTORY_HASH) return { mode: "history", corridor: DEFAULT_CORRIDOR }
   return { mode: "simple", corridor: isCorridorId(hash) ? hash : DEFAULT_CORRIDOR }
 }
 
 const MODES: { id: Mode; label: string; hint: string }[] = [
   { id: "simple", label: "Simple", hint: "Pick a corridor, then your entry and exit" },
   { id: "advanced", label: "Advanced", hint: "Address to address — every corridor on the way" },
+  { id: "history", label: "History", hint: "How prices moved, every 30 minutes" },
 ]
 
 export function App() {
@@ -65,7 +69,11 @@ export function App() {
   function switchMode(next: Mode) {
     setMode(next)
     setPreset(null)
-    history.replaceState(null, "", `#${next === "advanced" ? ADVANCED_HASH : selectedId}`)
+    history.replaceState(
+      null,
+      "",
+      `#${next === "advanced" ? ADVANCED_HASH : next === "history" ? HISTORY_HASH : selectedId}`,
+    )
   }
 
   /** Advanced mode found a trip; open it in Simple mode with the same corridor, direction, entry and exit pre-filled. */
@@ -110,7 +118,7 @@ export function App() {
                 aria-selected={active}
                 onClick={() => switchMode(m.id)}
                 className={cn(
-                  "flex-1 rounded-md px-4 py-2 text-left transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:flex-none sm:min-w-56",
+                  "min-w-0 flex-1 rounded-md px-3 py-2 text-left transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:flex-none sm:min-w-44",
                   active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                 )}
               >
@@ -122,7 +130,7 @@ export function App() {
         </div>
       </section>
 
-      <section aria-label="Choose a corridor" className={cn("mb-6", mode === "advanced" && "hidden")}>
+      <section aria-label="Choose a corridor" className={cn("mb-6", (mode === "advanced" || mode === "history") && "hidden")}>
         <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           1. Choose corridor
         </p>
@@ -190,6 +198,8 @@ export function App() {
               </CardDescription>
             </CardHeader>
           </Card>
+        ) : mode === "history" ? (
+          <History />
         ) : mode === "advanced" ? (
           <AdvancedEstimator onAdjustLeg={adjustLeg} />
         ) : (
@@ -202,7 +212,7 @@ export function App() {
           />
         )}
 
-        <Card className={cn(mode === "advanced" && "hidden")}>
+        <Card className={cn((mode === "advanced" || mode === "history") && "hidden")}>
           <CardHeader>
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               3. Know the rules
