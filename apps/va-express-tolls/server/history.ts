@@ -18,11 +18,18 @@ function client(): Sql {
   return sql
 }
 
-async function withDb<T>(fn: (db: Sql) => Promise<T>): Promise<T> {
+// The scraper owns the schema and creates it on its first run. Until then a
+// configured but empty database is "no history yet", not an outage.
+const UNDEFINED_TABLE = "42P01"
+const isUndefinedTable = (err: unknown) =>
+  typeof err === "object" && err !== null && (err as { code?: unknown }).code === UNDEFINED_TABLE
+
+async function withDb<T>(fn: (db: Sql) => Promise<T>, whenEmpty: () => T): Promise<T> {
   try {
     return await fn(client())
   } catch (err) {
     if (err instanceof UpstreamError || err instanceof BadRequest) throw err
+    if (isUndefinedTable(err)) return whenEmpty()
     console.error(err)
     throw new UpstreamError(`History database unavailable: ${err instanceof Error ? err.message : String(err)}`, 503)
   }
@@ -129,8 +136,14 @@ export async function handleHistorySummary(): Promise<HistorySummaryResponse> {
         return { id: c.id, latest: hit?.sample ?? null, samples24h: hit?.n ?? 0 }
       }),
     }
-  })
+  }, emptySummary)
 }
+
+const emptySummary = (): HistorySummaryResponse => ({
+  available: true,
+  latestRun: null,
+  corridors: CORRIDORS.map((c) => ({ id: c.id, latest: null, samples24h: 0 })),
+})
 
 export async function handleHistory(corridorId: string, url: URL): Promise<HistoryResponse> {
   if (!isCorridorId(corridorId)) throw new BadRequest(`Unknown corridor "${corridorId}"`)
@@ -150,5 +163,5 @@ export async function handleHistory(corridorId: string, url: URL): Promise<Histo
       hours,
       samples: rows.map((r) => toSample(corridorId, r.scraped_at, r.summary, r.error)),
     }
-  })
+  }, () => ({ corridor: corridorId, hours, samples: [] }))
 }
