@@ -1,0 +1,198 @@
+[
+  {
+    "id": "q1",
+    "kind": "trivia",
+    "prompt": "Where did Thomas Sowell spend much of his childhood after leaving North Carolina, before later earning a PhD in economics?",
+    "choices": [
+      {"id": "a", "text": "Harlem, New York City"},
+      {"id": "b", "text": "Chicago’s South Side"},
+      {"id": "c", "text": "Atlanta’s Sweet Auburn"},
+      {"id": "d", "text": "Washington, D.C.’s Anacostia"}
+    ],
+    "correctId": "a",
+    "explain": "Sowell was born in Gastonia, North Carolina, moved to Harlem as a child, later served in the Marines, then studied economics through Harvard, Columbia, and a University of Chicago PhD.",
+    "source": "Hoover Institution fellow profile / Thomas Sowell; also A Personal Odyssey (memoir)"
+  },
+  {
+    "id": "q2",
+    "kind": "trivia",
+    "prompt": "In A Conflict of Visions, Sowell’s “constrained vision” of human nature is closest to which claim?",
+    "choices": [
+      {"id": "a", "text": "People are limited and self-interested, so politics should emphasize trade-offs, incentives, and institutional checks"},
+      {"id": "b", "text": "People are blank slates, so expert planners can redesign society toward moral perfection"},
+      {"id": "c", "text": "Only genetic determinism explains political disagreement"},
+      {"id": "d", "text": "Markets always fail, so unconstrained reason must replace prices"}
+    ],
+    "correctId": "a",
+    "explain": "The constrained vision treats human nature as imperfect and hard to remake; the unconstrained vision treats people as more malleable and perfectible through articulated reason and elite guidance.",
+    "source": "A Conflict of Visions — constrained vs unconstrained vision chapters"
+  },
+  {
+    "id": "q3",
+    "kind": "trivia",
+    "prompt": "Sowell’s recurring line about policy is best paraphrased as:",
+    "choices": [
+      {"id": "a", "text": "There are no solutions, only trade-offs"},
+      {"id": "b", "text": "Every social problem has one correct technical fix"},
+      {"id": "c", "text": "Good intentions are a sufficient success metric"},
+      {"id": "d", "text": "If voters demand a solution, economics must deliver one"}
+    ],
+    "correctId": "a",
+    "explain": "He argues that wishing away costs does not erase them; choosing a policy means accepting other costs, shortages, or side effects.",
+    "source": "Sowell columns/talks on housing and policy; theme also in A Conflict of Visions (solutions vs trade-offs)"
+  },
+  {
+    "id": "q4",
+    "kind": "trivia",
+    "prompt": "In Basic Economics, what does Sowell emphasize as a common result of rent control that keeps rents artificially low?",
+    "choices": [
+      {"id": "a", "text": "Housing shortages, waiting lists, and often deterioration of rental stock"},
+      {"id": "b", "text": "Permanent surpluses of brand-new luxury apartments"},
+      {"id": "c", "text": "Construction booms because builders earn more under the cap"},
+      {"id": "d", "text": "Prices stop mattering because demand no longer responds to price"}
+    ],
+    "correctId": "a",
+    "explain": "Holding price below the market level raises quantity demanded and reduces quantity supplied; Sowell uses wartime and postwar U.S. housing examples among others.",
+    "source": "Basic Economics — chapters on prices, shortages/surpluses, and price controls / rent control"
+  },
+  {
+    "id": "q5",
+    "kind": "trivia",
+    "prompt": "What is a central theme of Intellectuals and Society?",
+    "choices": [
+      {"id": "a", "text": "“Idea workers” can heavily shape public opinion and policy while facing little personal accountability when ideas fail"},
+      {"id": "b", "text": "Only STEM PhDs should vote"},
+      {"id": "c", "text": "Intellectuals have almost no influence in democracies"},
+      {"id": "d", "text": "Universities should be abolished because books are obsolete"}
+    ],
+    "correctId": "a",
+    "explain": "Sowell defines intellectuals as people whose work centers on ideas, argues they often influence democratic climates of opinion, and critiques weak feedback when prescriptions fail empirically.",
+    "source": "Intellectuals and Society — opening thesis / publishers’ book description"
+  },
+  {
+    "id": "q6",
+    "kind": "trivia",
+    "prompt": "Discrimination and Disparities mainly pushes readers to reject which automatic inference?",
+    "choices": [
+      {"id": "a", "text": "That unequal group outcomes by themselves prove discrimination was the sole or primary cause"},
+      {"id": "b", "text": "That discrimination has never existed anywhere"},
+      {"id": "c", "text": "That first-born children never have advantages"},
+      {"id": "d", "text": "That markets always equalize all group averages overnight"}
+    ],
+    "correctId": "a",
+    "explain": "Sowell argues disparities have many causes (including non-discriminatory ones); discrimination can matter, but seeing a gap is not enough to infer only discrimination.",
+    "source": "Discrimination and Disparities — early chapters on multiple causes of disparities; Sowell interviews summarizing the book"
+  },
+  {
+    "id": "q7",
+    "kind": "trivia",
+    "prompt": "In Black Rednecks and White Liberals, Sowell’s race-vs-culture theme is closest to which claim?",
+    "choices": [
+      {"id": "a", "text": "Cultural patterns (not race as biology) help explain some group behaviors and outcomes, including traits he traces to Southern “redneck” culture"},
+      {"id": "b", "text": "Genetics alone determine every social outcome"},
+      {"id": "c", "text": "Culture never matters once discrimination is mentioned"},
+      {"id": "d", "text": "Only African history can explain Southern white folkways"}
+    ],
+    "correctId": "a",
+    "explain": "The title essay argues that some dysfunctional patterns often labeled as uniquely Black ghetto culture have historical roots in white Southern cultural patterns, and that romanticizing those patterns can be harmful.",
+    "source": "Black Rednecks and White Liberals — title essay"
+  },
+  {
+    "id": "q8",
+    "kind": "scenario",
+    "prompt": "A city caps apartment rents far below market levels to help tenants. Which reaction is most Sowellian?",
+    "choices": [
+      {"id": "a", "text": "Expect shortages, less new rental supply, and pressure to cut maintenance—because price is a signal, not just a number politicians can erase"},
+      {"id": "b", "text": "Assume landlords will build more units once rents are lower"},
+      {"id": "c", "text": "Treat the shortage as proof that rent caps were set too high"},
+      {"id": "d", "text": "Conclude that demand for housing does not respond to price"}
+    ],
+    "correctId": "a",
+    "explain": "Sowell treats prices as conveying scarcities and costs. Cap the price and you do not cancel those realities; you often get queues, deterioration, and reduced supply.",
+    "source": "Basic Economics (rent control / price controls); Sowell columns on price controls"
+  },
+  {
+    "id": "q9",
+    "kind": "scenario",
+    "prompt": "After a factory closes, a panel of professors proposes a detailed national plan for every worker’s next job. A Sowellian pushback would most likely stress:",
+    "choices": [
+      {"id": "a", "text": "The knowledge problem: dispersed local information and changing trade-offs are hard for central planners to know as well as prices and individuals do"},
+      {"id": "b", "text": "That professors always know more than markets about every local job match"},
+      {"id": "c", "text": "That unemployment proves prices convey no useful information"},
+      {"id": "d", "text": "That human nature is unlimited, so one blueprint can optimize everyone’s path"}
+    ],
+    "correctId": "a",
+    "explain": "Across Basic Economics and his broader work, Sowell emphasizes that useful knowledge is scattered and that prices help coordinate it; unconstrained visions overrate articulated elite plans.",
+    "source": "Basic Economics (prices as signals); A Conflict of Visions (locus of discretion / articulated rationality); related themes in Knowledge and Decisions"
+  },
+  {
+    "id": "q10",
+    "kind": "scenario",
+    "prompt": "Group A out-earns Group B. An activist says: “The gap proves discrimination, full stop.” Most Sowellian reply?",
+    "choices": [
+      {"id": "a", "text": "Disparities can have many causes; discrimination is one possible cause, not an automatic proof from the gap alone"},
+      {"id": "b", "text": "Gaps never matter and need no study"},
+      {"id": "c", "text": "Discrimination is impossible by definition"},
+      {"id": "d", "text": "Only genetics can explain gaps, so stop talking about culture or age"}
+    ],
+    "correctId": "a",
+    "explain": "Discrimination and Disparities is built around rejecting the leap from unequal outcomes to a single causal story, while still allowing that discrimination can matter.",
+    "source": "Discrimination and Disparities"
+  },
+  {
+    "id": "q11",
+    "kind": "scenario",
+    "prompt": "A pundit says a new program will “solve” poverty with no serious downsides. Which follow-up questions are most in Sowell’s spirit?",
+    "choices": [
+      {"id": "a", "text": "Compared to what? At what cost? What hard evidence?"},
+      {"id": "b", "text": "Who feels the most moral about it?"},
+      {"id": "c", "text": "How quickly can we expand it before measuring results?"},
+      {"id": "d", "text": "Which slogan polls best with donors?"}
+    ],
+    "correctId": "a",
+    "explain": "He repeatedly frames policy as comparative and empirical: alternatives, costs, and evidence—not sincerity or utopia language.",
+    "source": "Sowell interviews/columns summarizing his three questions; trade-offs theme in A Conflict of Visions / Basic Economics"
+  },
+  {
+    "id": "q12",
+    "kind": "scenario",
+    "prompt": "A celebrated social theory fails in practice, but its academic champions keep promoting it and blame implementation, not the idea. Intellectuals and Society would most likely highlight:",
+    "choices": [
+      {"id": "a", "text": "Weak accountability: idea-workers often face little personal cost when theories produce bad results, so evidence may not revise the vision"},
+      {"id": "b", "text": "That failure proves the theory needed even more funding only"},
+      {"id": "c", "text": "That intellectuals never influence democratic opinion"},
+      {"id": "d", "text": "That empirical track records are irrelevant to social ideas"}
+    ],
+    "correctId": "a",
+    "explain": "A core claim is that intellectuals shape climates of opinion yet often are not forced to pay for disastrous prescriptions the way market actors are.",
+    "source": "Intellectuals and Society"
+  },
+  {
+    "id": "q13",
+    "kind": "scenario",
+    "prompt": "A reform raises welfare benefits but also sharply reduces the payoff to taking an entry-level job. Sowell’s incentives lens most naturally asks:",
+    "choices": [
+      {"id": "a", "text": "What behavior does this reward, and what unintended responses should we expect?"},
+      {"id": "b", "text": "Only whether the reformers meant well"},
+      {"id": "c", "text": "Whether the slogan mentions justice"},
+      {"id": "d", "text": "Whether experts feel unconstrained by trade-offs"}
+    ],
+    "correctId": "a",
+    "explain": "Throughout Basic Economics and his policy writing, he treats incentives as drivers of outcomes, independent of stated goals.",
+    "source": "Basic Economics (incentives); related policy essays"
+  },
+  {
+    "id": "q14",
+    "kind": "scenario",
+    "prompt": "Commentators say a minority community’s problems must be explained only by race or only by outsider oppression. A Sowellian alternative emphasis would be:",
+    "choices": [
+      {"id": "a", "text": "Also examine culture, human capital, and internal patterns—not race as destiny and not a single external cause for every gap"},
+      {"id": "b", "text": "Ignore history of discrimination entirely"},
+      {"id": "c", "text": "Assume all cultures produce identical results under identical laws"},
+      {"id": "d", "text": "Replace cultural discussion with slogans only"}
+    ],
+    "correctId": "a",
+    "explain": "Books like Black Rednecks and White Liberals and Discrimination and Disparities stress culture and multiple causes while rejecting monocausal racial or discrimination-only stories.",
+    "source": "Black Rednecks and White Liberals; Discrimination and Disparities"
+  }
+]
