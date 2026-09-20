@@ -2,4 +2,17 @@
 
 Browser social-deduction satire. Six Fellows, one deadline, one Pundit who has not done the reading.
 
-No code yet. Read [DESIGN.md](./DESIGN.md) for the loop, roles, map, tasks, meeting flow, stack, MVP cut line, data shapes, and the seven-unit implementation plan.
+Design contract: [DESIGN.md](./DESIGN.md).
+
+## Run locally
+
+```bash
+cd apps/social-injustice-intellectuals
+bun install
+bun run dev
+```
+
+- `bun test` — reducer and bot unit tests
+- `bun run build` — production build
+
+Shareable rounds use `#seed=<number>` in the URL hash after you **Convene**.
