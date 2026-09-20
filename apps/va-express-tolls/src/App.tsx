@@ -107,7 +107,7 @@ export function App() {
       </header>
 
       <section aria-label="Choose a mode" className="mb-6">
-        <div role="tablist" aria-label="Mode" className="inline-flex w-full rounded-lg border bg-card p-1 sm:w-auto">
+        <div role="tablist" aria-label="Mode" className="flex w-full gap-1 rounded-lg border bg-card p-1">
           {MODES.map((m) => {
             const active = m.id === mode
             return (
@@ -118,12 +118,12 @@ export function App() {
                 aria-selected={active}
                 onClick={() => switchMode(m.id)}
                 className={cn(
-                  "min-w-0 flex-1 rounded-md px-3 py-2 text-left transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:flex-none sm:min-w-44",
+                  "flex min-w-0 flex-1 flex-col items-start gap-0.5 rounded-md px-3 py-2 text-left transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
                   active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                 )}
               >
-                <span className="block text-sm font-semibold">{m.label}</span>
-                <span className={cn("block text-xs leading-snug", active ? "text-primary-foreground/80" : "text-muted-foreground")}>{m.hint}</span>
+                <span className="text-sm font-semibold">{m.label}</span>
+                <span className={cn("text-xs leading-snug text-pretty", active ? "text-primary-foreground/80" : "text-muted-foreground")}>{m.hint}</span>
               </button>
             )
           })}
