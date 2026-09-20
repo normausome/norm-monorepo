@@ -94,7 +94,7 @@ export function MeetingPanel({
               </select>
               {template !== 'was-in' && template !== 'skip' && (
                 <select
-                  className="w-full rounded border p-1 text-xs"
+                  className="w-full rounded border p-1 text-xs focus-visible:ring-[3px] focus-visible:ring-[var(--color-chalk)] focus-visible:ring-offset-1"
                   value={target}
                   onChange={(e) => setTarget(Number(e.target.value) as PlayerId)}
                 >
@@ -105,7 +105,7 @@ export function MeetingPanel({
               )}
               {(template === 'was-in' || template === 'saw') && (
                 <select
-                  className="w-full rounded border p-1 text-xs"
+                  className="w-full rounded border p-1 text-xs focus-visible:ring-[3px] focus-visible:ring-[var(--color-chalk)] focus-visible:ring-offset-1"
                   value={room}
                   onChange={(e) => setRoom(e.target.value as RoomId)}
                 >
