@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react"
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -58,6 +58,7 @@ function latestLabel(sample: HistorySample | null) {
   if (!sample) return "no data"
   if (sample.avg != null) return formatUsd(sample.avg)
   if (sample.error) return "scrape failed"
+  if (sample.currentlyTolled === false) return "free"
   return "no data"
 }
 
@@ -77,6 +78,22 @@ function formatY(n: number) {
     minimumFractionDigits: Number.isInteger(n) ? 0 : 2,
     maximumFractionDigits: 2,
   }).format(n)
+}
+
+/** Current width of the referenced element, tracked across resizes. 0 until first layout. */
+function useElementWidth<T extends HTMLElement>() {
+  const ref = useRef<T>(null)
+  const [width, setWidth] = useState(0)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const update = () => setWidth(el.getBoundingClientRect().width)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+  return [ref, width] as const
 }
 
 function ErrorCard({ message, onRetry }: { message: string; onRetry: () => void }) {
@@ -154,12 +171,16 @@ export default function History() {
     setSeriesTick((n) => n + 1)
   }
 
+  // Re-selecting the current value would flip to "loading" without re-running the
+  // fetch effect (its deps are unchanged), leaving the spinner up forever.
   function selectCorridor(id: CorridorId) {
+    if (id === corridor) return
     setCorridor(id)
     setSeries({ status: "loading" })
   }
 
   function selectHours(next: number) {
+    if (next === hours) return
     setHours(next)
     setSeries({ status: "loading" })
   }
@@ -240,7 +261,7 @@ export default function History() {
       </section>
 
       <label className="block space-y-2 text-sm">
-        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">2. Window</span>
+        <span className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">2. Window</span>
         <select
           className={cn(selectClass, "sm:w-auto")}
           aria-label="History window"
@@ -319,6 +340,7 @@ function ChartLegend({ samples }: { samples: HistorySample[] }) {
 
 function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: number }) {
   const clipId = useId()
+  const [frameRef, frameWidth] = useElementWidth<HTMLDivElement>()
   const sorted = [...samples].sort((a, b) => Date.parse(a.scrapedAt) - Date.parse(b.scrapedAt))
   const newest = Date.parse(sorted[sorted.length - 1]?.scrapedAt ?? "")
   const end = Number.isNaN(newest) ? 1 : newest
@@ -327,7 +349,9 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
   const priced = sorted.flatMap((s) => [s.min, s.max, s.avg].filter((n): n is number => n != null))
   const yMax = niceMax(Math.max(0, ...priced))
 
-  const W = 640
+  // The viewBox tracks the rendered width so one SVG unit is one CSS pixel and
+  // the 10px axis labels stay legible instead of scaling down with the card.
+  const W = Math.max(240, Math.round(frameWidth) || 640)
   const H = 220
   const pl = 52
   const pr = 12
@@ -339,7 +363,8 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
   const yAt = (v: number) => pt + innerH - (v / yMax) * innerH
 
   const yTicks = [0, 1, 2, 3].map((i) => (yMax * i) / 3)
-  const xTicks = [0, 0.25, 0.5, 0.75, 1].map((p) => start + (end - start) * p)
+  const xTickCount = innerW < 420 ? 3 : 5
+  const xTicks = Array.from({ length: xTickCount }, (_, i) => start + (span * i) / (xTickCount - 1))
 
   type Pt = { x: number; y: number }
   const avgSegs: Pt[][] = []
@@ -392,115 +417,117 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
   const title = `Posted Express Lanes prices over the last ${hours} hours`
 
   return (
-    <svg
-      role="img"
-      aria-label={title}
-      viewBox={`0 0 ${W} ${H}`}
-      width="100%"
-      height={220}
-      className="overflow-visible"
-    >
-      <title>{title}</title>
-      <defs>
-        <clipPath id={clipId}>
-          <rect x={pl} y={pt} width={innerW} height={innerH} />
-        </clipPath>
-      </defs>
-      {yTicks.map((v) => (
-        <g key={v}>
-          <line
-            x1={pl}
-            x2={W - pr}
-            y1={yAt(v)}
-            y2={yAt(v)}
-            stroke="var(--border)"
-            strokeWidth="1"
-          />
+    <div ref={frameRef} className="min-w-0 w-full">
+      <svg
+        role="img"
+        aria-label={title}
+        viewBox={`0 0 ${W} ${H}`}
+        width="100%"
+        height={H}
+        className="block overflow-visible"
+      >
+        <title>{title}</title>
+        <defs>
+          <clipPath id={clipId}>
+            <rect x={pl} y={pt} width={innerW} height={innerH} />
+          </clipPath>
+        </defs>
+        {yTicks.map((v) => (
+          <g key={v}>
+            <line
+              x1={pl}
+              x2={W - pr}
+              y1={yAt(v)}
+              y2={yAt(v)}
+              stroke="var(--border)"
+              strokeWidth="1"
+            />
+            <text
+              x={pl - 8}
+              y={yAt(v)}
+              textAnchor="end"
+              dominantBaseline="middle"
+              fill="var(--muted-foreground)"
+              fontSize="10"
+            >
+              {formatY(v)}
+            </text>
+          </g>
+        ))}
+        {xTicks.map((t, i) => (
           <text
-            x={pl - 8}
-            y={yAt(v)}
-            textAnchor="end"
-            dominantBaseline="middle"
+            key={t}
+            x={xAt(t)}
+            y={H - 6}
+            textAnchor={i === 0 ? "start" : i === xTicks.length - 1 ? "end" : "middle"}
             fill="var(--muted-foreground)"
             fontSize="10"
           >
-            {formatY(v)}
+            {formatAxisTime(new Date(t).toISOString(), hours)}
           </text>
-        </g>
-      ))}
-      {xTicks.map((t, i) => (
-        <text
-          key={t}
-          x={xAt(t)}
-          y={H - 6}
-          textAnchor={i === 0 ? "start" : i === xTicks.length - 1 ? "end" : "middle"}
-          fill="var(--muted-foreground)"
-          fontSize="10"
-        >
-          {formatAxisTime(new Date(t).toISOString(), hours)}
-        </text>
-      ))}
-      <g clipPath={`url(#${clipId})`}>
-        {freeSpans.map((s, i) => (
-          <rect
-            key={i}
-            x={s.x0}
-            y={pt}
-            width={Math.max(0, s.x1 - s.x0)}
-            height={innerH}
-            fill="var(--muted-foreground)"
-            fillOpacity={0.12}
-          />
         ))}
-        {bandSegs.map((run, i) =>
-          run.length === 1 ? (
-            <line
-              key={`b-${i}`}
-              x1={run[0].x}
-              x2={run[0].x}
-              y1={yAt(run[0].max)}
-              y2={yAt(run[0].min)}
-              stroke="var(--primary)"
-              strokeOpacity={0.35}
-              strokeWidth="3"
+        <g clipPath={`url(#${clipId})`}>
+          {freeSpans.map((s, i) => (
+            <rect
+              key={i}
+              x={s.x0}
+              y={pt}
+              width={Math.max(0, s.x1 - s.x0)}
+              height={innerH}
+              fill="var(--muted-foreground)"
+              fillOpacity={0.12}
             />
-          ) : (
-            <path key={`b-${i}`} d={bandD(run)} fill="var(--primary)" fillOpacity={0.22} />
-          ),
-        )}
-        {avgSegs.map((pts, i) =>
-          pts.length === 1 ? (
-            <circle key={`a-${i}`} cx={pts[0].x} cy={pts[0].y} r="2.5" fill="var(--primary)" />
-          ) : (
-            <path
-              key={`a-${i}`}
-              d={lineD(pts)}
-              fill="none"
-              stroke="var(--primary)"
-              strokeWidth="2"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
-          ),
-        )}
-        {sorted.map((s) => {
-          if (s.openDirection95 !== null || s.avg == null) return null
-          const t = Date.parse(s.scrapedAt)
-          if (Number.isNaN(t)) return null
-          return (
-            <circle
-              key={`r-${s.scrapedAt}`}
-              cx={xAt(t)}
-              cy={yAt(s.avg)}
-              r="3.5"
-              fill="none"
-              stroke="var(--primary)"
-              strokeWidth="1.5"
-            />
-          )
-        })}
-      </g>
-    </svg>
+          ))}
+          {bandSegs.map((run, i) =>
+            run.length === 1 ? (
+              <line
+                key={`b-${i}`}
+                x1={run[0].x}
+                x2={run[0].x}
+                y1={yAt(run[0].max)}
+                y2={yAt(run[0].min)}
+                stroke="var(--primary)"
+                strokeOpacity={0.35}
+                strokeWidth="3"
+              />
+            ) : (
+              <path key={`b-${i}`} d={bandD(run)} fill="var(--primary)" fillOpacity={0.22} />
+            ),
+          )}
+          {avgSegs.map((pts, i) =>
+            pts.length === 1 ? (
+              <circle key={`a-${i}`} cx={pts[0].x} cy={pts[0].y} r="2.5" fill="var(--primary)" />
+            ) : (
+              <path
+                key={`a-${i}`}
+                d={lineD(pts)}
+                fill="none"
+                stroke="var(--primary)"
+                strokeWidth="2"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            ),
+          )}
+          {sorted.map((s) => {
+            if (s.openDirection95 !== null || s.avg == null) return null
+            const t = Date.parse(s.scrapedAt)
+            if (Number.isNaN(t)) return null
+            return (
+              <circle
+                key={`r-${s.scrapedAt}`}
+                cx={xAt(t)}
+                cy={yAt(s.avg)}
+                r="3.5"
+                fill="none"
+                stroke="var(--primary)"
+                strokeWidth="1.5"
+              />
+            )
+          })}
+        </g>
+      </svg>
+    </div>
   )
 }
 
@@ -523,20 +550,26 @@ function SamplesTable({ samples }: { samples: HistorySample[] }) {
               <th className="pb-2 pr-3 font-medium">Time</th>
               <th className="pb-2 pr-3 font-medium">Min</th>
               <th className="pb-2 pr-3 font-medium">Avg</th>
-              <th className="pb-2 pr-3 font-medium">Max</th>
-              <th className="pb-2 font-medium">Note</th>
+              <th className="pb-2 font-medium sm:pr-3">Max</th>
+              <th className="hidden pb-2 font-medium sm:table-cell">Note</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((s) => (
-              <tr key={s.scrapedAt} className="border-t">
-                <td className="py-2 pr-3 whitespace-nowrap">{formatTime(s.scrapedAt)}</td>
-                <td className="py-2 pr-3 tabular-nums">{formatPrice(s.min)}</td>
-                <td className="py-2 pr-3 tabular-nums">{formatPrice(s.avg)}</td>
-                <td className="py-2 pr-3 tabular-nums">{formatPrice(s.max)}</td>
-                <td className="py-2 text-muted-foreground">{sampleNote(s)}</td>
-              </tr>
-            ))}
+            {rows.map((s) => {
+              const note = sampleNote(s)
+              return (
+                <tr key={s.scrapedAt} className="border-t align-top">
+                  <td className="py-2 pr-3">
+                    <span className="whitespace-nowrap">{formatTime(s.scrapedAt)}</span>
+                    {note && <span className="mt-0.5 block text-xs text-muted-foreground wrap-anywhere sm:hidden">{note}</span>}
+                  </td>
+                  <td className="py-2 pr-3 tabular-nums">{formatPrice(s.min)}</td>
+                  <td className="py-2 pr-3 tabular-nums">{formatPrice(s.avg)}</td>
+                  <td className="py-2 tabular-nums sm:pr-3">{formatPrice(s.max)}</td>
+                  <td className="hidden py-2 text-muted-foreground wrap-anywhere sm:table-cell">{note}</td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </CardContent>
