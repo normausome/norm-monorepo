@@ -1,5 +1,54 @@
 # VA Express Tolls — Plan
 
+## History trips (Sep 2026)
+
+History charts one real entry-to-exit price. The old corridor average mixed every feed row into one number, so it was not a trip anyone drives.
+
+### What "all combinations" means
+
+A combination is one entry and one exit the operator already treats as a valid trip for that corridor and direction.
+
+- Transurban 495, 395, and 95. Each link in `entry_exit.js` from an entry whose `path` starts with that corridor, in both directions. The price is the sum of the `od_*` feed rows named on that link. A feed row alone is a segment, not a trip. A pair that continues onto another road stays in the list. It is not the full-span default.
+- I-66 Outside. Each exit in `EXITS_BY_START` for a start the live planner still lists, eastbound and westbound. The price is the sum of the latest class-1 gantry rates on that chain. One planner response contains every gantry, so this adds no request per pair.
+- I-66 Inside. Each exit `ExitIntPartial` returns for an entry from `BeginIntPartial`, eastbound and westbound. Each pair is its own `TollCalcPartial` call.
+
+Not included: a cartesian product of gantries the operator does not connect, and the old mean of every numeric feed row.
+
+### Full span
+
+One pair per direction. It is the upstream entry on that corridor and, among exits that entry can reach that still sit on the corridor, the downstream exit.
+
+Progress is latitude for northbound and southbound, and longitude for eastbound and westbound. Upstream is the smaller progress. Downstream is the larger progress. An exit on another road does not win the full span, even when it is farther away. The pair is stored with `spanning: true`.
+
+### Storage and API
+
+No new table. Each `corridor_snapshots.summary` gains `trips`. Each element is `{ direction, entryId, exitId, entryLabel, exitLabel, spanning, price, status }`. `status` is `open`, `free`, `closed`, or `missing`. `free` is an I-66 Inside toll of $0. `closed` and `missing` store `price: null`.
+
+History reads that array. The min, avg, and max fields are removed. Snapshots from before this change have no `trips`, so they show as a gap.
+
+`GET /api/history/:corridor?hours=&direction=&entry=&exit=` returns the trip catalog from the newest snapshot that has trips, the selected trip, and one price per snapshot. Omit the three trip parameters and the server picks the full-span trip. When `direction_95` names an open direction, that direction's full-span trip wins.
+
+### Cadence and cost
+
+The cron stays every 30 minutes.
+
+Transurban adds one GET of `entry_exit.js` beside the feed it already fetches. On 21 Sep 2026 the mapping exposed 685 links (495: 226, 395: 109, 95: 350). No per-trip request.
+
+I-66 Outside keeps one planner POST. The vendored table has 172 pairs. The rate log prices all of them.
+
+I-66 Inside is the only matrix of live price calls. The same day: 16 entries, 96 reachable pairs, about 0.1 s per toll call and about 0.05 s per exit list. Six calls at a time finishes in well under a minute. Even if every call hit the 15 s timeout, six at a time is about four minutes, inside the 30-minute cron. 96 calls every 30 minutes is about 192 per hour from one host. If VDOT starts refusing bursts, lower the concurrency, or price the two full-span trips every run and rotate the rest. Do not add a second scheduler until that happens.
+
+### Rejected shape
+
+A `trip_snapshots` table would let SQL fetch one pair without opening the JSON. The history window is at most 336 rows, and the series query already pulls the one matching element with `jsonb_array_elements`. A second table would copy `corridor_snapshots` for the same read.
+
+### UI
+
+Corridor and window stay. Direction and trip selects are added. The default trip is the full span. The chart is that trip's price. The min-max band is removed.
+
+## Original plan
+
+
 ## Goal
 
 A public, mobile-friendly site where a Northern Virginia driver picks a corridor and a trip and sees a **dollar estimate in our UI**, sourced live from the operator's own public calculator — clearly labelled as an unofficial estimate that can differ from the overhead sign.
