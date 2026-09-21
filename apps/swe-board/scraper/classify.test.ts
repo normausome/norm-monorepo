@@ -133,4 +133,18 @@ describe("classifyGeo", () => {
   test("onsite outside the US is tier D unknown", () => {
     expect(classifyGeo(["London"], "Come build with us.", "onsite").latamEligibility).toBe("unknown")
   })
+  test("Figma-style company intro plus US-remote body is tier C, not marketing anywhere-in-the-world", () => {
+    const intro =
+      "Figma is where teams design together in real time from anywhere in the world. We are building the future of collaborative design."
+    const body =
+      "This role can be based in our San Francisco or New York hubs, or worked remotely within the United States. Must be eligible to work in the US."
+    const geo = classifyGeo(["San Francisco, CA", "New York, NY", "United States"], `${intro}\n\n${body}`, "remote")
+    expect(geo.tier).toBe("C")
+    expect(geo.latamEligibility).toBe("us_only")
+  })
+  test("genuine hire-from-anywhere-in-the-world posting stays tier A", () => {
+    const geo = classifyGeo(["Remote"], "We hire engineers from anywhere in the world. No location restrictions.", "remote")
+    expect(geo.tier).toBe("A")
+    expect(geo.latamEligibility).toBe("latam_mx_br")
+  })
 })

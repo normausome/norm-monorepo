@@ -153,21 +153,30 @@ type GeoRule = { tier: GeoTier; scope: "locations" | "text"; re: RegExp }
 const US = String.raw`(?:us|u\.s\.a?|usa|united states)`
 const LATAM_PLACES = String.raw`(?:mexico|méxico|brazil|brasil|latam|latin america|argentina|colombia|chile|peru|uruguay|costa rica|guatemala|s[aã]o paulo|mexico city|ciudad de m[eé]xico|cdmx|guadalajara|monterrey|bogot[aá]|buenos aires|montevideo)`
 
-/** Evaluated in order. The first hit decides the tier. */
+/** Evaluated in order within each group. Tier C text/locations run before Tier A body text so explicit US hiring beats marketing fluff. */
 /** "work from anywhere for up to 3 months" is a perk, not a hiring region. */
 const ANYWHERE = String.raw`(?:work|hire|working|hiring) (?:from |remotely from )?anywhere(?![^.\n]{0,40}\b(?:days?|weeks?|months?|year|per))`
+/** "real time from anywhere in the world" is collaboration copy, not a hiring region. */
+const ANYWHERE_IN_WORLD = String.raw`(?:hire|hiring|employ|recruit|looking for candidates|open to candidates|(?:may|can) (?:live|reside|be located|work)|(?:based|located|reside|residing|living|resident))[^.\n]{0,50}anywhere in the (?:world|americas)`
 
-const GEO_RULES: GeoRule[] = [
+const TIER_A_LOCATION_RULES: GeoRule[] = [
   { tier: "A", scope: "locations", re: /\b(anywhere|worldwide|global|americas)\b/i },
   { tier: "A", scope: "locations", re: new RegExp(String.raw`\b${US}\b.*\b${LATAM_PLACES}\b|\b${LATAM_PLACES}\b.*\b${US}\b`, "i") },
+]
+
+/** US + LatAm hiring in the body beats a narrow "remotely in the US" Tier C hit in the same sentence. */
+const TIER_A_CROSS_HIRE_TEXT: GeoRule[] = [
   {
     tier: "A",
     scope: "text",
     re: new RegExp(
-      String.raw`${ANYWHERE}|anywhere in the (?:world|americas)|remote (?:anywhere|worldwide|globally)|\b${US}\b[^.\n]{0,80}\b(?:mexico|brazil|latam|latin america)\b|\b(?:mexico|brazil|latam|latin america)\b[^.\n]{0,80}\b${US}\b`,
+      String.raw`\b${US}\b[^.\n]{0,80}\b(?:mexico|brazil|latam|latin america)\b|\b(?:mexico|brazil|latam|latin america)\b[^.\n]{0,80}\b${US}\b`,
       "i",
     ),
   },
+]
+
+const TIER_C_RULES: GeoRule[] = [
   {
     tier: "C",
     scope: "locations",
@@ -177,12 +186,31 @@ const GEO_RULES: GeoRule[] = [
     tier: "C",
     scope: "text",
     re: new RegExp(
-      String.raw`\b${US}[- ]only\b|must (?:be |reside |live |be located |currently )?(?:in|within) the ${US}\b|(?:based|located|reside|residing|living|resident) in the ${US}\b|\bw-?2\b|authorized to work in the ${US}\b|(?:legally|eligible to) work in the ${US}\b`,
+      String.raw`\b${US}[- ]only\b|must (?:be |reside |live |be located |currently )?(?:in|within) the ${US}\b|(?:based|located|reside|residing|living|resident) in the ${US}\b|remote(?:ly)? (?:in|within)(?: the)? ${US}\b|\bw-?2\b|authorized to work in the ${US}\b|(?:legally|eligible to) work in the ${US}\b`,
       "i",
     ),
   },
-  { tier: "B", scope: "locations", re: new RegExp(String.raw`\b${LATAM_PLACES}\b`, "i") },
 ]
+
+const TIER_A_TEXT_RULES: GeoRule[] = [
+  {
+    tier: "A",
+    scope: "text",
+    re: new RegExp(String.raw`${ANYWHERE}|${ANYWHERE_IN_WORLD}|remote (?:anywhere|worldwide|globally)`, "i"),
+  },
+]
+
+const TIER_B_RULES: GeoRule[] = [{ tier: "B", scope: "locations", re: new RegExp(String.raw`\b${LATAM_PLACES}\b`, "i") }]
+
+const LATAM_IN_LOCATIONS = new RegExp(String.raw`\b${LATAM_PLACES}\b`, "i")
+const US_IN_LOCATIONS = new RegExp(String.raw`\b${US}\b`, "i")
+
+/** US hub lists (e.g. SF + NYC + United States) without LatAm in the location line. */
+function isUsHubLocationLine(locationLine: string): boolean {
+  if (!locationLine || LATAM_IN_LOCATIONS.test(locationLine)) return false
+  if (!US_IN_LOCATIONS.test(locationLine)) return false
+  return US_LOCATION.test(locationLine)
+}
 
 const US_STATE_ABBR = String.raw`A[LKZR]|C[AOT]|D[EC]|FL|GA|HI|I[DLNA]|K[SY]|LA|M[EDAINSOT]|N[EVHJMYC]|O[HKR]|PA|RI|S[CD]|T[NX]|UT|V[TA]|W[AVIY]`
 const US_LOCATION = new RegExp(
@@ -197,12 +225,23 @@ function quote(haystack: string, m: RegExpMatchArray): string {
   return `${start > 0 ? "..." : ""}${snippet}${end < haystack.length ? "..." : ""}`
 }
 
-export function classifyGeo(locations: string[], text: string, workMode: WorkMode): Geo {
-  const locationLine = locations.join("; ")
-  for (const rule of GEO_RULES) {
+function firstGeoMatch(rules: GeoRule[], locationLine: string, text: string): Geo | null {
+  for (const rule of rules) {
     const haystack = rule.scope === "locations" ? locationLine : text
     const m = haystack.match(rule.re)
     if (m) return { tier: rule.tier, latamEligibility: TIER_ELIGIBILITY[rule.tier], note: `Tier ${rule.tier}: "${quote(haystack, m)}"` }
+  }
+  return null
+}
+
+export function classifyGeo(locations: string[], text: string, workMode: WorkMode): Geo {
+  const locationLine = locations.join("; ")
+  for (const rules of [TIER_A_LOCATION_RULES, TIER_A_CROSS_HIRE_TEXT, TIER_C_RULES, TIER_A_TEXT_RULES, TIER_B_RULES]) {
+    const hit = firstGeoMatch(rules, locationLine, text)
+    if (hit) return hit
+  }
+  if (isUsHubLocationLine(locationLine)) {
+    return { tier: "C", latamEligibility: "us_only", note: `Tier C: US hubs in location "${locationLine}"` }
   }
   if (workMode !== "remote" && US_LOCATION.test(locationLine)) {
     const how = workMode === "unknown" ? "located in" : `${workMode} in`
