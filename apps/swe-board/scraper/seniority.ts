@@ -1,6 +1,7 @@
 import type { Seniority } from "../shared/types"
 
-const ROLE = String.raw`(?:engineer|developer|programmer|sde|swe|mts)`
+/** English, Portuguese, Spanish, and French words for an engineering IC role. */
+const ROLE = String.raw`(?:engineer|eng|developer|programmer|sde|swe|mts|desenvolvedora?|desarrolladora?|d[ée]veloppeur|engenheir[oa]|ingenier[oa]|programadora?)`
 const level = (numerals: string) => new RegExp(String.raw`\b${ROLE}\b\s*[-,]?\s*\(?(?:${numerals})\)?(?=\W|$)`, "i")
 
 /**
@@ -10,12 +11,13 @@ const level = (numerals: string) => new RegExp(String.raw`\b${ROLE}\b\s*[-,]?\s*
  * Numeric and roman levels apply only when no level word is present.
  */
 const RULES: [RegExp, Seniority][] = [
-  [/\b(manager|mgr|director|head|supervisor|vp|vice president|president|chief|cto|ceo|coo)\b/i, "manager"],
+  [/\b(manager|mgr|director|head|supervisor|[rsea]?vp|vice president|president|chief)\b/i, "manager"],
   [/\b(principal|distinguished|fellow)\b/i, "principal"],
-  [/\bstaff\b/i, "staff"],
-  [/\b(senior|sr|lead)\b/i, "senior"],
+  [/\b(staff|especialista)\b/i, "staff"],
+  [/\b(senior|s[êe]nior|sr|lead)\b/i, "senior"],
   [/\bassociate\b/i, "associate"],
-  [/\b(junior|jr|entry[- ]level|new grad(uate)?|graduate|intern(ship)?|apprentice|early career)\b/i, "entry"],
+  [/\b(junior|j[úu]nior|jr|entry[- ]level|new grad(uate)?|graduate|intern(ship)?|apprentice|early career|trainee|estagi[áa]ri[oa]|stagiaire|pasante|becari[oa])\b/i, "entry"],
+  [/\b(mid[- ]?level|intermediate|pleno)\b/i, "mid"],
   [level("I|1"), "entry"],
   [level("II|III|2|3"), "mid"],
   [level("IV|V|VI|4|5|6"), "senior"],
