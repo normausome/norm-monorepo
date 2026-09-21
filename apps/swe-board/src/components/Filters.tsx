@@ -17,7 +17,6 @@ type ChipGroupProps<T extends string> = {
   onChange(next: T[]): void
 }
 
-/** Segmented multi-select. Toggle a chip to add or remove it. */
 function ChipGroup<T extends string>({ label, options, labels, selected, onChange }: ChipGroupProps<T>) {
   const toggle = (v: T) => onChange(selected.includes(v) ? selected.filter((s) => s !== v) : [...selected, v])
   return (
