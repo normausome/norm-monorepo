@@ -46,7 +46,7 @@ export async function queryJobs(sql: Sql, q: JobQuery): Promise<JobsResponse> {
     select job_id as "jobId", title, company, url, location,
            work_mode as "workMode", salary_min as "salaryMin", salary_max as "salaryMax",
            salary_currency as "salaryCurrency", latam_eligibility as "latamEligibility",
-           remote_notes as "remoteNotes", source, first_seen_at as "firstSeenAt",
+           remote_notes as "remoteNotes", seniority, source, first_seen_at as "firstSeenAt",
            last_seen_at as "lastSeenAt", is_active as "isActive", missed_runs as "missedRuns"
     from jobs
     where ${where}

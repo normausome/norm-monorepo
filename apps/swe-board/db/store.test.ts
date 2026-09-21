@@ -17,6 +17,7 @@ function scraped(id: string, source = "greenhouse:acme", over: Partial<ScrapedJo
     salary: { min: 150_000, max: 200_000, currency: "USD" },
     latamEligibility: "us_only",
     remoteNotes: null,
+    seniority: "mid",
     source,
     rawJson: { id },
     ...over,
@@ -79,19 +80,26 @@ describe.each(harnesses)("%s contract", (_name, h) => {
       salaryMin: 150_000,
       salaryMax: 200_000,
       salaryCurrency: "USD",
+      seniority: "mid",
       isActive: true,
       missedRuns: 0,
     })
   })
 
-  test("re-seeing a job bumps last_seen, keeps first_seen, and takes the new title", async () => {
+  test("re-seeing a job bumps last_seen, keeps first_seen, and takes the new title and seniority", async () => {
     await h.store.applyBoard("greenhouse:acme", [scraped("gh:acme:1")], t0, 3)
-    const result = await h.store.applyBoard("greenhouse:acme", [scraped("gh:acme:1", undefined, { title: "Senior Software Engineer" })], t1, 3)
+    const result = await h.store.applyBoard(
+      "greenhouse:acme",
+      [scraped("gh:acme:1", undefined, { title: "Senior Software Engineer", seniority: "senior" })],
+      t1,
+      3,
+    )
     expect(result).toEqual({ inserted: 0, updated: 1, deactivated: 0 })
     const [job] = await h.all()
     expect(job.firstSeenAt).toBe(t0.toISOString())
     expect(job.lastSeenAt).toBe(t1.toISOString())
     expect(job.title).toBe("Senior Software Engineer")
+    expect(job.seniority).toBe("senior")
   })
 
   test("a job goes inactive only after N consecutive misses and revives on re-see", async () => {

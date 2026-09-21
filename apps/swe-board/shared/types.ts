@@ -31,6 +31,7 @@ export type ScrapedJob = {
   salary: Salary | null
   latamEligibility: LatamEligibility
   remoteNotes: string | null
+  seniority: Seniority
   /** `{ats}:{slug}`, e.g. `greenhouse:affirm`. One board, one source. */
   source: string
   rawJson: unknown
@@ -49,6 +50,7 @@ export type Job = {
   salaryCurrency: string | null
   latamEligibility: LatamEligibility
   remoteNotes: string | null
+  seniority: Seniority
   source: string
   firstSeenAt: string
   lastSeenAt: string

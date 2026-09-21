@@ -46,7 +46,8 @@ test("a run writes only SWE matches and records per-board counts", async () => {
   expect(run.jobsSeen).toBe(3)
   expect(run.jobsMatched).toBe(2)
   expect([...store.jobs.keys()].sort()).toEqual(["gh:acme:1", "lever:beta:u-1"])
-  expect(store.jobs.get("gh:acme:1")).toMatchObject({ company: "Acme", source: "greenhouse:acme", salaryMin: 160_000, salaryMax: 210_000 })
+  expect(store.jobs.get("gh:acme:1")).toMatchObject({ company: "Acme", source: "greenhouse:acme", salaryMin: 160_000, salaryMax: 210_000, seniority: "senior" })
+  expect(store.jobs.get("lever:beta:u-1")).toMatchObject({ seniority: "staff" })
   expect(store.runs).toHaveLength(1)
 })
 
