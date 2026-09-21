@@ -4,11 +4,11 @@ Railway cron job that scrapes the five Northern Virginia Express Lanes operators
 
 | Corridor | Operator | What we store |
 | --- | --- | --- |
-| 495 Express Lanes | Transurban | Filtered rows from `infra-price-confirmed-all` |
-| 395 Express Lanes | Transurban | Same feed, 395/95 road tags |
-| 95 Express Lanes | Transurban | Same feed + `direction_95` reversible flag |
-| I-66 Inside the Beltway | VDOT | Two spanning benchmark trips (EB + WB) |
-| I-66 Outside the Beltway | 66 Express | Full gantry rate log from the planner API |
+| 495 Express Lanes | Transurban | Every mapped entry-exit trip. Price is the sum of that link's `od_*` feed rows. |
+| 395 Express Lanes | Transurban | Same feed and mapping, entries whose path starts with `395`. |
+| 95 Express Lanes | Transurban | Same, plus `direction_95`. A closed reversible direction stores `price: null`. |
+| I-66 Inside the Beltway | VDOT | Every reachable entry-exit pair from the Razor handlers, six toll calls at a time. |
+| I-66 Outside the Beltway | 66 Express | Every vendored entry-exit pair, summed from the one planner rate log. |
 
 ## Quick start (local)
 
@@ -30,7 +30,7 @@ bun run scrape
 Two tables, created automatically on first run:
 
 - `scrape_runs` — one row per cron execution (`status`: `ok` | `partial` | `failed`)
-- `corridor_snapshots` — one row per corridor per run (`payload` JSONB is the raw scrape, `summary` JSONB has quick stats)
+- `corridor_snapshots` — one row per corridor per run. `payload` JSONB is the raw scrape. `summary.trips` is every valid entry-to-exit price for that run, including `spanning: true` on the full-span pair in each direction.
 
 Example query (latest 495 snapshot):
 

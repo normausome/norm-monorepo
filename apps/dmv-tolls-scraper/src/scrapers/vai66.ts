@@ -1,12 +1,26 @@
 import type { ScrapeResult } from "../types"
+import { toQuotes, type Direction, type TripQuote, type TripStatus } from "../trips"
 import { fetchJson, fetchText, parseOptions } from "../http"
 
 const BASE = "https://www.vai66tolls.com"
 const PUBLIC_URL = "https://vai66tolls.com/"
 const OPERATOR = "VDOT (vai66tolls.com)"
 const TZ = "America/New_York"
+const POOL = 6
 
-type Direction = "eb" | "wb"
+interface Point {
+  id: string
+  label: string
+  lat?: number
+  lng?: number
+}
+
+interface Measured {
+  direction: Direction
+  entry: Point
+  exit: Point
+  price: number | null
+}
 
 function easternFormParts(date: Date) {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -25,16 +39,29 @@ function easternFormParts(date: Date) {
   }
 }
 
-async function entriesFor(eb: boolean) {
+function parseCoords(html: string): Map<string, { lat: number; lng: number }> {
+  const out = new Map<string, { lat: number; lng: number }>()
+  for (const m of html.matchAll(/new Exit\('[^']*',\s*0,\s*0,\s*'[ew]b',\s*(\d+),\s*(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/g)) {
+    out.set(m[1], { lat: Number(m[2]), lng: Number(m[3]) })
+  }
+  return out
+}
+
+function withCoords(html: string, opts: { id: string; label: string }[]): Point[] {
+  const coords = parseCoords(html)
+  return opts.map((opt) => ({ ...opt, ...coords.get(opt.id) }))
+}
+
+async function entriesFor(eb: boolean): Promise<Point[]> {
   const html = await fetchText(`${BASE}/Index?handler=BeginIntPartial&rbEastVal=${eb}`)
-  const opts = parseOptions(html)
+  const opts = withCoords(html, parseOptions(html))
   if (opts.length === 0) throw new Error("vai66tolls.com returned no entry interchanges")
   return opts
 }
 
-async function exitsFor(entryId: string, eb: boolean) {
+async function exitsFor(entryId: string, eb: boolean): Promise<Point[]> {
   const html = await fetchText(`${BASE}/Index?handler=ExitIntPartial&bIntId=${encodeURIComponent(entryId)}&rbEastVal=${eb}`)
-  return parseOptions(html)
+  return withCoords(html, parseOptions(html))
 }
 
 interface TollCalcPayload {
@@ -60,38 +87,76 @@ async function currentToll(entryId: string, exitId: string, direction: Direction
   return toll
 }
 
-/** Spanning benchmark trips (first entry to last reachable exit) per peak direction. */
-async function benchmarkTrip(direction: Direction) {
+async function mapPool<T, R>(items: readonly T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  if (items.length === 0) return []
+  const out: R[] = Array.from({ length: items.length })
+  let next = 0
+  async function worker() {
+    for (;;) {
+      const i = next
+      next += 1
+      if (i >= items.length) return
+      const item = items[i]
+      if (item === undefined) return
+      out[i] = await fn(item)
+    }
+  }
+  const workers = Math.min(limit, items.length)
+  await Promise.all(Array.from({ length: workers }, () => worker()))
+  return out
+}
+
+export function quotesFromMeasured(rows: readonly Measured[]): TripQuote[] {
+  return toQuotes(
+    rows.map((row) => {
+      const status: TripStatus = row.price == null ? "missing" : row.price === 0 ? "free" : "open"
+      return {
+        direction: row.direction,
+        entryId: row.entry.id,
+        exitId: row.exit.id,
+        entryLabel: row.entry.label,
+        exitLabel: row.exit.label,
+        entryLat: row.entry.lat ?? null,
+        entryLng: row.entry.lng ?? null,
+        exitLat: row.exit.lat ?? null,
+        exitLng: row.exit.lng ?? null,
+        price: status === "missing" ? null : row.price,
+        status,
+      }
+    }),
+  )
+}
+
+async function directionTrips(direction: Direction): Promise<Measured[]> {
   const eb = direction === "eb"
   const entries = await entriesFor(eb)
-  const entry = entries[0]
-  const exits = await exitsFor(entry.id, eb)
-  const exit = exits[exits.length - 1]
-  if (!exit) throw new Error(`No exits for vai66 entry ${entry.id}`)
-  const toll = await currentToll(entry.id, exit.id, direction)
-  return {
-    direction,
-    entry: { id: entry.id, label: entry.label },
-    exit: { id: exit.id, label: exit.label },
-    toll,
-  }
+  const withExits = await mapPool(entries, POOL, async (entry) => ({
+    entry,
+    exits: await exitsFor(entry.id, eb),
+  }))
+  const pairs = withExits.flatMap(({ entry, exits }) => exits.map((exit) => ({ entry, exit })))
+  return mapPool(pairs, POOL, async ({ entry, exit }) => {
+    try {
+      const price = await currentToll(entry.id, exit.id, direction)
+      return { direction, entry, exit, price }
+    } catch {
+      return { direction, entry, exit, price: null }
+    }
+  })
 }
 
 export async function scrapeVai66(): Promise<ScrapeResult> {
   const scrapedAt = new Date().toISOString()
-  const trips = await Promise.all([benchmarkTrip("eb"), benchmarkTrip("wb")])
-  const tolls = trips.map((t) => t.toll).filter((t) => t > 0)
+  const measured = (await Promise.all([directionTrips("eb"), directionTrips("wb")])).flat()
+  const trips = quotesFromMeasured(measured)
+  if (trips.every((trip) => trip.status === "missing")) {
+    throw new Error("vai66tolls.com returned no toll for any entry-exit pair")
+  }
   return {
     corridor: "66-inside",
     operator: OPERATOR,
     sourceUrl: PUBLIC_URL,
-    payload: { scrapedAt, trips },
-    summary: {
-      scrapedAt,
-      tripCount: trips.length,
-      maxToll: tolls.length ? Math.max(...tolls) : 0,
-      minToll: tolls.length ? Math.min(...tolls) : 0,
-      currentlyTolled: tolls.length > 0,
-    },
+    payload: { tripCount: trips.length },
+    summary: { scrapedAt, tripCount: trips.length, trips },
   }
 }
