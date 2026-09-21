@@ -163,7 +163,11 @@ const GEO_RULES: GeoRule[] = [
       "i",
     ),
   },
-  { tier: "C", scope: "locations", re: new RegExp(String.raw`^remote[\s,()-]*${US}\b|\b${US}[\s-]*(?:only|remote)\b|\bremote\b[^;]*\b${US}\b`, "i") },
+  {
+    tier: "C",
+    scope: "locations",
+    re: new RegExp(String.raw`^${US}$|^remote[\s,()-]*${US}\b|\b${US}[\s-]*(?:only|remote)\b|\bremote\b[^;]*\b${US}\b`, "i"),
+  },
   {
     tier: "C",
     scope: "text",

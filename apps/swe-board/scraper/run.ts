@@ -14,14 +14,14 @@ export type RunOptions = {
   log?: (line: string) => void
 }
 
-async function scrapeBoard(board: Board, store: ScrapeStore, maxMissedRuns: number, fetcher: typeof fetchJson): Promise<BoardReport> {
+async function scrapeBoard(board: Board, store: ScrapeStore, seenAt: Date, maxMissedRuns: number, fetcher: typeof fetchJson): Promise<BoardReport> {
   const source = sourceOf(board)
   const adapter = ADAPTERS[board.ats]
   try {
     const payload = await fetcher<unknown>(adapter.url(board.slug))
     const postings = adapter.parse(payload, board)
     const jobs = postings.map((p) => classify(p, board)).filter((j) => j !== null)
-    await store.applyBoard(source, jobs, new Date(), maxMissedRuns)
+    await store.applyBoard(source, jobs, seenAt, maxMissedRuns)
     return { source, ok: true, seen: postings.length, matched: jobs.length }
   } catch (err) {
     return { source, ok: false, seen: 0, matched: 0, error: err instanceof Error ? err.message : String(err) }
@@ -29,8 +29,9 @@ async function scrapeBoard(board: Board, store: ScrapeStore, maxMissedRuns: numb
 }
 
 /**
- * Scrape every board once. A board that fails to fetch or parse is reported and
- * skipped, so its jobs keep their `missed_runs` untouched.
+ * Scrape every board once. Every board in a run shares one `last_seen_at`. A board
+ * that fails to fetch or parse is reported and skipped, so its jobs keep their
+ * `missed_runs` untouched.
  */
 export async function runScrape(store: ScrapeStore, opts: RunOptions = {}): Promise<RunReport> {
   const boards = opts.boards ?? BOARDS
@@ -45,7 +46,7 @@ export async function runScrape(store: ScrapeStore, opts: RunOptions = {}): Prom
   await Promise.all(
     Array.from({ length: Math.min(concurrency, queue.length) }, async () => {
       for (let board = queue.shift(); board; board = queue.shift()) {
-        const report = await scrapeBoard(board, store, maxMissedRuns, fetcher)
+        const report = await scrapeBoard(board, store, startedAt, maxMissedRuns, fetcher)
         reports.push(report)
         log(report.ok ? `${report.source}: ${report.matched}/${report.seen} matched` : `${report.source}: FAILED ${report.error}`)
       }

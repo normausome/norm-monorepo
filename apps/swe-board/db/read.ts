@@ -30,10 +30,11 @@ function whereClause(sql: Sql, q: JobQuery) {
 }
 
 function orderClause(sql: Sql, sort: Sort) {
+  // Every row a scrape touched shares the same last_seen_at, so pay breaks the tie.
   const orders = {
-    last_seen: sql`last_seen_at desc, company, title`,
-    first_seen: sql`first_seen_at desc, company, title`,
-    salary: sql`coalesce(salary_max, salary_min) desc nulls last, last_seen_at desc`,
+    last_seen: sql`last_seen_at desc, coalesce(salary_max, salary_min) desc nulls last, company, title`,
+    first_seen: sql`first_seen_at desc, coalesce(salary_max, salary_min) desc nulls last, company, title`,
+    salary: sql`coalesce(salary_max, salary_min) desc nulls last, last_seen_at desc, company, title`,
     company: sql`lower(company), title`,
   } satisfies Record<Sort, unknown>
   return orders[sort]

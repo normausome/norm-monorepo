@@ -86,10 +86,11 @@ describe("inferWorkMode", () => {
 })
 
 describe("classifyGeo", () => {
-  test("Remote US location is tier C us_only", () => {
+  test("Remote US or a bare US location is tier C us_only", () => {
     const geo = classifyGeo(["Remote US"], "Build payments.", "remote")
     expect(geo.latamEligibility).toBe("us_only")
     expect(geo.note).toBe('Tier C: "Remote US"')
+    expect(classifyGeo(["US"], "Build payments.", "remote").latamEligibility).toBe("us_only")
   })
   test("US plus Mexico or Brazil hiring statement is tier A latam_mx_br with a quote", () => {
     const geo = classifyGeo(["Remote"], "We hire remotely in the US, Canada, Mexico and Brazil for this team.", "remote")
