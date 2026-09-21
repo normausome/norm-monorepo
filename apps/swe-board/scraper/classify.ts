@@ -7,28 +7,29 @@ export const MIN_USD_SALARY = 100_000
 // --- Title -----------------------------------------------------------------
 
 const TITLE_INCLUDE = [
-  /software (development )?engineer/i,
-  /software developer/i,
+  /software (development )?engineer\b/i,
+  /software developer\b/i,
   /\b(backend|back-end|back end|frontend|front-end|front end|full[- ]?stack|fullstack)\b/i,
-  /\b(staff|principal|senior|sr\.?|lead|founding)\b.*\bengineer/i,
-  /\b(platform|infrastructure|infra|distributed systems|systems|cloud|mobile|ios|android|web|api|developer experience|devex|data platform|compiler|runtime|kernel|embedded|graphics|search|payments|growth|product) engineer/i,
-  /\b(machine learning|ml|ai|applied ai|deep learning|llm|research) engineer/i,
-  /\b(site reliability|sre|production|reliability|devops) engineer/i,
+  /\b(staff\+?|principal) (software )?engineer\b/i,
+  /\b(platform|infrastructure|infra|distributed systems|cloud|mobile|ios|android|web|api|developer experience|devex|compiler|runtime|kernel|embedded|graphics|search|payments|growth|product) (software )?engineer\b/i,
+  /\b(machine learning|ml|ai|applied ai|deep learning|llm|research) engineer\b/i,
+  /\b(site reliability|database reliability|reliability|production|devops|devsecops) engineer\b/i,
   /\bsre\b/i,
-  /\b(application|product|appsec|cloud|infrastructure|platform|offensive|detection) security engineer/i,
+  /\b(application|product|appsec|cloud|infrastructure|platform|offensive|detection) security engineer\b/i,
+  /security software engineer\b/i,
   /\bappsec\b/i,
-  /security engineer/i,
-  /director,? (of )?(software )?engineering/i,
-  /forward[- ]deployed (software )?engineer/i,
+  /director,? (of )?(software )?engineering\b/i,
+  /forward[- ]deployed\b/i,
   /member of technical staff/i,
 ]
 
 const TITLE_EXCLUDE = [
   /\b(contract|contractor|c2c|corp[- ]to[- ]corp|freelance|temporary|temp)\b/i,
   /\b(intern|internship|co-?op|apprentice|apprenticeship|fellow|fellowship|new grad|graduate program)\b/i,
-  /\b(sales|solutions?|customer|support|field|implementation|pre-?sales|partner|success|deployment strategist)\b.*\bengineer/i,
-  /\b(hardware|mechanical|electrical|civil|manufacturing|process|industrial|optical|rf|radio|antenna|test|quality|qa|validation|materials|chemical|structural|thermal|firmware|fpga|asic|network|networking|systems? administrator|technician)\b/i,
-  /\b(analytics|data|bi|business intelligence|marketing|content|revenue|finance|accounting|people|recruit|talent|sourcing)\b(?!.*\b(platform|infrastructure) engineer\b)/i,
+  /\b(manager|chief|head of|vp|vice president|president|coordinator|specialist|strategist)\b/i,
+  /\b(sales|solutions?|support|field|implementation|pre-?sales|partner)\b.*\bengineer|\bcustomer (success|support|engineer)/i,
+  /\b(hardware|mechanical|electrical|civil|manufacturing|process|industrial|optical|rf|radio|antenna|test|quality|qa|validation|materials|chemical|structural|thermal|firmware|fpga|asic|network|networking|systems? administrator|technician|supply chain|low observables|avionics|propulsion|weapons?|munitions?)\b/i,
+  /\b(analytics|data|bi|business intelligence|marketing|content|revenue|finance|accounting|people|recruit|talent|sourcing|grc|compliance|it)\b(?!.*\b(platform|infrastructure) engineer\b)/i,
   /\b(technical writer|program manager|project manager|product manager|designer|analyst|scientist|researcher|architect|evangelist|advocate|coach)\b/i,
 ]
 
@@ -194,8 +195,9 @@ export function classifyGeo(locations: string[], text: string, workMode: WorkMod
     const m = haystack.match(rule.re)
     if (m) return { tier: rule.tier, latamEligibility: TIER_ELIGIBILITY[rule.tier], note: `Tier ${rule.tier}: "${quote(haystack, m)}"` }
   }
-  if ((workMode === "onsite" || workMode === "hybrid") && US_LOCATION.test(locationLine)) {
-    return { tier: "C", latamEligibility: "us_only", note: `Tier C: ${workMode} in ${locationLine}` }
+  if (workMode !== "remote" && US_LOCATION.test(locationLine)) {
+    const how = workMode === "unknown" ? "located in" : `${workMode} in`
+    return { tier: "C", latamEligibility: "us_only", note: `Tier C: ${how} ${locationLine}, no remote statement` }
   }
   return { tier: "D", latamEligibility: "unknown", note: `Tier D: no geo statement. Location: ${locationLine || "not listed"}` }
 }

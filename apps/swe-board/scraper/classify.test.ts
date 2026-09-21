@@ -13,7 +13,18 @@ describe("isSweTitle", () => {
     ["Director of Engineering, Platform", true],
     ["Forward Deployed Engineer", true],
     ["Member of Technical Staff", true],
+    ["Tech Lead/Sr Backend (Go) Developer", true],
+    ["Staff DevSecOps Engineer (TS/SCI)", true],
     ["Software Engineer (Contract)", false],
+    ["Chief of Staff, Public Sector Engineering & Security", false],
+    ["IT Systems Engineer", false],
+    ["Principal Systems Engineer, Air Vehicle Software", false],
+    ["Senior Low Observables Engineer, RCS", false],
+    ["Lead Security Engineer, GRC", false],
+    ["ML Engineer Manager, AI Conversation Platform", false],
+    ["Sr. Manager, Engineering - Search", false],
+    ["AI Engineer, Customer Success", false],
+    ["Senior Software Engineer, Customer Dev Tools (Auth0)", true],
     ["Software Engineer Intern", false],
     ["Solutions Engineer", false],
     ["Sales Engineer, Enterprise", false],
@@ -95,12 +106,13 @@ describe("classifyGeo", () => {
     expect(geo.tier).toBe("C")
     expect(geo.latamEligibility).toBe("us_only")
   })
-  test("onsite in a US city is tier C", () => {
+  test("onsite or unstated mode in a US city is tier C", () => {
     expect(classifyGeo(["San Francisco, CA"], "Come build with us.", "onsite")).toEqual({
       tier: "C",
       latamEligibility: "us_only",
-      note: "Tier C: onsite in San Francisco, CA",
+      note: "Tier C: onsite in San Francisco, CA, no remote statement",
     })
+    expect(classifyGeo(["Washington, DC"], "Come build with us.", "unknown").note).toBe("Tier C: located in Washington, DC, no remote statement")
   })
   test("remote with no statement is tier D unknown", () => {
     expect(classifyGeo(["Remote"], "Come build with us.", "remote")).toEqual({
