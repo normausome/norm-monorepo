@@ -11,6 +11,7 @@
     "start": "bun server/index.ts",
     "migrate": "bun db/migrate.ts",
     "scrape": "bun scraper/cli.ts",
+    "backfill:seniority": "bun scraper/backfill-seniority.ts",
     "test": "bun test",
     "typecheck": "tsc -b",
     "preview": "vite preview"

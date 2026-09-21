@@ -1,6 +1,7 @@
 import type { GeoTier, LatamEligibility, Salary, ScrapedJob, WorkMode } from "../shared/types"
 import { sourceOf, type Board } from "./boards"
 import type { Posting } from "./posting"
+import { inferSeniority } from "./seniority"
 
 export const MIN_USD_SALARY = 100_000
 
@@ -229,6 +230,7 @@ export function classify(posting: Posting, board: Board): ScrapedJob | null {
     salary,
     latamEligibility: geo.latamEligibility,
     remoteNotes: geo.note,
+    seniority: inferSeniority(posting.title),
     source: sourceOf(board),
     rawJson: posting.raw,
   }

@@ -23,6 +23,7 @@ function whereClause(sql: Sql, q: JobQuery) {
   if (q.active === "inactive") conds.push(sql`not is_active`)
   if (q.q) conds.push(sql`(title ilike ${"%" + q.q + "%"} or company ilike ${"%" + q.q + "%"})`)
   if (q.workModes.length) conds.push(sql`work_mode = any(${sql.array(q.workModes, "text")})`)
+  if (q.seniorities.length) conds.push(sql`seniority = any(${sql.array(q.seniorities, "text")})`)
   if (q.latam) conds.push(sql`latam_eligibility = ${q.latam}`)
   if (q.company) conds.push(sql`lower(company) = ${q.company.toLowerCase()}`)
   if (q.salaryMin !== null) conds.push(sql`coalesce(salary_max, salary_min) >= ${q.salaryMin}`)
@@ -46,7 +47,7 @@ export async function queryJobs(sql: Sql, q: JobQuery): Promise<JobsResponse> {
     select job_id as "jobId", title, company, url, location,
            work_mode as "workMode", salary_min as "salaryMin", salary_max as "salaryMax",
            salary_currency as "salaryCurrency", latam_eligibility as "latamEligibility",
-           remote_notes as "remoteNotes", source, first_seen_at as "firstSeenAt",
+           remote_notes as "remoteNotes", seniority, source, first_seen_at as "firstSeenAt",
            last_seen_at as "lastSeenAt", is_active as "isActive", missed_runs as "missedRuns"
     from jobs
     where ${where}
