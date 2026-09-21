@@ -27,7 +27,9 @@ Two shapes were on the table for the write path.
 
 The second shape shipped. The Postgres half of the contract test runs when `TEST_DATABASE_URL` is set and skips otherwise, so `bun test` stays green on a machine without Postgres.
 
-Classifiers (title, salary, work mode, geo tier) are pure functions over a table of rules. Adding a rule is a table row, not a new branch.
+Classifiers (title, seniority, salary, work mode, geo tier) are pure functions over a table of rules. Adding a rule is a table row, not a new branch.
+
+Seniority is a durable column written at upsert rather than computed in the read query, so the filter uses a plain index and the rules can change without a hot-path change. The backfill is a Bun script that calls the same `classifySeniority`, not SQL in the migration, because a second copy of the rules in SQL would drift from the TypeScript one. A title with no rung word is `mid` only when it names an engineer, so a level-less title such as "Member of Technical Staff" stays `unknown` instead of being guessed.
 
 ## Deferred
 
