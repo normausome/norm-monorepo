@@ -1,8 +1,23 @@
 import type { Seniority } from "../shared/types"
 
 /** English, Portuguese, Spanish, and French words for an engineering IC role. */
-const ROLE = String.raw`(?:engineer|eng|developer|programmer|sde|swe|mts|desenvolvedora?|desarrolladora?|d[ée]veloppeur|engenheir[oa]|ingenier[oa]|programadora?)`
-const level = (numerals: string) => new RegExp(String.raw`\b${ROLE}\b\s*[-,]?\s*\(?(?:${numerals})\)?(?=\W|$)`, "i")
+export const ROLE = String.raw`(?:engineer|eng|developer|programmer|sde|swe|mts|desenvolvedora?|desarrolladora?|d[ée]veloppeur|engenheir[oa]|ingenier[oa]|programadora?)`
+
+const MGMT = String.raw`(?:manager|mgr|director|head|supervisor|[rsea]?vp|vice president|president|chief)`
+
+/** Management word before the first role word, or right after one with at most `-,/|`. */
+export const MANAGEMENT_TITLE = new RegExp(
+  String.raw`^(?:(?!\b${ROLE}\b)[\s\S])*?\b${MGMT}\b|\b${ROLE}\b\s*[-,/|]?\s*\b${MGMT}\b`,
+  "i",
+)
+
+/** Same positional rule for `manager` alone (title filter). */
+export const MANAGER_IN_TITLE = new RegExp(
+  String.raw`^(?:(?!\b${ROLE}\b)[\s\S])*?\bmanager\b|\b${ROLE}\b\s*[-,/|]?\s*\bmanager\b`,
+  "i",
+)
+
+const level = (numerals: string) => new RegExp(String.raw`\b${ROLE}\b\s*[-,]?\s*\(?(?:${numerals})\)?(?![\w&])`, "i")
 
 /**
  * First match wins, so position is precedence. Management words beat every IC
@@ -11,12 +26,16 @@ const level = (numerals: string) => new RegExp(String.raw`\b${ROLE}\b\s*[-,]?\s*
  * Numeric and roman levels apply only when no level word is present.
  */
 const RULES: [RegExp, Seniority][] = [
-  [/\b(manager|mgr|director|head|supervisor|[rsea]?vp|vice president|president|chief)\b/i, "manager"],
+  [MANAGEMENT_TITLE, "manager"],
   [/\b(principal|distinguished|fellow)\b/i, "principal"],
   [/\b(staff|especialista)\b/i, "staff"],
-  [/\b(senior|s[êe]nior|sr|lead)\b/i, "senior"],
+  [/\bsemi[- ]?(senior|sr)\b/i, "mid"],
+  [/\b(senior|s[êée]nior|sr|snr|lead)\b/i, "senior"],
   [/\bassociate\b/i, "associate"],
-  [/\b(junior|j[úu]nior|jr|entry[- ]level|new grad(uate)?|graduate|intern(ship)?|apprentice|early career|trainee|estagi[áa]ri[oa]|stagiaire|pasante|becari[oa])\b/i, "entry"],
+  [
+    /\b(junior|j[úu]nior|jr|entry[- ]level|new grad(uate)?|graduate|grad|intern(ship)?|apprentice|early[- ]career|trainee|estagi[áa]ri[oa]|stagiaire|pasante|becari[oa])\b/i,
+    "entry",
+  ],
   [/\b(mid[- ]?level|intermediate|pleno)\b/i, "mid"],
   [level("I|1"), "entry"],
   [level("II|III|2|3"), "mid"],

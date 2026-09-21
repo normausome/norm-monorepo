@@ -133,24 +133,27 @@ Geo classification runs at scrape time. Marketing copy such as “work together 
 
 | Order | Words (case-insensitive, whole words) | Bucket |
 |-------|----------------------------------------|--------|
-| 1 | manager, mgr, director, head, supervisor, vp, rvp, svp, evp, avp, vice president, president, chief | `manager` |
+| 1 | manager, mgr, director, head, supervisor, vp, rvp, svp, evp, avp, vice president, president, chief, but only when the word sits before the first role word or right after a role word with at most `-,/|` between | `manager` |
 | 2 | principal, distinguished, fellow | `principal` |
 | 3 | staff, especialista | `staff` |
-| 4 | senior, sênior, sr, lead | `senior` |
-| 5 | associate | `associate` |
-| 6 | junior, júnior, jr, entry-level, new grad, graduate, intern, internship, apprentice, early career, trainee, estagiário, stagiaire, pasante, becario | `entry` |
-| 7 | mid-level, intermediate, pleno | `mid` |
-| 8 | a role word then `I` or `1` | `entry` |
-| 9 | a role word then `II`, `III`, `2`, or `3` | `mid` |
-| 10 | a role word then `IV`, `V`, `VI`, `4`, `5`, or `6` | `senior` |
-| 11 | no rule matched, title has a role word | `mid` |
-| 12 | no rule matched, no role word | `unknown` |
+| 4 | semi-senior, semi sr | `mid` |
+| 5 | senior, sênior, sénior, sr, snr, lead | `senior` |
+| 6 | associate | `associate` |
+| 7 | junior, júnior, jr, entry-level, new grad, graduate, grad, intern, internship, apprentice, early career (space or hyphen), trainee, estagiário, stagiaire, pasante, becario | `entry` |
+| 8 | mid-level, intermediate, pleno | `mid` |
+| 9 | a role word then `I` or `1` | `entry` |
+| 10 | a role word then `II`, `III`, `2`, or `3` | `mid` |
+| 11 | a role word then `IV`, `V`, `VI`, `4`, `5`, or `6` | `senior` |
+| 12 | no rule matched, title has a role word | `mid` |
+| 13 | no rule matched, no role word | `unknown` |
 
-A role word is engineer, eng, developer, programmer, SDE, SWE, MTS, or the Portuguese, Spanish, and French forms desenvolvedor, desarrollador, développeur, engenheiro, ingeniero, and programador, with their feminine endings. Rules 8 to 10 need the level right after the role word, with an optional comma, dash, or parentheses, so "Software Engineer in Test" and "Software Engineer, Series I" do not read as levels.
+A role word is engineer, eng, developer, programmer, SDE, SWE, MTS, or the Portuguese, Spanish, and French forms desenvolvedor, desarrollador, développeur, engenheiro, ingeniero, and programador, with their feminine endings. Rules 9 to 11 need the level right after the role word, with an optional comma, dash, or parentheses, and the numeral must not be followed by a word character or `&`, so "Software Engineer in Test", "Software Engineer, Series I", and "Software Engineer V&V" do not read as levels.
+
+The title filter excludes intern words in French, Spanish, and German (`stagiaire`, `estagiário`, `pasante`, `becario`, `werkstudent`, `praktikant`, `trainee`, and similar) and drops `manager` only under the same positional rule as row 1, so product names such as "Ads Manager" in an IC title still pass.
 
 Consequences of the order:
 
-- Management beats every IC level. "Senior Engineering Manager", "Staff Engineering Manager", and "Director of Engineering" are `manager`.
+- Management beats every IC level when the word is in a management position. "Senior Engineering Manager", "Staff Engineering Manager", and "Engineer Manager, HR Applications" are `manager`. "Software Engineer, Ads Manager" is `mid` because the product name follows the role word.
 - The higher IC word beats the lower one. "Senior Staff Engineer" is `staff`. "Senior Principal Engineer" is `principal`. A range such as "Senior / Staff Engineer" takes the higher end.
 - A level word beats a numeral. "Senior Software Engineer II" is `senior`.
 - "Lead" is `senior`, so "Lead Software Engineer" and "Tech Lead" are `senior`.
