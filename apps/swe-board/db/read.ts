@@ -23,6 +23,7 @@ function whereClause(sql: Sql, q: JobQuery) {
   if (q.active === "inactive") conds.push(sql`not is_active`)
   if (q.q) conds.push(sql`(title ilike ${"%" + q.q + "%"} or company ilike ${"%" + q.q + "%"})`)
   if (q.workModes.length) conds.push(sql`work_mode = any(${sql.array(q.workModes, "text")})`)
+  if (q.seniorities.length) conds.push(sql`seniority = any(${sql.array(q.seniorities, "text")})`)
   if (q.latam) conds.push(sql`latam_eligibility = ${q.latam}`)
   if (q.company) conds.push(sql`lower(company) = ${q.company.toLowerCase()}`)
   if (q.salaryMin !== null) conds.push(sql`coalesce(salary_max, salary_min) >= ${q.salaryMin}`)
