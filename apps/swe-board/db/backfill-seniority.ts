@@ -4,11 +4,7 @@ import { connect, type Sql } from "./sql"
 
 const BATCH = 500
 
-/**
- * Recompute `seniority` from `title` for every row with the current rules. Only rows
- * whose value would change are written, so a rerun after a crash or a rule change
- * converges and a rerun after that is a no-op.
- */
+/** Reclassify every row from its title. Writes only what changes, so a rerun is a no-op. */
 export async function backfillSeniority(sql: Sql): Promise<{ scanned: number; updated: number }> {
   let scanned = 0
   let updated = 0
