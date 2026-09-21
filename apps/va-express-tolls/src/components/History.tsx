@@ -1,4 +1,4 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useId, useLayoutEffect, useRef, useState, type PointerEvent } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -35,6 +35,16 @@ const ET_WEEKDAY_HOUR = new Intl.DateTimeFormat("en-US", {
   timeZone: "America/New_York",
   weekday: "short",
   hour: "numeric",
+})
+
+const ET_SAMPLE_TIME = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/New_York",
+  weekday: "short",
+  month: "short",
+  day: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  timeZoneName: "short",
 })
 
 function formatAxisTime(iso: string, hours: number) {
@@ -338,9 +348,34 @@ function ChartLegend({ samples }: { samples: HistorySample[] }) {
   )
 }
 
+type PlotPoint = { sample: HistorySample; t: number; x: number }
+
+function nearestPlotIndex(points: PlotPoint[], x: number) {
+  let lo = 0
+  let hi = points.length
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1
+    if (points[mid].x < x) lo = mid + 1
+    else hi = mid
+  }
+  if (lo <= 0) return 0
+  if (lo >= points.length) return points.length - 1
+  const prev = lo - 1
+  return x - points[prev].x <= points[lo].x - x ? prev : lo
+}
+
+function hoverBoxHeight(sample: HistorySample) {
+  let rows = 2
+  if (sample.min != null || sample.max != null) rows += 1
+  const note = sampleNote(sample)
+  if (note) rows += Math.max(1, Math.ceil(note.length / 32))
+  return rows * 16 + 14
+}
+
 function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: number }) {
   const clipId = useId()
   const [frameRef, frameWidth] = useElementWidth<HTMLDivElement>()
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null)
   const sorted = [...samples].sort((a, b) => Date.parse(a.scrapedAt) - Date.parse(b.scrapedAt))
   const newest = Date.parse(sorted[sorted.length - 1]?.scrapedAt ?? "")
   const end = Number.isNaN(newest) ? 1 : newest
@@ -361,6 +396,14 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
   const innerH = H - pt - pb
   const xAt = (t: number) => pl + ((t - start) / span) * innerW
   const yAt = (v: number) => pt + innerH - (v / yMax) * innerH
+
+  const points: PlotPoint[] = []
+  for (const sample of sorted) {
+    const t = Date.parse(sample.scrapedAt)
+    if (Number.isNaN(t) || t < start) continue
+    points.push({ sample, t, x: xAt(t) })
+  }
+  const point = hoverIndex != null ? points[hoverIndex] : undefined
 
   const yTicks = [0, 1, 2, 3].map((i) => (yMax * i) / 3)
   const xTickCount = innerW < 420 ? 3 : 5
@@ -416,17 +459,42 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
 
   const title = `Posted Express Lanes prices over the last ${hours} hours`
 
+  function readPointer(event: PointerEvent<SVGSVGElement>) {
+    const rect = event.currentTarget.getBoundingClientRect()
+    if (rect.width === 0 || rect.height === 0) return
+    const x = ((event.clientX - rect.left) / rect.width) * W
+    const y = ((event.clientY - rect.top) / rect.height) * H
+    const next =
+      points.length > 0 && x >= pl && x <= W - pr && y >= pt && y <= pt + innerH
+        ? nearestPlotIndex(points, x)
+        : null
+    setHoverIndex((current) => (current === next ? current : next))
+  }
+
+  const scale = frameWidth > 0 ? frameWidth / W : 1
+  const tooltipW = 180
+  const edge = frameWidth > 0 ? frameWidth : W
+  const guidePx = point ? point.x * scale : 0
+  const tooltipLeft = Math.max(4, guidePx + 10 + tooltipW > edge ? guidePx - 10 - tooltipW : guidePx + 10)
+  const anchorY = point ? (point.sample.avg != null ? yAt(point.sample.avg) : pt + innerH / 2) : 0
+  const pad = 4
+  const tipH = point ? hoverBoxHeight(point.sample) : 0
+  const tooltipTop = Math.min(Math.max(anchorY, pad), Math.max(pad, H - tipH - pad))
+  const note = point ? sampleNote(point.sample) : ""
+
   return (
-    <div ref={frameRef} className="min-w-0 w-full">
+    <div ref={frameRef} className="relative min-w-0 w-full">
       <svg
         role="img"
         aria-label={title}
         viewBox={`0 0 ${W} ${H}`}
         width="100%"
         height={H}
-        className="block overflow-visible"
+        className="block cursor-crosshair overflow-visible"
+        onPointerMove={readPointer}
+        onPointerDown={readPointer}
+        onPointerLeave={() => setHoverIndex((current) => (current === null ? current : null))}
       >
-        <title>{title}</title>
         <defs>
           <clipPath id={clipId}>
             <rect x={pl} y={pt} width={innerW} height={innerH} />
@@ -526,7 +594,45 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
             )
           })}
         </g>
+        {point && (
+          <g pointerEvents="none">
+            <line
+              x1={point.x}
+              x2={point.x}
+              y1={pt}
+              y2={pt + innerH}
+              stroke="var(--muted-foreground)"
+              strokeWidth="1"
+              strokeDasharray="3 3"
+            />
+            {point.sample.avg != null && (
+              <circle
+                cx={point.x}
+                cy={yAt(point.sample.avg)}
+                r="4"
+                fill="var(--primary)"
+                stroke="var(--background)"
+                strokeWidth="1.5"
+              />
+            )}
+          </g>
+        )}
       </svg>
+      {point && (
+        <div
+          className="pointer-events-none absolute z-10 w-max max-w-48 rounded-md border bg-popover px-2.5 py-1.5 text-xs text-popover-foreground shadow-md"
+          style={{ left: tooltipLeft, top: tooltipTop }}
+        >
+          <p>{ET_SAMPLE_TIME.format(new Date(point.t))}</p>
+          <p className="tabular-nums">Avg {formatPrice(point.sample.avg)}</p>
+          {(point.sample.min != null || point.sample.max != null) && (
+            <p className="tabular-nums">
+              Min {formatPrice(point.sample.min)} · Max {formatPrice(point.sample.max)}
+            </p>
+          )}
+          {note ? <p className="text-muted-foreground">{note}</p> : null}
+        </div>
+      )}
     </div>
   )
 }
