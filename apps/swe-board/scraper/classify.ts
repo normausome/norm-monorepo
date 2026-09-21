@@ -1,7 +1,7 @@
 import type { GeoTier, LatamEligibility, Salary, ScrapedJob, WorkMode } from "../shared/types"
 import { sourceOf, type Board } from "./boards"
 import type { Posting } from "./posting"
-import { inferSeniority } from "./seniority"
+import { inferSeniority, MANAGER_IN_TITLE } from "./seniority"
 
 export const MIN_USD_SALARY = 100_000
 
@@ -26,8 +26,9 @@ const TITLE_INCLUDE = [
 
 const TITLE_EXCLUDE = [
   /\b(contract|contractor|c2c|corp[- ]to[- ]corp|freelance|temporary|temp)\b/i,
-  /\b(intern|internship|co-?op|apprentice|apprenticeship|fellow|fellowship|new grad|graduate program)\b/i,
-  /\b(manager|chief|head of|vp|vice president|president|coordinator|specialist|strategist)\b/i,
+  /\b(intern|internship|co-?op|apprentice|apprenticeship|fellow|fellowship|new grad|graduate program|stagiaire|estagi[áa]ri[oa]|pasante|becari[oa]|werkstudent|praktikant(in)?|trainee)\b/i,
+  MANAGER_IN_TITLE,
+  /\b(chief|head of|vp|vice president|president|coordinator|specialist|strategist)\b/i,
   /\b(sales|solutions?|support|field|implementation|pre-?sales|partner)\b.*\bengineer|\bcustomer (success|support|engineer)/i,
   /\b(hardware|mechanical|electrical|civil|manufacturing|process|industrial|optical|rf|radio|antenna|test|quality|qa|validation|materials|chemical|structural|thermal|firmware|fpga|asic|network|networking|systems? administrator|technician|supply chain|low observables|avionics|propulsion|weapons?|munitions?)\b/i,
   /\b(analytics|data|bi|business intelligence|marketing|content|revenue|finance|accounting|people|recruit|talent|sourcing|grc|compliance|it)\b(?!.*\b(platform|infrastructure) engineer\b)/i,
