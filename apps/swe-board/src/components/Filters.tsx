@@ -1,6 +1,6 @@
 import { ACTIVE_FILTERS, DEFAULT_QUERY, SORTS, type ActiveFilter, type JobQuery, type Sort } from "@shared/query"
-import { LATAM_ELIGIBILITIES, WORK_MODES, type LatamEligibility, type WorkMode } from "@shared/types"
-import { LATAM_LABEL, WORK_MODE_LABEL } from "@/lib/format"
+import { LATAM_ELIGIBILITIES, SENIORITIES, WORK_MODES, type LatamEligibility } from "@shared/types"
+import { LATAM_LABEL, SENIORITY_LABEL, WORK_MODE_LABEL } from "@/lib/format"
 
 const ACTIVE_LABEL: Record<ActiveFilter, string> = { active: "Active", inactive: "Inactive", all: "Active and inactive" }
 const SORT_LABEL: Record<Sort, string> = { last_seen: "Last seen", first_seen: "Newest", salary: "Pay", company: "Company" }
@@ -8,6 +8,38 @@ const PAY_FLOORS = [100_000, 150_000, 200_000, 250_000, 300_000]
 
 const selectClass =
   "h-9 rounded-md border border-slate-300 bg-white px-2 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+
+type ChipGroupProps<T extends string> = {
+  label: string
+  options: readonly T[]
+  labels: Record<T, string>
+  selected: T[]
+  onChange(next: T[]): void
+}
+
+function ChipGroup<T extends string>({ label, options, labels, selected, onChange }: ChipGroupProps<T>) {
+  const toggle = (value: T) => onChange(selected.includes(value) ? selected.filter((v) => v !== value) : [...selected, value])
+  return (
+    <div role="group" aria-label={label} className="flex overflow-hidden rounded-md border border-slate-300 shadow-sm">
+      {options.map((value) => {
+        const on = selected.includes(value)
+        return (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={on}
+            onClick={() => toggle(value)}
+            className={`h-9 px-3 text-sm font-medium transition-colors first:rounded-l-md last:rounded-r-md ${
+              on ? "bg-blue-600 text-white" : "bg-white text-slate-700 hover:bg-slate-100"
+            } border-r border-slate-300 last:border-r-0`}
+          >
+            {labels[value]}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
 
 type Props = {
   query: JobQuery
@@ -17,8 +49,6 @@ type Props = {
 
 export function Filters({ query, companies, onChange }: Props) {
   const set = <K extends keyof JobQuery>(key: K, value: JobQuery[K]) => onChange({ ...query, [key]: value, offset: 0 })
-  const toggleMode = (mode: WorkMode) =>
-    set("workModes", query.workModes.includes(mode) ? query.workModes.filter((m) => m !== mode) : [...query.workModes, mode])
   const isDefault = JSON.stringify({ ...query, offset: 0 }) === JSON.stringify(DEFAULT_QUERY)
 
   return (
@@ -32,24 +62,8 @@ export function Filters({ query, companies, onChange }: Props) {
           aria-label="Search title or company"
           className="h-9 min-w-64 flex-1 rounded-md border border-slate-300 bg-white px-3 text-sm shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
         />
-        <div role="group" aria-label="Work mode" className="flex overflow-hidden rounded-md border border-slate-300 shadow-sm">
-          {WORK_MODES.map((mode) => {
-            const on = query.workModes.includes(mode)
-            return (
-              <button
-                key={mode}
-                type="button"
-                aria-pressed={on}
-                onClick={() => toggleMode(mode)}
-                className={`h-9 px-3 text-sm font-medium transition-colors first:rounded-l-md last:rounded-r-md ${
-                  on ? "bg-blue-600 text-white" : "bg-white text-slate-700 hover:bg-slate-100"
-                } border-r border-slate-300 last:border-r-0`}
-              >
-                {WORK_MODE_LABEL[mode]}
-              </button>
-            )
-          })}
-        </div>
+        <ChipGroup label="Work mode" options={WORK_MODES} labels={WORK_MODE_LABEL} selected={query.workModes} onChange={(v) => set("workModes", v)} />
+        <ChipGroup label="Seniority" options={SENIORITIES} labels={SENIORITY_LABEL} selected={query.seniorities} onChange={(v) => set("seniorities", v)} />
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm text-slate-600">

@@ -1,9 +1,20 @@
-import type { Job, LatamEligibility, WorkMode } from "@shared/types"
+import type { Job, LatamEligibility, Seniority, WorkMode } from "@shared/types"
 
 export const WORK_MODE_LABEL: Record<WorkMode, string> = {
   remote: "Remote",
   hybrid: "Hybrid",
   onsite: "On-site",
+  unknown: "Unknown",
+}
+
+export const SENIORITY_LABEL: Record<Seniority, string> = {
+  entry: "Entry",
+  associate: "Associate",
+  mid: "Mid",
+  senior: "Senior",
+  staff: "Staff",
+  principal: "Principal",
+  manager: "Manager",
   unknown: "Unknown",
 }
 
