@@ -18,12 +18,7 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "ignoreDeprecations": "6.0",
-
-    "baseUrl": ".",
-    "paths": {
-      "@shared/*": ["./shared/*"]
-    }
+    "ignoreDeprecations": "6.0"
   },
   "include": ["server", "scraper", "db", "shared", "dev.ts"]
 }
