@@ -1,29 +1,29 @@
 import { connectDb, ensureSchema, persistRun } from "./db"
 import { scrapeRide66 } from "./scrapers/ride66"
-import { fetchTransurbanFeed, splitTransurbanFeed } from "./scrapers/transurban"
+import { fetchTransurbanFeed, fetchTransurbanMapping, splitTransurbanFeed, transurbanFailure } from "./scrapers/transurban"
 import { scrapeVai66 } from "./scrapers/vai66"
+import type { TripQuote } from "./trips"
 import type { ScrapeResult } from "./types"
 
 const dryRun = process.argv.includes("--dry-run")
+
+function brief(result: ScrapeResult): string {
+  const trips = Array.isArray(result.summary.trips) ? (result.summary.trips as TripQuote[]) : []
+  const spans = trips
+    .filter((trip) => trip.spanning)
+    .map((trip) => `${trip.direction} ${trip.entryLabel} to ${trip.exitLabel} = ${trip.price ?? trip.status}`)
+  return `${trips.length} trips${spans.length ? `; ${spans.join("; ")}` : ""}`
+}
 
 async function scrapeAll(): Promise<ScrapeResult[]> {
   const results: ScrapeResult[] = []
 
   try {
-    const feed = await fetchTransurbanFeed()
-    results.push(...splitTransurbanFeed(feed))
+    const [feed, mapping] = await Promise.all([fetchTransurbanFeed(), fetchTransurbanMapping()])
+    results.push(...splitTransurbanFeed(feed, mapping))
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    for (const corridor of ["495", "395", "95"] as const) {
-      results.push({
-        corridor,
-        operator: "Transurban (expresslanes.com)",
-        sourceUrl: "https://expresslanes.com/maps-api/infra-price-confirmed-all",
-        payload: {},
-        summary: { scrapedAt: new Date().toISOString() },
-        error: message,
-      })
-    }
+    results.push(...transurbanFailure(message))
   }
 
   for (const scrape of [scrapeVai66, scrapeRide66] as const) {
@@ -56,8 +56,7 @@ async function main() {
   const results = await scrapeAll()
   for (const r of results) {
     const status = r.error ? "FAIL" : "OK"
-    const detail = r.error ?? JSON.stringify(r.summary)
-    console.log(`  ${status} ${r.corridor}: ${detail}`)
+    console.log(`  ${status} ${r.corridor}: ${r.error ?? brief(r)}`)
   }
 
   const ok = results.filter((r) => !r.error).length

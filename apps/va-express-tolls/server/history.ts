@@ -1,7 +1,15 @@
 import postgres from "postgres"
 import { CORRIDORS, isCorridorId, type CorridorId } from "../src/data/corridors"
-import type { HistoryResponse, HistorySample, HistorySummaryResponse } from "../src/lib/api-types"
+import type { Direction, HistoryResponse, HistorySample, HistorySummaryResponse, HistoryTrip } from "../src/lib/api-types"
 import { BadRequest } from "./adapters/types"
+import {
+  catalogTrips,
+  parseOpenDirection,
+  parseTrips,
+  publicTrip,
+  resolveTrip,
+  type TripQuery,
+} from "./history-trips"
 import { UpstreamError } from "./http"
 
 export const historyConfigured = Boolean(process.env.DATABASE_URL)
@@ -35,64 +43,67 @@ async function withDb<T>(fn: (db: Sql) => Promise<T>, whenEmpty: () => T): Promi
   }
 }
 
-function num(v: unknown): number | null {
-  return typeof v === "number" && Number.isFinite(v) ? v : null
-}
-
-type Json = Record<string, unknown>
-
-function asJson(v: unknown): Json {
-  return v !== null && typeof v === "object" && !Array.isArray(v) ? (v as Json) : {}
-}
-
-function mid(min: number | null, max: number | null): number | null {
-  // Scraper stores 0/0 when I-66 Inside is not currently tolled; that is not a $0 trip.
-  if ((min ?? 0) === 0 && (max ?? 0) === 0) return null
-  return Math.round((((min ?? max)! + (max ?? min)!) / 2) * 100) / 100
-}
-
-const transurban = (s: Json): Partial<HistorySample> => ({
-  min: num(s.minPrice),
-  max: num(s.maxPrice),
-  avg: num(s.avgPrice),
-  openDirection95: s.openDirection95 === "nb" || s.openDirection95 === "sb" ? s.openDirection95 : null,
-})
-
-const fields: Record<CorridorId, (summary: Json) => Partial<HistorySample>> = {
-  "495": transurban,
-  "395": transurban,
-  "95": transurban,
-  "66-inside": (s) => {
-    const min = num(s.minToll)
-    const max = num(s.maxToll)
-    return { min, max, avg: mid(min, max), currentlyTolled: Boolean(s.currentlyTolled) }
-  },
-  "66-outside": (s) => ({ min: num(s.minRate), max: num(s.maxRate), avg: num(s.avgRate) }),
-}
-
-function toSample(corridor: CorridorId, scrapedAt: Date, summary: unknown, error: string | null): HistorySample {
-  const extra = fields[corridor](asJson(summary))
-  const failed = Boolean(error)
-  return {
-    scrapedAt: scrapedAt.toISOString(),
-    min: failed ? null : (extra.min ?? null),
-    max: failed ? null : (extra.max ?? null),
-    avg: failed ? null : (extra.avg ?? null),
-    ...(extra.openDirection95 !== undefined ? { openDirection95: extra.openDirection95 } : {}),
-    ...(extra.currentlyTolled !== undefined ? { currentlyTolled: extra.currentlyTolled } : {}),
-    error: failed ? error : null,
-  }
-}
-
 function clampHours(raw: string | null): number {
   const n = raw == null || raw === "" ? 24 : Number.parseInt(raw, 10)
   if (!Number.isFinite(n)) return 24
   return Math.min(168, Math.max(1, n))
 }
 
+function isDirection(v: string): v is Direction {
+  return v === "nb" || v === "sb" || v === "eb" || v === "wb"
+}
+
+function readTripQuery(url: URL): TripQuery | null {
+  const direction = url.searchParams.get("direction")
+  const entry = url.searchParams.get("entry")
+  const exit = url.searchParams.get("exit")
+  if (!direction && !entry && !exit) return null
+  if (!direction || !entry || !exit) throw new BadRequest("direction, entry, and exit must be sent together")
+  if (!isDirection(direction)) throw new BadRequest("direction must be nb, sb, eb, or wb")
+  if (entry.length > 80 || exit.length > 120) throw new BadRequest("entry or exit id is too long")
+  return { direction, entryId: entry, exitId: exit }
+}
+
+function openField(open: "nb" | "sb" | null | undefined): Pick<HistorySample, "openDirection95"> {
+  return open === undefined ? {} : { openDirection95: open }
+}
+
+function headlineView(
+  corridor: CorridorId,
+  scrapedAt: Date,
+  summary: unknown,
+  error: string | null,
+): { sample: HistorySample; headline: HistoryTrip | null } {
+  const open = parseOpenDirection(summary)
+  const picked = error ? null : resolveTrip(corridor, parseTrips(summary), null, open ?? null)
+  return {
+    sample: {
+      scrapedAt: scrapedAt.toISOString(),
+      price: picked?.price ?? null,
+      status: picked?.status ?? null,
+      ...openField(open),
+      error,
+    },
+    headline: picked ? publicTrip(picked) : null,
+  }
+}
+
+function seriesSample(scrapedAt: Date, error: string | null, hasOpen: boolean, openText: string | null, tripJson: unknown): HistorySample {
+  const open = !hasOpen ? undefined : openText === "nb" || openText === "sb" ? openText : null
+  const trip = error ? null : parseTrips({ trips: tripJson ? [tripJson] : [] })[0]
+  return {
+    scrapedAt: scrapedAt.toISOString(),
+    price: trip?.price ?? null,
+    status: trip?.status ?? null,
+    ...openField(open),
+    error,
+  }
+}
+
 type RunRow = { started_at: Date; finished_at: Date; status: "ok" | "partial" | "failed" }
 type LatestRow = { corridor_id: string; scraped_at: Date; summary: unknown; error: string | null; n: number }
-type SampleRow = { scraped_at: Date; summary: unknown; error: string | null }
+type CatalogRow = { summary: unknown }
+type SeriesRow = { scraped_at: Date; error: string | null; has_open: boolean; open_direction: string | null; trip: unknown }
 
 export async function handleHistorySummary(): Promise<HistorySummaryResponse> {
   if (!historyConfigured) return { available: false, latestRun: null, corridors: [] }
@@ -116,13 +127,11 @@ export async function handleHistorySummary(): Promise<HistorySummaryResponse> {
       `,
     ])
 
-    const latest = new Map<CorridorId, { sample: HistorySample; n: number }>()
+    const latest = new Map<CorridorId, { sample: HistorySample; headline: HistoryTrip | null; n: number }>()
     for (const row of snaps) {
       if (!isCorridorId(row.corridor_id)) continue
-      latest.set(row.corridor_id, {
-        sample: toSample(row.corridor_id, row.scraped_at, row.summary, row.error),
-        n: row.n,
-      })
+      const view = headlineView(row.corridor_id, row.scraped_at, row.summary, row.error)
+      latest.set(row.corridor_id, { ...view, n: row.n })
     }
 
     const run = runs[0]
@@ -133,7 +142,7 @@ export async function handleHistorySummary(): Promise<HistorySummaryResponse> {
         : null,
       corridors: CORRIDORS.map((c) => {
         const hit = latest.get(c.id)
-        return { id: c.id, latest: hit?.sample ?? null, samples24h: hit?.n ?? 0 }
+        return { id: c.id, latest: hit?.sample ?? null, headline: hit?.headline ?? null, samples24h: hit?.n ?? 0 }
       }),
     }
   }, emptySummary)
@@ -142,26 +151,57 @@ export async function handleHistorySummary(): Promise<HistorySummaryResponse> {
 const emptySummary = (): HistorySummaryResponse => ({
   available: true,
   latestRun: null,
-  corridors: CORRIDORS.map((c) => ({ id: c.id, latest: null, samples24h: 0 })),
+  corridors: CORRIDORS.map((c) => ({ id: c.id, latest: null, headline: null, samples24h: 0 })),
 })
 
 export async function handleHistory(corridorId: string, url: URL): Promise<HistoryResponse> {
   if (!isCorridorId(corridorId)) throw new BadRequest(`Unknown corridor "${corridorId}"`)
   if (!historyConfigured) throw new UpstreamError("History is not configured (DATABASE_URL is unset)", 503)
   const hours = clampHours(url.searchParams.get("hours"))
+  const requested = readTripQuery(url)
 
   return withDb(async (db) => {
-    const rows = await db<SampleRow[]>`
-      SELECT scraped_at, summary, error
+    const [catalogRow] = await db<CatalogRow[]>`
+      SELECT summary
       FROM corridor_snapshots
       WHERE corridor_id = ${corridorId}
-        AND scraped_at >= now() - ${hours} * interval '1 hour'
-      ORDER BY scraped_at ASC
+        AND jsonb_typeof(summary->'trips') = 'array'
+        AND jsonb_array_length(summary->'trips') > 0
+      ORDER BY scraped_at DESC
+      LIMIT 1
     `
+    const catalog = parseTrips(catalogRow?.summary)
+    const open = parseOpenDirection(catalogRow?.summary)
+    const chosen = resolveTrip(corridorId, catalog, requested, open ?? null)
+    const direction = chosen?.direction ?? ""
+    const entryId = chosen?.entryId ?? ""
+    const exitId = chosen?.exitId ?? ""
+
+    const rows = await db<SeriesRow[]>`
+      SELECT s.scraped_at, s.error,
+        (s.summary ? 'openDirection95') AS has_open,
+        s.summary->>'openDirection95' AS open_direction,
+        trip.elem AS trip
+      FROM corridor_snapshots s
+      LEFT JOIN LATERAL (
+        SELECT elem
+        FROM jsonb_array_elements(COALESCE(s.summary->'trips', '[]'::jsonb)) elem
+        WHERE elem->>'direction' = ${direction}
+          AND elem->>'entryId' = ${entryId}
+          AND elem->>'exitId' = ${exitId}
+        LIMIT 1
+      ) trip ON true
+      WHERE s.corridor_id = ${corridorId}
+        AND s.scraped_at >= now() - ${hours} * interval '1 hour'
+      ORDER BY s.scraped_at ASC
+    `
+
     return {
       corridor: corridorId,
       hours,
-      samples: rows.map((r) => toSample(corridorId, r.scraped_at, r.summary, r.error)),
+      trip: chosen ? publicTrip(chosen) : null,
+      trips: catalogTrips(corridorId, catalog, chosen),
+      samples: rows.map((row) => seriesSample(row.scraped_at, row.error, row.has_open, row.open_direction, row.trip)),
     }
-  }, () => ({ corridor: corridorId, hours, samples: [] }))
+  }, () => ({ corridor: corridorId, hours, trip: null, trips: [], samples: [] }))
 }

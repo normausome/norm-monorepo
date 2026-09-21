@@ -1,4 +1,4 @@
-import type { Direction } from "../../src/lib/api-types"
+import type { Direction } from "./trips"
 
 /**
  * Exit options per (direction, starting gantry) as generated client-side by the

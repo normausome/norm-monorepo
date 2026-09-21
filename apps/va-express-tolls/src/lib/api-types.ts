@@ -116,28 +116,33 @@ export interface UnmatchedCorridor {
   reason: string
 }
 
-/**
- * One scraper snapshot for a corridor, normalized from the dmv-tolls-scraper
- * `corridor_snapshots.summary` JSONB (see apps/dmv-tolls-scraper). Prices are the
- * operator's posted per-segment/per-trip figures at that moment, in USD.
- */
+export type HistoryTripStatus = "open" | "free" | "closed" | "missing"
+
+export interface HistoryTrip {
+  direction: Direction
+  entryId: string
+  exitId: string
+  entryLabel: string
+  exitLabel: string
+  spanning: boolean
+}
+
 export interface HistorySample {
   scrapedAt: string
-  /** Lowest / highest / mean posted price across the corridor at that moment; null when the scrape failed or nothing was tolled. */
-  min: number | null
-  max: number | null
-  avg: number | null
-  /** Which way the reversible 95/395 lanes were open (Transurban corridors only). */
+  /** Null when the scrape failed, the pair was closed or missing, or this snapshot predates trip rows. */
+  price: number | null
+  /** `free` is an I-66 Inside toll of $0. Null when this snapshot has no row for the trip. */
+  status: HistoryTripStatus | null
+  /** Which way the reversible 95/395 lanes were open. Present only for those corridors. */
   openDirection95?: "nb" | "sb" | null
-  /** I-66 Inside only: whether the operator reported a non-zero toll. */
-  currentlyTolled?: boolean
-  /** Scraper-recorded failure for this corridor, if any. */
   error: string | null
 }
 
 export interface HistoryCorridorStatus {
   id: CorridorId
   latest: HistorySample | null
+  /** Full-span trip the latest price belongs to, when the snapshot has trip rows. */
+  headline: HistoryTrip | null
   /** Snapshots recorded in the last 24 hours. */
   samples24h: number
 }
@@ -153,6 +158,10 @@ export interface HistoryResponse {
   corridor: CorridorId
   /** Window length actually applied (clamped server-side, 1–168). */
   hours: number
+  /** Trip the samples belong to. Null when no snapshot has trip rows yet. */
+  trip: HistoryTrip | null
+  /** Pairs from the newest snapshot that stored trips. */
+  trips: HistoryTrip[]
   samples: HistorySample[]
 }
 

@@ -1,5 +1,17 @@
 # DMV tolls scraper
 
+## History trips (Sep 2026)
+
+Each corridor snapshot stores `summary.trips`, one record per valid entry-to-exit pair. The record shape, the meaning of "all combinations", the full-span rule, and the cost notes live in [va-express-tolls/PLAN.md](../va-express-tolls/PLAN.md).
+
+Cadence stays `*/30 * * * *`.
+
+- 495, 395, and 95 reuse the price feed. One extra GET loads `entry_exit.js`. Trip price is the sum of the link's `od_*` rows. Measured 685 links, no per-trip call.
+- I-66 Outside reuses the one planner POST. All 172 vendored pairs are sums of class-1 gantry rates.
+- I-66 Inside calls `TollCalcPartial` for each of the 96 reachable pairs, six at a time. That is the only place a full matrix costs a live call per pair.
+
+The min, avg, and max rollup is not written anymore.
+
 ## Goal
 
 Run a Railway cron job every 30 minutes that scrapes the five Northern Virginia Express Lanes operators used by [va-express-tolls](../va-express-tolls/) and stores timestamped snapshots in Postgres.
@@ -14,7 +26,7 @@ Run a Railway cron job every 30 minutes that scrapes the five Northern Virginia 
 ## Out of scope
 
 - HTTP API to query history (read Postgres directly or add later).
-- Scraping every entry/exit pair on I-66 Inside (too many upstream calls).
+- A second scheduler. I-66 Inside prices every reachable pair on the same 30-minute run (96 calls, measured well under a minute).
 - Redis, queues, or multi-replica coordination.
 - Modifying `va-express-tolls` (scraper vendors minimal fetch logic).
 

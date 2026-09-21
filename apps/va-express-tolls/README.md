@@ -33,7 +33,7 @@ No environment variables or secrets are needed locally. See [Deploying the API (
 
 - **Simple** (default) — pick a corridor, then your entry and exit; the price comes from that operator's calculator. This is the original flow and is unchanged.
 - **Advanced** (`#advanced`) — type a *from* and a *to* (address, place name, or `lat, lng`). The server routes the drive, works out which Express Lanes it runs beside, and prices every one through the same adapters, giving a total and a per-leg breakdown on a map of the route. See [Advanced mode](#advanced-mode-address--address) below for how detection works and its limits.
-- **History** (`#history`) — posted min / avg / max over recent scraper snapshots for each corridor, read from the sibling `dmv-tolls-scraper` Postgres when `DATABASE_URL` is set.
+- **History** (`#history`) — posted price for one entry-to-exit trip over recent scraper snapshots, read from the sibling `dmv-tolls-scraper` Postgres when `DATABASE_URL` is set. The default trip is the full span. Other pairs the operator exposes are in the trip menu.
 
 ## How it works
 
@@ -71,9 +71,10 @@ GET /api/:corridor/points?direction=nb|sb|eb|wb
 GET /api/:corridor/estimate?direction=&entry=&exit=[&at=<ISO, past only, 66 Inside>]
 GET /api/history/summary
     → { available, latestRun: { startedAt, finishedAt, status } | null,
-        corridors: [{ id, latest: HistorySample | null, samples24h }] }
-GET /api/history/:corridor?hours=24                       (hours clamped 1–168)
-    → { corridor, hours, samples: [{ scrapedAt, min, max, avg, openDirection95?, currentlyTolled?, error }] }
+        corridors: [{ id, latest: HistorySample | null, headline: HistoryTrip | null, samples24h }] }
+GET /api/history/:corridor?hours=24[&direction=&entry=&exit=]   (hours clamped 1–168)
+    → { corridor, hours, trip: HistoryTrip | null, trips: HistoryTrip[],
+        samples: [{ scrapedAt, price, status, openDirection95?, error }] }
 GET /api/geocode?q=<text, 3+ chars>                     → { results: [{ label, lat, lng }], provider }
 GET /api/route-tolls?from=<lat,lng>&to=<lat,lng>[&fromLabel=&toLabel=]
     → { from, to, route: { provider, distanceMeters, durationSeconds, geometry: [[lat,lng]…] },
@@ -100,7 +101,7 @@ Memory only: a single-node MVP has no Redis/KV in the stack, and a restart just 
 
 ### History (Postgres)
 
-The History tab reads `/api/history/*`, which serves snapshots written every 30 minutes by `apps/dmv-tolls-scraper` into a shared Postgres (`scrape_runs` + `corridor_snapshots`). Each row's corridor-specific `summary` JSONB is normalized to `{ scrapedAt, min, avg, max }` (plus `openDirection95` on Transurban corridors and `currentlyTolled` on I-66 Inside). Without `DATABASE_URL` the summary endpoint reports `available: false` and the tab shows a setup message.
+The History tab reads `/api/history/*`, which serves snapshots written every 30 minutes by `apps/dmv-tolls-scraper` into a shared Postgres (`scrape_runs` + `corridor_snapshots`). Each row's `summary.trips` is one entry-to-exit price. Omit `direction`, `entry`, and `exit` and the API returns the full-span trip (upstream entry to the downstream exit that stays on the corridor). Send all three to chart another pair from `trips`. `status` is `open`, `free` (I-66 Inside at $0), `closed`, or `missing`. Snapshots written before trip rows exist show as a gap. Without `DATABASE_URL` the summary endpoint reports `available: false` and the tab shows a setup message.
 
 Points carry `lat`/`lng` so the UI can draw them: a map under the selects shows the direction's entries, then the exits reachable from your entry, and highlights the chosen pair (tapping a dot selects it). Coordinates come from each operator's own map — vai66tolls and expresslanes ship them with their interchange data; for 66 Outside they were captured once from the planner's markers (a few select-only ramps are placed at the same interchange and commented as approximate). Basemap: OpenStreetMap tiles, fine for a demo; a real deployment must follow the [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/) or bring its own tiles.
 
