@@ -3,11 +3,14 @@ import { DEFAULT_QUERY, jobQueryToParams, parseJobQuery } from "./query"
 
 test("parses every supported filter", () => {
   const q = parseJobQuery(
-    new URLSearchParams("q=staff&work_mode=remote,hybrid,bogus,remote&latam=latam_mx_br&company=Stripe&salary_min=150000&active=all&sort=salary&limit=50&offset=100"),
+    new URLSearchParams(
+      "q=staff&work_mode=remote,hybrid,bogus,remote&seniority=senior,staff&latam=latam_mx_br&company=Stripe&salary_min=150000&active=all&sort=salary&limit=50&offset=100",
+    ),
   )
   expect(q).toEqual({
     q: "staff",
     workModes: ["remote", "hybrid"],
+    seniorities: ["senior", "staff"],
     latam: "latam_mx_br",
     company: "Stripe",
     salaryMin: 150_000,
@@ -23,14 +26,22 @@ test("malformed values fall back to defaults and limit is capped", () => {
   expect(q).toEqual({ ...DEFAULT_QUERY, limit: 500 })
 })
 
+test("multi-value filters accept repeated keys, comma lists, and a mix, dropping unknowns", () => {
+  expect(parseJobQuery(new URLSearchParams("seniority=senior&seniority=staff")).seniorities).toEqual(["senior", "staff"])
+  expect(parseJobQuery(new URLSearchParams("seniority=senior,staff")).seniorities).toEqual(["senior", "staff"])
+  expect(parseJobQuery(new URLSearchParams("seniority=senior,vp&seniority=staff&seniority=senior")).seniorities).toEqual(["senior", "staff"])
+  expect(parseJobQuery(new URLSearchParams("seniority=vp")).seniorities).toEqual([])
+  expect(parseJobQuery(new URLSearchParams("work_mode=remote&work_mode=hybrid")).workModes).toEqual(["remote", "hybrid"])
+})
+
 test("an empty query string is the default query", () => {
   expect(parseJobQuery(new URLSearchParams())).toEqual(DEFAULT_QUERY)
 })
 
 test("jobQueryToParams round-trips and omits defaults", () => {
-  const q = { ...DEFAULT_QUERY, q: "sre", workModes: ["remote" as const], salaryMin: 200_000, offset: 100 }
+  const q = { ...DEFAULT_QUERY, q: "sre", workModes: ["remote" as const], seniorities: ["senior" as const, "staff" as const], salaryMin: 200_000, offset: 100 }
   const params = jobQueryToParams(q)
-  expect(params.toString()).toBe("q=sre&work_mode=remote&salary_min=200000&offset=100")
+  expect(params.toString()).toBe("q=sre&work_mode=remote&seniority=senior%2Cstaff&salary_min=200000&offset=100")
   expect(parseJobQuery(params)).toEqual(q)
   expect(jobQueryToParams(DEFAULT_QUERY).toString()).toBe("")
 })

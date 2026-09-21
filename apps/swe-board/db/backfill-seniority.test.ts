@@ -1,6 +1,8 @@
 import { afterAll, beforeEach, describe, expect, test } from "bun:test"
+import { DEFAULT_QUERY } from "../shared/query"
 import { backfillSeniority } from "./backfill-seniority"
 import { migrate } from "./migrate"
+import { queryJobs } from "./read"
 import { connect } from "./sql"
 
 const url = process.env.TEST_DATABASE_URL
@@ -40,5 +42,15 @@ describe.if(!!url)("backfillSeniority", () => {
       ["gh:acme:3", "mid"],
     ])
     expect(await backfillSeniority(sql)).toEqual({ scanned: 3, updated: 0 })
+  })
+
+  test("the seniority filter reads what the backfill wrote", async () => {
+    await backfillSeniority(sql)
+    const { jobs, total } = await queryJobs(sql, { ...DEFAULT_QUERY, seniorities: ["staff", "manager"], sort: "company" })
+    expect(total).toBe(2)
+    expect(jobs.map((j) => [j.jobId, j.seniority])).toEqual([
+      ["gh:acme:2", "manager"],
+      ["gh:acme:1", "staff"],
+    ])
   })
 })

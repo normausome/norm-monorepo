@@ -1,4 +1,4 @@
-import { LATAM_ELIGIBILITIES, WORK_MODES, type LatamEligibility, type WorkMode } from "./types"
+import { LATAM_ELIGIBILITIES, SENIORITIES, WORK_MODES, type LatamEligibility, type Seniority, type WorkMode } from "./types"
 
 export const ACTIVE_FILTERS = ["active", "inactive", "all"] as const
 export type ActiveFilter = (typeof ACTIVE_FILTERS)[number]
@@ -12,6 +12,7 @@ export const MAX_LIMIT = 500
 export type JobQuery = {
   q: string
   workModes: WorkMode[]
+  seniorities: Seniority[]
   latam: LatamEligibility | null
   company: string
   salaryMin: number | null
@@ -24,6 +25,7 @@ export type JobQuery = {
 export const DEFAULT_QUERY: JobQuery = {
   q: "",
   workModes: [],
+  seniorities: [],
   latam: null,
   company: "",
   salaryMin: null,
@@ -37,6 +39,12 @@ function oneOf<T extends string>(values: readonly T[], raw: string | null): T | 
   return values.includes(raw as T) ? (raw as T) : null
 }
 
+/** `key=a,b` and `key=a&key=b` both work. Unknown values are dropped, repeats collapse. */
+function manyOf<T extends string>(values: readonly T[], raw: string[]): T[] {
+  const picked = raw.flatMap((s) => s.split(",")).map((s) => oneOf(values, s.trim()))
+  return [...new Set(picked.filter((v): v is T => v !== null))]
+}
+
 function positiveInt(raw: string | null): number | null {
   if (raw === null || raw.trim() === "") return null
   const n = Number(raw)
@@ -45,14 +53,11 @@ function positiveInt(raw: string | null): number | null {
 
 /** Parse a query string. Unknown or malformed values fall back to the default. */
 export function parseJobQuery(params: URLSearchParams): JobQuery {
-  const workModes = (params.get("work_mode") ?? "")
-    .split(",")
-    .map((s) => oneOf(WORK_MODES, s.trim()))
-    .filter((m): m is WorkMode => m !== null)
   const limit = positiveInt(params.get("limit"))
   return {
     q: (params.get("q") ?? "").trim(),
-    workModes: [...new Set(workModes)],
+    workModes: manyOf(WORK_MODES, params.getAll("work_mode")),
+    seniorities: manyOf(SENIORITIES, params.getAll("seniority")),
     latam: oneOf(LATAM_ELIGIBILITIES, params.get("latam")),
     company: (params.get("company") ?? "").trim(),
     salaryMin: positiveInt(params.get("salary_min")),
@@ -68,6 +73,7 @@ export function jobQueryToParams(query: JobQuery): URLSearchParams {
   const params = new URLSearchParams()
   if (query.q) params.set("q", query.q)
   if (query.workModes.length) params.set("work_mode", query.workModes.join(","))
+  if (query.seniorities.length) params.set("seniority", query.seniorities.join(","))
   if (query.latam) params.set("latam", query.latam)
   if (query.company) params.set("company", query.company)
   if (query.salaryMin !== null) params.set("salary_min", String(query.salaryMin))
