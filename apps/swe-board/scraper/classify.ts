@@ -1,4 +1,4 @@
-import type { GeoTier, LatamEligibility, Salary, ScrapedJob, WorkMode } from "../shared/types"
+import type { GeoTier, LatamEligibility, Salary, ScrapedJob, Seniority, WorkMode } from "../shared/types"
 import { sourceOf, type Board } from "./boards"
 import type { Posting } from "./posting"
 
@@ -41,6 +41,28 @@ export function isSweTitle(title: string): boolean {
 
 export function isExcludedEmployment(employmentType: string | null): boolean {
   return employmentType !== null && EMPLOYMENT_EXCLUDE.test(employmentType)
+}
+
+// --- Seniority -------------------------------------------------------------
+
+/**
+ * Highest rung first, first hit wins. A stacked modifier ("Senior Staff",
+ * "Senior Engineering Manager") is a sub-grade inside the higher rung, not a rung
+ * of its own. "Member of Technical Staff" and "Chief of Staff" are not staff level.
+ */
+const SENIORITY_RULES: [RegExp, Seniority][] = [
+  [/\b(manager|mgr|director|head of|vp|vice president)\b/i, "manager"],
+  [/\b(principal|distinguished|fellow)\b/i, "principal"],
+  [/(?<!technical |of )\bstaff\b/i, "staff"],
+  [/\b(senior|sr|snr|lead)\b/i, "senior"],
+  [/\bassociate\b/i, "associate"],
+  [/\b(entry[- ]level|junior|jr|new grad(uate)?|graduate|intern(ship)?|co-?op|apprentice|early career)\b/i, "entry"],
+  [/\b(engineer|engineering|developer|programmer|sde|swe|sre)\b/i, "mid"],
+]
+
+/** Numerals ("Engineer II", "SDE 2") do not move the rung. Ladders differ per company. */
+export function classifySeniority(title: string): Seniority {
+  return SENIORITY_RULES.find(([re]) => re.test(title))?.[1] ?? "unknown"
 }
 
 // --- Salary ----------------------------------------------------------------

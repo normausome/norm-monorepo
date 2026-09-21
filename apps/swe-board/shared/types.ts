@@ -4,6 +4,10 @@ export type WorkMode = (typeof WORK_MODES)[number]
 export const LATAM_ELIGIBILITIES = ["latam_mx_br", "us_only", "unknown"] as const
 export type LatamEligibility = (typeof LATAM_ELIGIBILITIES)[number]
 
+/** Ladder rung read from the title. Ordered low to high, `unknown` last. */
+export const SENIORITIES = ["entry", "associate", "mid", "senior", "staff", "principal", "manager", "unknown"] as const
+export type Seniority = (typeof SENIORITIES)[number]
+
 /** SWE Radar geo tiers. A and B map to latam_mx_br, C to us_only, D to unknown. */
 export type GeoTier = "A" | "B" | "C" | "D"
 

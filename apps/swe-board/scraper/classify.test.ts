@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { classifyGeo, inferWorkMode, isSweTitle, parseSalaryText, passesSalaryFloor } from "./classify"
+import { classifyGeo, classifySeniority, inferWorkMode, isSweTitle, parseSalaryText, passesSalaryFloor } from "./classify"
 
 describe("isSweTitle", () => {
   test.each([
@@ -35,6 +35,56 @@ describe("isSweTitle", () => {
     ["Engineering Manager", false],
   ])("%s -> %p", (title, expected) => {
     expect(isSweTitle(title)).toBe(expected)
+  })
+})
+
+describe("classifySeniority", () => {
+  test.each([
+    ["Junior Software Engineer", "entry"],
+    ["Jr. Backend Developer", "entry"],
+    ["Software Engineer Intern", "entry"],
+    ["Software Engineering Internship (Summer)", "entry"],
+    ["Software Engineer Co-op", "entry"],
+    ["Entry Level Software Engineer", "entry"],
+    ["New Grad Software Engineer", "entry"],
+    ["Associate Software Engineer", "associate"],
+    ["Software Engineer, Associate", "associate"],
+    ["Associate Backend Developer", "associate"],
+    ["Software Engineer", "mid"],
+    ["Software Engineer II", "mid"],
+    ["Software Engineer III", "mid"],
+    ["SDE 2", "mid"],
+    ["Backend Engineer, Payments", "mid"],
+    ["Forward Deployed Engineer", "mid"],
+    ["Senior Software Engineer", "senior"],
+    ["Sr. Software Engineer", "senior"],
+    ["Sr Backend Engineer (Go)", "senior"],
+    ["Senior Software Engineer II", "senior"],
+    ["Lead Software Engineer", "senior"],
+    ["Tech Lead", "senior"],
+    ["Senior Member of Technical Staff", "senior"],
+    ["Staff Software Engineer", "staff"],
+    ["Senior Staff Engineer", "staff"],
+    ["Staff Engineer, Infrastructure", "staff"],
+    ["Staff+ Software Engineer", "staff"],
+    ["Principal Engineer", "principal"],
+    ["Principal Staff Engineer", "principal"],
+    ["Senior Principal Software Engineer", "principal"],
+    ["Distinguished Engineer", "principal"],
+    ["Fellow, Systems", "principal"],
+    ["Engineering Manager", "manager"],
+    ["Senior Engineering Manager", "manager"],
+    ["Director of Engineering", "manager"],
+    ["Director, Engineering - Platform", "manager"],
+    ["Head of Engineering", "manager"],
+    ["VP, Engineering", "manager"],
+    ["Sr. Manager, Engineering - Search", "manager"],
+    ["Member of Technical Staff", "unknown"],
+    ["Chief of Staff", "unknown"],
+    ["Payments Platform", "unknown"],
+    ["", "unknown"],
+  ])("%s -> %s", (title, expected) => {
+    expect(classifySeniority(title)).toBe(expected)
   })
 })
 
