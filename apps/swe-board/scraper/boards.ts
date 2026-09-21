@@ -6,7 +6,7 @@ export type Board = {
   company: string
 }
 
-/** `source` column value and the id prefix for a board. Matches SWE Radar. */
+/** Prefix of `job_id` per ATS. Matches SWE Radar. */
 export const ATS_ID_PREFIX: Record<Ats, string> = { greenhouse: "gh", ashby: "ashby", lever: "lever" }
 
 export const sourceOf = (b: Board) => `${b.ats}:${b.slug}`

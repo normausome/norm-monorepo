@@ -11,7 +11,7 @@ cd apps/swe-board
 bun install
 cp .env.example .env            # set DATABASE_URL
 bun run migrate                 # creates jobs and scrape_runs
-bun run scrape                  # scrapes every board once (about 30 s)
+bun run scrape                  # scrapes every board once (under 30 s)
 bun run dev                     # API on :8790, Vite on :5173
 ```
 

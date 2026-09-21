@@ -6,7 +6,7 @@ import { migrate } from "./migrate"
 import { connect } from "./sql"
 import { MemoryStore, PgStore, dedupeByJobId, type ScrapeStore } from "./store"
 
-export function scraped(id: string, source = "greenhouse:acme", over: Partial<ScrapedJob> = {}): ScrapedJob {
+function scraped(id: string, source = "greenhouse:acme", over: Partial<ScrapedJob> = {}): ScrapedJob {
   return {
     jobId: id,
     title: "Software Engineer",

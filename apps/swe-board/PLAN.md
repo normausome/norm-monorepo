@@ -23,7 +23,7 @@ Two shapes were on the table for the write path.
 | Shape | Pros | Cons |
 |-------|------|------|
 | Pure `reconcile(existing, scraped)` that returns row diffs, thin store writes them | Pure function is trivial to unit test | Duplicates in JS what one `INSERT ... ON CONFLICT` plus one `UPDATE ... WHERE job_id <> ALL(...)` do atomically. Two sources of truth for the dedupe rule. |
-| `ScrapeStore` interface with `PgStore` and `MemoryStore`, one contract test suite run against both | The rule lives in SQL where it runs in production. The memory store is 40 lines and the same test file proves both. | The memory store restates the rule in JS, but a shared test pins the two together. |
+| `ScrapeStore` interface with `PgStore` and `MemoryStore`, one contract test suite run against both | The rule lives in SQL where it runs in production. One test file proves both stores. | The memory store restates the rule in JS, but a shared test pins the two together. |
 
 The second shape shipped. The Postgres half of the contract test runs when `TEST_DATABASE_URL` is set and skips otherwise, so `bun test` stays green on a machine without Postgres.
 
