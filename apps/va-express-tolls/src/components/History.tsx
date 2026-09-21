@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CORRIDORS, type CorridorId } from "@/data/corridors"
 import { fetchHistory, fetchHistorySummary, formatTime, formatUsd } from "@/lib/api"
-import type { HistorySample, HistorySummaryResponse } from "@/lib/api-types"
+import type { Direction, HistorySample, HistorySummaryResponse, HistoryTrip } from "@/lib/api-types"
 import { cn } from "@/lib/utils"
 import { LoaderCircle } from "lucide-react"
 
@@ -20,16 +20,28 @@ const WINDOWS = [
 
 const RUN_BADGE = { ok: "default", partial: "secondary", failed: "destructive" } as const
 
+const DIR_LABEL: Record<Direction, string> = {
+  nb: "Northbound",
+  sb: "Southbound",
+  eb: "Eastbound",
+  wb: "Westbound",
+}
+
+type PickedTrip = { direction: Direction; entry: string; exit: string }
+
 type SummaryState =
   | { status: "loading" }
   | { status: "unavailable" }
   | { status: "error"; message: string }
   | { status: "ready"; summary: HistorySummaryResponse }
 
-type SeriesState =
-  | { status: "loading" }
-  | { status: "error"; message: string }
-  | { status: "ready"; samples: HistorySample[] }
+type SeriesState = {
+  status: "loading" | "error" | "ready"
+  message?: string
+  trips: HistoryTrip[]
+  trip: HistoryTrip | null
+  samples: HistorySample[]
+}
 
 const ET_WEEKDAY_HOUR = new Intl.DateTimeFormat("en-US", {
   timeZone: "America/New_York",
@@ -55,20 +67,31 @@ function formatPrice(n: number | null) {
   return n == null ? "—" : formatUsd(n)
 }
 
+function tripValue(t: { direction: string; entryId: string; exitId: string }) {
+  return `${t.direction}:${t.entryId}:${t.exitId}`
+}
+
+function tripLabel(t: HistoryTrip) {
+  const name = `${t.entryLabel} to ${t.exitLabel}`
+  return t.spanning ? `${name} (full span)` : name
+}
+
 function sampleNote(s: HistorySample) {
   if (s.error) return s.error
-  if (s.currentlyTolled === false) return "free"
+  if (s.status === "free") return "free"
+  if (s.openDirection95 === null) return "lanes reversing"
+  if (s.status === "closed") return "closed"
+  if (s.status === "missing") return "no price"
   if (s.openDirection95 === "nb") return "open nb"
   if (s.openDirection95 === "sb") return "open sb"
-  if (s.openDirection95 === null) return "lanes reversing"
   return ""
 }
 
 function latestLabel(sample: HistorySample | null) {
   if (!sample) return "no data"
-  if (sample.avg != null) return formatUsd(sample.avg)
+  if (sample.price != null) return formatUsd(sample.price)
   if (sample.error) return "scrape failed"
-  if (sample.currentlyTolled === false) return "free"
+  if (sample.status === "closed") return "closed"
   return "no data"
 }
 
@@ -90,7 +113,6 @@ function formatY(n: number) {
   }).format(n)
 }
 
-/** Current width of the referenced element, tracked across resizes. 0 until first layout. */
 function useElementWidth<T extends HTMLElement>() {
   const ref = useRef<T>(null)
   const [width, setWidth] = useState(0)
@@ -133,11 +155,14 @@ function LoadingCard({ label }: { label: string }) {
   )
 }
 
+const emptySeries = (): SeriesState => ({ status: "loading", trips: [], trip: null, samples: [] })
+
 export default function History() {
   const [summary, setSummary] = useState<SummaryState>({ status: "loading" })
   const [corridor, setCorridor] = useState<CorridorId>("495")
   const [hours, setHours] = useState(24)
-  const [series, setSeries] = useState<SeriesState>({ status: "loading" })
+  const [picked, setPicked] = useState<PickedTrip | null>(null)
+  const [series, setSeries] = useState<SeriesState>(emptySeries)
   const [summaryTick, setSummaryTick] = useState(0)
   const [seriesTick, setSeriesTick] = useState(0)
 
@@ -159,17 +184,25 @@ export default function History() {
   useEffect(() => {
     if (summary.status !== "ready") return
     let cancelled = false
-    fetchHistory(corridor, hours)
+    fetchHistory(corridor, hours, picked ?? undefined)
       .then((data) => {
-        if (!cancelled) setSeries({ status: "ready", samples: data.samples })
+        if (!cancelled) setSeries({ status: "ready", trips: data.trips, trip: data.trip, samples: data.samples })
       })
       .catch((err: Error) => {
-        if (!cancelled) setSeries({ status: "error", message: err.message })
+        if (!cancelled) {
+          setSeries((prev) => ({
+            status: "error",
+            message: err.message,
+            trips: prev.trips,
+            trip: prev.trip,
+            samples: [],
+          }))
+        }
       })
     return () => {
       cancelled = true
     }
-  }, [corridor, hours, summary.status, seriesTick])
+  }, [corridor, hours, picked, summary.status, seriesTick])
 
   function retrySummary() {
     setSummary({ status: "loading" })
@@ -177,22 +210,50 @@ export default function History() {
   }
 
   function retrySeries() {
-    setSeries({ status: "loading" })
+    keepLoading()
     setSeriesTick((n) => n + 1)
   }
 
-  // Re-selecting the current value would flip to "loading" without re-running the
-  // fetch effect (its deps are unchanged), leaving the spinner up forever.
+  function currentPick(): PickedTrip | null {
+    if (picked) return picked
+    if (!series.trip) return null
+    return { direction: series.trip.direction, entry: series.trip.entryId, exit: series.trip.exitId }
+  }
+
   function selectCorridor(id: CorridorId) {
     if (id === corridor) return
     setCorridor(id)
-    setSeries({ status: "loading" })
+    setPicked(null)
+    setSeries(emptySeries())
+  }
+
+  function keepLoading() {
+    setSeries((prev) => ({ status: "loading", trips: prev.trips, trip: prev.trip, samples: [] }))
   }
 
   function selectHours(next: number) {
     if (next === hours) return
     setHours(next)
-    setSeries({ status: "loading" })
+    keepLoading()
+  }
+
+  function selectDirection(direction: Direction) {
+    const pool = series.trips.filter((trip) => trip.direction === direction)
+    const next = pool.find((trip) => trip.spanning) ?? pool[0]
+    if (!next) return
+    const current = currentPick()
+    if (current?.direction === next.direction && current.entry === next.entryId && current.exit === next.exitId) return
+    setPicked({ direction: next.direction, entry: next.entryId, exit: next.exitId })
+    keepLoading()
+  }
+
+  function selectTrip(value: string) {
+    const next = series.trips.find((trip) => tripValue(trip) === value)
+    if (!next) return
+    const current = currentPick()
+    if (current?.direction === next.direction && current.entry === next.entryId && current.exit === next.exitId) return
+    setPicked({ direction: next.direction, entry: next.entryId, exit: next.exitId })
+    keepLoading()
   }
 
   if (summary.status === "loading") return <LoadingCard label="Loading price history…" />
@@ -214,6 +275,15 @@ export default function History() {
 
   const { latestRun, corridors } = summary.summary
   const selected = CORRIDORS.find((c) => c.id === corridor) ?? CORRIDORS[0]
+  const shown = series.trip
+  const direction = picked?.direction ?? shown?.direction ?? ""
+  const directions = [...new Set(series.trips.map((trip) => trip.direction))]
+  const visibleTrips = series.trips.filter((trip) => trip.direction === direction)
+  const tripSelectValue = picked
+    ? tripValue({ direction: picked.direction, entryId: picked.entry, exitId: picked.exit })
+    : shown
+      ? tripValue(shown)
+      : ""
 
   return (
     <div className="space-y-6">
@@ -222,7 +292,7 @@ export default function History() {
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">History</p>
           <CardTitle className="text-xl">Price history</CardTitle>
           <CardDescription>
-            Recorded every 30 minutes from the operators&apos; calculators by a scraper cron.
+            Recorded every 30 minutes. Each point is one entry-to-exit trip, not an average of the corridor.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-2 text-sm">
@@ -261,8 +331,8 @@ export default function History() {
                 <span className={cn("mt-0.5 block text-xs", active ? "text-primary-foreground/80" : "text-muted-foreground")}>
                   {latestLabel(row?.latest ?? null)}
                 </span>
-                <span className={cn("mt-0.5 block text-xs", active ? "text-primary-foreground/70" : "text-muted-foreground")}>
-                  {row?.samples24h ?? 0} in 24h
+                <span className={cn("mt-0.5 line-clamp-2 block text-xs", active ? "text-primary-foreground/70" : "text-muted-foreground")}>
+                  {row?.headline ? `${row.headline.entryLabel} to ${row.headline.exitLabel}` : "No trip yet"}
                 </span>
               </button>
             )
@@ -286,29 +356,68 @@ export default function History() {
         </select>
       </label>
 
+      {series.trips.length > 0 && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="block space-y-2 text-sm">
+            <span className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">3. Direction</span>
+            <select
+              className={selectClass}
+              aria-label="Trip direction"
+              value={direction}
+              onChange={(e) => selectDirection(e.target.value as Direction)}
+            >
+              {directions.map((d) => (
+                <option key={d} value={d}>
+                  {DIR_LABEL[d]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block space-y-2 text-sm">
+            <span className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">4. Trip</span>
+            <select className={selectClass} aria-label="Entry and exit" value={tripSelectValue} onChange={(e) => selectTrip(e.target.value)}>
+              {visibleTrips.map((trip) => (
+                <option key={tripValue(trip)} value={tripValue(trip)}>
+                  {tripLabel(trip)}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
+
       {series.status === "loading" ? (
-        <LoadingCard label={`Loading ${selected.shortName} snapshots…`} />
+        <LoadingCard label={`Loading ${selected.shortName} trips…`} />
       ) : series.status === "error" ? (
-        <ErrorCard message={series.message} onRetry={retrySeries} />
+        <ErrorCard message={series.message ?? "Couldn't load history"} onRetry={retrySeries} />
+      ) : !series.trip ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">No trip prices yet</CardTitle>
+            <CardDescription>
+              Snapshots from before this change only have a corridor average. The next scraper run records each entry-to-exit price.
+            </CardDescription>
+          </CardHeader>
+        </Card>
       ) : series.samples.length === 0 ? (
         <Card>
           <CardHeader>
             <CardTitle className="text-xl">No snapshots in this window yet</CardTitle>
-            <CardDescription>The scraper runs every 30 minutes; try a longer window or check back after the next run.</CardDescription>
+            <CardDescription>The scraper runs every 30 minutes. Try a longer window or check back after the next run.</CardDescription>
           </CardHeader>
         </Card>
       ) : (
         <>
           <Card>
             <CardHeader>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">3. Price over time</p>
-              <CardTitle className="text-xl">{selected.name}</CardTitle>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">5. Price over time</p>
+              <CardTitle className="text-xl">{tripLabel(series.trip)}</CardTitle>
               <CardDescription>
-                Average posted price as a line; the band is the lowest and highest figure in that snapshot.
+                {selected.name}. {DIR_LABEL[series.trip.direction]}. Posted price for this entry and exit.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <PriceChart samples={series.samples} hours={hours} />
+              <PriceChart samples={series.samples} hours={hours} title={`${tripLabel(series.trip)} over the last ${hours} hours`} />
               <ChartLegend samples={series.samples} />
             </CardContent>
           </Card>
@@ -320,25 +429,14 @@ export default function History() {
 }
 
 function ChartLegend({ samples }: { samples: HistorySample[] }) {
-  const reversible = samples.some((s) => "openDirection95" in s)
-  const inside = samples.some((s) => "currentlyTolled" in s)
+  const free = samples.some((s) => s.status === "free")
   return (
     <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
       <li className="flex items-center gap-1.5">
         <span aria-hidden className="inline-block h-0.5 w-4 bg-primary" />
-        Average
+        Trip price
       </li>
-      <li className="flex items-center gap-1.5">
-        <span aria-hidden className="inline-block size-3 rounded-sm bg-primary/25" />
-        Min–max
-      </li>
-      {reversible && (
-        <li className="flex items-center gap-1.5">
-          <span aria-hidden className="inline-block size-2.5 rounded-full border border-primary" />
-          Lanes reversing
-        </li>
-      )}
-      {inside && (
+      {free && (
         <li className="flex items-center gap-1.5">
           <span aria-hidden className="inline-block h-3 w-3 bg-muted-foreground/20" />
           Free
@@ -365,14 +463,12 @@ function nearestPlotIndex(points: PlotPoint[], x: number) {
 }
 
 function hoverBoxHeight(sample: HistorySample) {
-  let rows = 2
-  if (sample.min != null || sample.max != null) rows += 1
   const note = sampleNote(sample)
-  if (note) rows += Math.max(1, Math.ceil(note.length / 32))
+  const rows = 2 + (note ? Math.max(1, Math.ceil(note.length / 32)) : 0)
   return rows * 16 + 14
 }
 
-function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: number }) {
+function PriceChart({ samples, hours, title }: { samples: HistorySample[]; hours: number; title: string }) {
   const clipId = useId()
   const [frameRef, frameWidth] = useElementWidth<HTMLDivElement>()
   const [hoverIndex, setHoverIndex] = useState<number | null>(null)
@@ -381,11 +477,9 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
   const end = Number.isNaN(newest) ? 1 : newest
   const start = end - hours * 3600 * 1000
   const span = Math.max(end - start, 1)
-  const priced = sorted.flatMap((s) => [s.min, s.max, s.avg].filter((n): n is number => n != null))
+  const priced = sorted.flatMap((s) => (s.price == null ? [] : [s.price]))
   const yMax = niceMax(Math.max(0, ...priced))
 
-  // The viewBox tracks the rendered width so one SVG unit is one CSS pixel and
-  // the 10px axis labels stay legible instead of scaling down with the card.
   const W = Math.max(240, Math.round(frameWidth) || 640)
   const H = 220
   const pl = 52
@@ -410,34 +504,22 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
   const xTicks = Array.from({ length: xTickCount }, (_, i) => start + (span * i) / (xTickCount - 1))
 
   type Pt = { x: number; y: number }
-  const avgSegs: Pt[][] = []
-  const bandSegs: { x: number; min: number; max: number }[][] = []
-  let avgRun: Pt[] = []
-  let bandRun: { x: number; min: number; max: number }[] = []
-
-  // Null min/avg/max means the scrape failed or nothing was posted — a continuous
-  // line through those points would invent a price the operator never showed.
+  const priceSegs: Pt[][] = []
+  let priceRun: Pt[] = []
   for (const s of sorted) {
     const t = Date.parse(s.scrapedAt)
     if (Number.isNaN(t)) continue
-    const x = xAt(t)
-    if (s.avg != null) avgRun.push({ x, y: yAt(s.avg) })
-    else if (avgRun.length) {
-      avgSegs.push(avgRun)
-      avgRun = []
-    }
-    if (s.min != null && s.max != null) bandRun.push({ x, min: s.min, max: s.max })
-    else if (bandRun.length) {
-      bandSegs.push(bandRun)
-      bandRun = []
+    if (s.price != null) priceRun.push({ x: xAt(t), y: yAt(s.price) })
+    else if (priceRun.length) {
+      priceSegs.push(priceRun)
+      priceRun = []
     }
   }
-  if (avgRun.length) avgSegs.push(avgRun)
-  if (bandRun.length) bandSegs.push(bandRun)
+  if (priceRun.length) priceSegs.push(priceRun)
 
   const freeSpans: { x0: number; x1: number }[] = []
   for (let i = 0; i < sorted.length; i++) {
-    if (sorted[i].currentlyTolled !== false) continue
+    if (sorted[i].status !== "free") continue
     const t = Date.parse(sorted[i].scrapedAt)
     const prev = i > 0 ? Date.parse(sorted[i - 1].scrapedAt) : t - 30 * 60 * 1000
     const next = i < sorted.length - 1 ? Date.parse(sorted[i + 1].scrapedAt) : t + 30 * 60 * 1000
@@ -448,16 +530,7 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
     else freeSpans.push({ x0, x1 })
   }
 
-  const lineD = (pts: Pt[]) =>
-    pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(" ")
-
-  const bandD = (run: { x: number; min: number; max: number }[]) => {
-    const top = run.map((p) => `${p.x.toFixed(2)} ${yAt(p.max).toFixed(2)}`)
-    const bot = [...run].reverse().map((p) => `${p.x.toFixed(2)} ${yAt(p.min).toFixed(2)}`)
-    return `M ${top[0]} L ${top.slice(1).join(" L ")} L ${bot.join(" L ")} Z`
-  }
-
-  const title = `Posted Express Lanes prices over the last ${hours} hours`
+  const lineD = (pts: Pt[]) => pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(" ")
 
   function readPointer(event: PointerEvent<SVGSVGElement>) {
     const rect = event.currentTarget.getBoundingClientRect()
@@ -465,9 +538,7 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
     const x = ((event.clientX - rect.left) / rect.width) * W
     const y = ((event.clientY - rect.top) / rect.height) * H
     const next =
-      points.length > 0 && x >= pl && x <= W - pr && y >= pt && y <= pt + innerH
-        ? nearestPlotIndex(points, x)
-        : null
+      points.length > 0 && x >= pl && x <= W - pr && y >= pt && y <= pt + innerH ? nearestPlotIndex(points, x) : null
     setHoverIndex((current) => (current === next ? current : next))
   }
 
@@ -476,7 +547,7 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
   const edge = frameWidth > 0 ? frameWidth : W
   const guidePx = point ? point.x * scale : 0
   const tooltipLeft = Math.max(4, guidePx + 10 + tooltipW > edge ? guidePx - 10 - tooltipW : guidePx + 10)
-  const anchorY = point ? (point.sample.avg != null ? yAt(point.sample.avg) : pt + innerH / 2) : 0
+  const anchorY = point ? (point.sample.price != null ? yAt(point.sample.price) : pt + innerH / 2) : 0
   const pad = 4
   const tipH = point ? hoverBoxHeight(point.sample) : 0
   const tooltipTop = Math.min(Math.max(anchorY, pad), Math.max(pad, H - tipH - pad))
@@ -502,22 +573,8 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
         </defs>
         {yTicks.map((v) => (
           <g key={v}>
-            <line
-              x1={pl}
-              x2={W - pr}
-              y1={yAt(v)}
-              y2={yAt(v)}
-              stroke="var(--border)"
-              strokeWidth="1"
-            />
-            <text
-              x={pl - 8}
-              y={yAt(v)}
-              textAnchor="end"
-              dominantBaseline="middle"
-              fill="var(--muted-foreground)"
-              fontSize="10"
-            >
+            <line x1={pl} x2={W - pr} y1={yAt(v)} y2={yAt(v)} stroke="var(--border)" strokeWidth="1" />
+            <text x={pl - 8} y={yAt(v)} textAnchor="end" dominantBaseline="middle" fill="var(--muted-foreground)" fontSize="10">
               {formatY(v)}
             </text>
           </g>
@@ -536,84 +593,21 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
         ))}
         <g clipPath={`url(#${clipId})`}>
           {freeSpans.map((s, i) => (
-            <rect
-              key={i}
-              x={s.x0}
-              y={pt}
-              width={Math.max(0, s.x1 - s.x0)}
-              height={innerH}
-              fill="var(--muted-foreground)"
-              fillOpacity={0.12}
-            />
+            <rect key={i} x={s.x0} y={pt} width={Math.max(0, s.x1 - s.x0)} height={innerH} fill="var(--muted-foreground)" fillOpacity={0.12} />
           ))}
-          {bandSegs.map((run, i) =>
-            run.length === 1 ? (
-              <line
-                key={`b-${i}`}
-                x1={run[0].x}
-                x2={run[0].x}
-                y1={yAt(run[0].max)}
-                y2={yAt(run[0].min)}
-                stroke="var(--primary)"
-                strokeOpacity={0.35}
-                strokeWidth="3"
-              />
-            ) : (
-              <path key={`b-${i}`} d={bandD(run)} fill="var(--primary)" fillOpacity={0.22} />
-            ),
-          )}
-          {avgSegs.map((pts, i) =>
+          {priceSegs.map((pts, i) =>
             pts.length === 1 ? (
-              <circle key={`a-${i}`} cx={pts[0].x} cy={pts[0].y} r="2.5" fill="var(--primary)" />
+              <circle key={`p-${i}`} cx={pts[0].x} cy={pts[0].y} r="2.5" fill="var(--primary)" />
             ) : (
-              <path
-                key={`a-${i}`}
-                d={lineD(pts)}
-                fill="none"
-                stroke="var(--primary)"
-                strokeWidth="2"
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
+              <path key={`p-${i}`} d={lineD(pts)} fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
             ),
           )}
-          {sorted.map((s) => {
-            if (s.openDirection95 !== null || s.avg == null) return null
-            const t = Date.parse(s.scrapedAt)
-            if (Number.isNaN(t)) return null
-            return (
-              <circle
-                key={`r-${s.scrapedAt}`}
-                cx={xAt(t)}
-                cy={yAt(s.avg)}
-                r="3.5"
-                fill="none"
-                stroke="var(--primary)"
-                strokeWidth="1.5"
-              />
-            )
-          })}
         </g>
         {point && (
           <g pointerEvents="none">
-            <line
-              x1={point.x}
-              x2={point.x}
-              y1={pt}
-              y2={pt + innerH}
-              stroke="var(--muted-foreground)"
-              strokeWidth="1"
-              strokeDasharray="3 3"
-            />
-            {point.sample.avg != null && (
-              <circle
-                cx={point.x}
-                cy={yAt(point.sample.avg)}
-                r="4"
-                fill="var(--primary)"
-                stroke="var(--background)"
-                strokeWidth="1.5"
-              />
+            <line x1={point.x} x2={point.x} y1={pt} y2={pt + innerH} stroke="var(--muted-foreground)" strokeWidth="1" strokeDasharray="3 3" />
+            {point.sample.price != null && (
+              <circle cx={point.x} cy={yAt(point.sample.price)} r="4" fill="var(--primary)" stroke="var(--background)" strokeWidth="1.5" />
             )}
           </g>
         )}
@@ -624,12 +618,7 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
           style={{ left: tooltipLeft, top: tooltipTop }}
         >
           <p>{ET_SAMPLE_TIME.format(new Date(point.t))}</p>
-          <p className="tabular-nums">Avg {formatPrice(point.sample.avg)}</p>
-          {(point.sample.min != null || point.sample.max != null) && (
-            <p className="tabular-nums">
-              Min {formatPrice(point.sample.min)} · Max {formatPrice(point.sample.max)}
-            </p>
-          )}
+          <p className="tabular-nums">{formatPrice(point.sample.price)}</p>
           {note ? <p className="text-muted-foreground">{note}</p> : null}
         </div>
       )}
@@ -638,25 +627,21 @@ function PriceChart({ samples, hours }: { samples: HistorySample[]; hours: numbe
 }
 
 function SamplesTable({ samples }: { samples: HistorySample[] }) {
-  const rows = [...samples]
-    .sort((a, b) => Date.parse(b.scrapedAt) - Date.parse(a.scrapedAt))
-    .slice(0, 12)
+  const rows = [...samples].sort((a, b) => Date.parse(b.scrapedAt) - Date.parse(a.scrapedAt)).slice(0, 12)
 
   return (
     <Card>
       <CardHeader>
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">4. Recent snapshots</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">6. Recent snapshots</p>
         <CardTitle className="text-xl">Last 12 samples</CardTitle>
-        <CardDescription>Newest first. Times are Eastern.</CardDescription>
+        <CardDescription>Newest first. Times are Eastern. Price is this trip only.</CardDescription>
       </CardHeader>
       <CardContent className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">
               <th className="pb-2 pr-3 font-medium">Time</th>
-              <th className="pb-2 pr-3 font-medium">Min</th>
-              <th className="pb-2 pr-3 font-medium">Avg</th>
-              <th className="pb-2 font-medium sm:pr-3">Max</th>
+              <th className="pb-2 pr-3 font-medium">Price</th>
               <th className="hidden pb-2 font-medium sm:table-cell">Note</th>
             </tr>
           </thead>
@@ -669,9 +654,7 @@ function SamplesTable({ samples }: { samples: HistorySample[] }) {
                     <span className="whitespace-nowrap">{formatTime(s.scrapedAt)}</span>
                     {note && <span className="mt-0.5 block text-xs text-muted-foreground wrap-anywhere sm:hidden">{note}</span>}
                   </td>
-                  <td className="py-2 pr-3 tabular-nums">{formatPrice(s.min)}</td>
-                  <td className="py-2 pr-3 tabular-nums">{formatPrice(s.avg)}</td>
-                  <td className="py-2 tabular-nums sm:pr-3">{formatPrice(s.max)}</td>
+                  <td className="py-2 pr-3 tabular-nums">{formatPrice(s.price)}</td>
                   <td className="hidden py-2 text-muted-foreground wrap-anywhere sm:table-cell">{note}</td>
                 </tr>
               )

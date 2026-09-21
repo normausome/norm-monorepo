@@ -26,7 +26,7 @@ No new table. Each `corridor_snapshots.summary` gains `trips`. Each element is `
 
 History reads that array. The min, avg, and max fields are removed. Snapshots from before this change have no `trips`, so they show as a gap.
 
-`GET /api/history/:corridor?hours=&direction=&entry=&exit=` returns the trip catalog from the newest snapshot that has trips, the selected trip, and one price per snapshot. Omit the three trip parameters and the server picks the full-span trip. When `direction_95` names an open direction, that direction's full-span trip wins.
+`GET /api/history/:corridor?hours=&direction=&entry=&exit=` returns the trip catalog from the newest snapshot that has trips, the selected trip, and one price per snapshot. Omit the three trip parameters and the server picks a full-span trip. When `direction_95` names an open direction, that direction wins. Otherwise a tolled full-span price wins over a $0 free trip.
 
 ### Cadence and cost
 

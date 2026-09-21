@@ -52,8 +52,19 @@ export const fetchRouteTolls = (from: Place, to: Place) =>
 
 export const fetchHistorySummary = () => get<HistorySummaryResponse>("/api/history/summary")
 
-export const fetchHistory = (corridor: CorridorId, hours: number) =>
-  get<HistoryResponse>(`/api/history/${encodeURIComponent(corridor)}?hours=${hours}`)
+export const fetchHistory = (
+  corridor: CorridorId,
+  hours: number,
+  trip?: { direction: Direction; entry: string; exit: string },
+) => {
+  const qs = new URLSearchParams({ hours: String(hours) })
+  if (trip) {
+    qs.set("direction", trip.direction)
+    qs.set("entry", trip.entry)
+    qs.set("exit", trip.exit)
+  }
+  return get<HistoryResponse>(`/api/history/${encodeURIComponent(corridor)}?${qs}`)
+}
 
 export const formatUsd = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n)
