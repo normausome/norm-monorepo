@@ -98,6 +98,14 @@ describe("classifyGeo", () => {
     expect(geo.tier).toBe("A")
     expect(geo.note).toContain("US, Canada, Mexico and Brazil")
   })
+  test("a work-from-anywhere perk is not a hiring region", () => {
+    const geo = classifyGeo(["Spain"], "Ability to work from anywhere for up to 3 months each year.", "remote")
+    expect(geo.tier).toBe("D")
+    expect(classifyGeo(["Remote"], "We hire from anywhere.", "remote").tier).toBe("A")
+  })
+  test("US listed next to Mexico or Brazil in the locations is tier A", () => {
+    expect(classifyGeo(["United States", "Mexico", "Brazil"], "Join us.", "remote")).toMatchObject({ tier: "A", latamEligibility: "latam_mx_br" })
+  })
   test("LatAm-only location is tier B latam_mx_br", () => {
     const geo = classifyGeo(["Remote - LATAM", "Mexico City"], "Join our team.", "remote")
     expect(geo).toEqual({ tier: "B", latamEligibility: "latam_mx_br", note: 'Tier B: "Remote - LATAM; Mexico City"' })

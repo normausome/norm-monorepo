@@ -153,13 +153,17 @@ const US = String.raw`(?:us|u\.s\.a?|usa|united states)`
 const LATAM_PLACES = String.raw`(?:mexico|méxico|brazil|brasil|latam|latin america|argentina|colombia|chile|peru|uruguay|costa rica|guatemala|s[aã]o paulo|mexico city|ciudad de m[eé]xico|cdmx|guadalajara|monterrey|bogot[aá]|buenos aires|montevideo)`
 
 /** Evaluated in order. The first hit decides the tier. */
+/** "work from anywhere for up to 3 months" is a perk, not a hiring region. */
+const ANYWHERE = String.raw`(?:work|hire|working|hiring) (?:from |remotely from )?anywhere(?![^.\n]{0,40}\b(?:days?|weeks?|months?|year|per))`
+
 const GEO_RULES: GeoRule[] = [
   { tier: "A", scope: "locations", re: /\b(anywhere|worldwide|global|americas)\b/i },
+  { tier: "A", scope: "locations", re: new RegExp(String.raw`\b${US}\b.*\b${LATAM_PLACES}\b|\b${LATAM_PLACES}\b.*\b${US}\b`, "i") },
   {
     tier: "A",
     scope: "text",
     re: new RegExp(
-      String.raw`work from anywhere|hire (?:from )?anywhere|anywhere in the (?:world|americas)|remote (?:anywhere|worldwide|globally)|\b${US}\b[^.\n]{0,80}\b(?:mexico|brazil|latam|latin america)\b|\b(?:mexico|brazil|latam|latin america)\b[^.\n]{0,80}\b${US}\b`,
+      String.raw`${ANYWHERE}|anywhere in the (?:world|americas)|remote (?:anywhere|worldwide|globally)|\b${US}\b[^.\n]{0,80}\b(?:mexico|brazil|latam|latin america)\b|\b(?:mexico|brazil|latam|latin america)\b[^.\n]{0,80}\b${US}\b`,
       "i",
     ),
   },
