@@ -1,5 +1,5 @@
 import type { Job, LatamEligibility, WorkMode } from "@shared/types"
-import { LATAM_LABEL, WORK_MODE_LABEL, formatPay, timeAgo } from "@/lib/format"
+import { LATAM_LABEL, SENIORITY_LABEL, WORK_MODE_LABEL, formatPay, timeAgo } from "@/lib/format"
 
 const MODE_CLASS: Record<WorkMode, string> = {
   remote: "bg-emerald-50 text-emerald-700 ring-emerald-200",
@@ -47,6 +47,7 @@ export function JobsTable({ jobs, loading }: Props) {
                   {job.title}
                 </a>
                 <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                  {job.seniority !== "unknown" && <Badge className="bg-indigo-50 text-indigo-700 ring-indigo-200">{SENIORITY_LABEL[job.seniority]}</Badge>}
                   <span>{job.location ?? "Location not listed"}</span>
                   {!job.isActive && <Badge className="bg-slate-100 text-slate-500 ring-slate-200">inactive</Badge>}
                 </div>
