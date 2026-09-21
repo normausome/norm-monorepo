@@ -125,6 +125,8 @@ Geo tiers, stored in `remote_notes` and mapped to `latam_eligibility`:
 
 Tier B is not US-abroad friendly. The UI shows the tier and quote when you hover the LatAm badge.
 
+Geo classification runs at scrape time. Marketing copy such as “work together in real time from anywhere in the world” is ignored; explicit US hub or US-remote hiring language wins over that fluff. After changing geo rules, run `bun run scrape` to refresh `latam_eligibility` and `remote_notes` on existing rows (upsert overwrites those fields each run).
+
 ## Seniority
 
 `inferSeniority` in `scraper/seniority.ts` reads the level from the title alone. It walks an ordered rule table and the first match wins, so the order below is the precedence.
