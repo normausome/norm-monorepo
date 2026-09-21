@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test"
+import type { Seniority } from "../shared/types"
 import { classifyGeo, classifySeniority, inferWorkMode, isSweTitle, parseSalaryText, passesSalaryFloor } from "./classify"
 
 describe("isSweTitle", () => {
@@ -39,7 +40,7 @@ describe("isSweTitle", () => {
 })
 
 describe("classifySeniority", () => {
-  test.each([
+  test.each<[string, Seniority]>([
     ["Junior Software Engineer", "entry"],
     ["Jr. Backend Developer", "entry"],
     ["Software Engineer Intern", "entry"],
