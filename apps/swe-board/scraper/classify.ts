@@ -248,6 +248,7 @@ export function classify(posting: Posting, board: Board): ScrapedJob | null {
     url: posting.url,
     location: posting.location,
     workMode,
+    seniority: classifySeniority(posting.title),
     salary,
     latamEligibility: geo.latamEligibility,
     remoteNotes: geo.note,

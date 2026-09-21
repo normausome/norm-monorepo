@@ -28,6 +28,7 @@ export type ScrapedJob = {
   url: string
   location: string | null
   workMode: WorkMode
+  seniority: Seniority
   salary: Salary | null
   latamEligibility: LatamEligibility
   remoteNotes: string | null
@@ -44,6 +45,7 @@ export type Job = {
   url: string
   location: string | null
   workMode: WorkMode
+  seniority: Seniority
   salaryMin: number | null
   salaryMax: number | null
   salaryCurrency: string | null

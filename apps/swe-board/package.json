@@ -10,6 +10,7 @@
     "build": "tsc -b && vite build",
     "start": "bun server/index.ts",
     "migrate": "bun db/migrate.ts",
+    "backfill:seniority": "bun db/backfill-seniority.ts",
     "scrape": "bun scraper/cli.ts",
     "test": "bun test",
     "typecheck": "tsc -b",
