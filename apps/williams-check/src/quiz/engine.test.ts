@@ -18,7 +18,13 @@ describe("question bank", () => {
       expect(q.choices).toHaveLength(4)
       const ids = q.choices.map((c) => c.id)
       expect(ids).toContain(q.correctId)
+      expect(ids).toEqual(["a", "b", "c", "d"])
     }
+  })
+
+  test("correct choices are spread across slots", () => {
+    const ids = new Set(QUESTIONS.map((q) => q.correctId))
+    expect([...ids].sort()).toEqual(["a", "b", "c", "d"])
   })
 })
 
