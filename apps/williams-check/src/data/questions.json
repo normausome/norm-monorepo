@@ -1,0 +1,198 @@
+[
+  {
+    "id": "q1",
+    "kind": "trivia",
+    "prompt": "After his family left West Philadelphia, where did Walter E. Williams spend much of his childhood?",
+    "choices": [
+      {"id": "a", "text": "Chicago’s Cabrini-Green"},
+      {"id": "b", "text": "North Philadelphia’s Richard Allen housing projects"},
+      {"id": "c", "text": "Harlem’s Lenox Terrace"},
+      {"id": "d", "text": "Atlanta’s Techwood Homes"}
+    ],
+    "correctId": "b",
+    "explain": "Williams was born in Philadelphia in 1936. His father was not part of raising him. The family later moved to the Richard Allen projects. He tells that story in his autobiography.",
+    "source": "Up from the Projects: An Autobiography; biographical note on walterewilliams.com"
+  },
+  {
+    "id": "q2",
+    "kind": "trivia",
+    "prompt": "Where did Williams earn his economics PhD, and what was the dissertation?",
+    "choices": [
+      {"id": "a", "text": "The University of Chicago in 1968. The dissertation is Capitalism and Freedom"},
+      {"id": "b", "text": "Harvard in 1975. The dissertation is The Affluent Society"},
+      {"id": "c", "text": "UCLA in 1972. The dissertation is The Low-Income Market Place"},
+      {"id": "d", "text": "George Mason in 1980. The dissertation is The State Against Blacks"}
+    ],
+    "correctId": "c",
+    "explain": "He took a BA in economics from California State College at Los Angeles in 1965, then an MA and a PhD from UCLA. George Mason is where he later taught. The State Against Blacks is a 1982 book, not the dissertation.",
+    "source": "UCLA Economics memorial; about page on walterewilliams.com"
+  },
+  {
+    "id": "q3",
+    "kind": "trivia",
+    "prompt": "Which post did Williams hold from 1980 until his death?",
+    "choices": [
+      {"id": "a", "text": "Hoover Institution senior fellow who never taught undergraduates"},
+      {"id": "b", "text": "Chair of the Council of Economic Advisers under Reagan"},
+      {"id": "c", "text": "Tenured professor at Temple University for the whole period after 1980"},
+      {"id": "d", "text": "John M. Olin Distinguished Professor of Economics at George Mason University, and department chair from 1995 to 2001"}
+    ],
+    "correctId": "d",
+    "explain": "He taught at Temple before 1980, then joined George Mason in 1980 and chaired economics there from 1995 to 2001. He kept teaching at George Mason through his last class in 2020.",
+    "source": "About page on walterewilliams.com; UCLA Economics memorial"
+  },
+  {
+    "id": "q4",
+    "kind": "trivia",
+    "prompt": "Which claim does The State Against Blacks argue most directly?",
+    "choices": [
+      {"id": "a", "text": "Government rules such as minimum wages, occupational licensing, and entry limits have often blocked Black economic progress"},
+      {"id": "b", "text": "Private markets are the main barrier to Black employment, so licensing should expand"},
+      {"id": "c", "text": "Discrimination is impossible once a law mentions race"},
+      {"id": "d", "text": "Only federal jobs programs can raise Black incomes"}
+    ],
+    "correctId": "a",
+    "explain": "The book treats the state as a barrier to Black economic progress. Chapters cover the minimum wage, taxicab medallions, and licensing in trades such as plumbing.",
+    "source": "The State Against Blacks (1982). Commentary’s review of the book summarizes those chapters"
+  },
+  {
+    "id": "q5",
+    "kind": "trivia",
+    "prompt": "In Williams’s minimum-wage argument, what happens when the law requires a wage above what a worker’s hourly output is worth to the employer?",
+    "choices": [
+      {"id": "a", "text": "Employers hire more of those workers because the wage is now fair"},
+      {"id": "b", "text": "Output rises on its own to match the legal wage"},
+      {"id": "c", "text": "Hiring that worker becomes a loss, so the job often disappears"},
+      {"id": "d", "text": "The wage floor creates a surplus of vacancies for the least skilled"}
+    ],
+    "correctId": "c",
+    "explain": "He asks the employer’s question. If you must pay a legal minimum to anyone you hire, you do not hire someone who produces less than that per hour. He treats the result as unemployment for the least skilled.",
+    "source": "Column “Race and Economics” on walterewilliams.com; The State Against Blacks, the chapter reviewers call “Minimum Wage, Maximum Folly”"
+  },
+  {
+    "id": "q6",
+    "kind": "trivia",
+    "prompt": "What does Williams argue about the Davis-Bacon Act of 1931?",
+    "choices": [
+      {"id": "a", "text": "It abolished union wages so Black contractors could underbid anyone"},
+      {"id": "b", "text": "It applied only to farms and never mentioned construction"},
+      {"id": "c", "text": "He treats it as a minor rule with no labor-market effect"},
+      {"id": "d", "text": "Its prevailing-wage rule on federal construction was debated in terms that targeted lower-paid Black labor, and he says Black workers then largely left those projects"}
+    ],
+    "correctId": "d",
+    "explain": "In his columns he points to the legislative debate, including members of Congress and the AFL president objecting to Southern contractors who used lower-paid Black workers. He argues the law then shut those workers out of federal construction.",
+    "source": "Columns “Race and Economics” and “Minimum Wage and Discrimination” on walterewilliams.com"
+  },
+  {
+    "id": "q7",
+    "kind": "trivia",
+    "prompt": "Which claim is closest to the thesis of South Africa’s War Against Capitalism?",
+    "choices": [
+      {"id": "a", "text": "Free markets created apartheid and needed more central planning to undo it"},
+      {"id": "b", "text": "Apartheid, including job-reservation laws, worked against market pressures that would have put Black workers into jobs reserved for whites"},
+      {"id": "c", "text": "Job-reservation laws were unnecessary because no white employer would hire a Black worker"},
+      {"id": "d", "text": "The book defends apartheid as a capitalist policy"}
+    ],
+    "correctId": "b",
+    "explain": "Williams argues apartheid was not a product of free markets. Job-reservation laws existed, in his account, because some employers would have hired Black workers at lower wages. He says racists could not trust markets to keep the color bar.",
+    "source": "South Africa’s War Against Capitalism (Praeger, 1989); column “Discrimination and Segregation” on walterewilliams.com"
+  },
+  {
+    "id": "q8",
+    "kind": "scenario",
+    "prompt": "A city caps rents far below the market to create “affordable” housing. Which reaction matches Williams?",
+    "choices": [
+      {"id": "a", "text": "Expect a shortage, and a market that stays costly for people who cannot get a controlled unit. He makes the same point about 1970s gasoline price controls"},
+      {"id": "b", "text": "Expect builders to add apartments because the cap makes tenants richer"},
+      {"id": "c", "text": "Treat the shortage as proof the cap was set too high"},
+      {"id": "d", "text": "Conclude that housing demand does not respond to price"}
+    ],
+    "correctId": "a",
+    "explain": "In “Compassion Versus Reality” he says rent controls aimed at affordable housing, and price controls aimed at price-gouging, produce a worse mess. He names San Francisco and New York as costly rent-controlled markets and recalls the 1970s gasoline lines.",
+    "source": "Column “Compassion Versus Reality”; column “Gas Prices and Price Controls” (Capitalism Magazine, 2005)"
+  },
+  {
+    "id": "q9",
+    "kind": "scenario",
+    "prompt": "After a demand spike, a legislature freezes the price of flour below the market. Which pattern does Williams’s price-control lesson predict?",
+    "choices": [
+      {"id": "a", "text": "Farmers plant more because the freeze guarantees them a loss"},
+      {"id": "b", "text": "Shortages prove the ceiling was above the market price"},
+      {"id": "c", "text": "Millers and farmers have less reason to expand output, so flour runs short and black markets appear"},
+      {"id": "d", "text": "A legal ceiling raises the quantity supplied"}
+    ],
+    "correctId": "c",
+    "explain": "In Economics for the Citizen he uses a flour ceiling as the example. If the controlled price does not pay for extra output, suppliers do not expand, and people trade at illegal prices.",
+    "source": "Economics for the Citizen, Part V (FEE; also Capitalism Magazine)"
+  },
+  {
+    "id": "q10",
+    "kind": "scenario",
+    "prompt": "A city requires an expensive taxi medallion before anyone can drive a cab. A poor person owns a used car and wants to start. What is Williams’s licensing argument?",
+    "choices": [
+      {"id": "a", "text": "The high price means more poor people will enter, because the license is a status good"},
+      {"id": "b", "text": "Occupational licensing raises employment for the least skilled"},
+      {"id": "c", "text": "Only safety rules matter, so entry limits have no income pattern"},
+      {"id": "d", "text": "The medallion blocks a bottom rung that used to be open. He contrasts an earlier New York, where a used car was enough, with later medallion prices that shut poor entrants out"}
+    ],
+    "correctId": "d",
+    "explain": "The State Against Blacks treats taxicab licensing in New York, Philadelphia, and Washington as an entry barrier. A 1982 review of the book reports his contrast. In the 1920s a poor person could start with a used car. By the time of the book, a New York license cost about $60,000.",
+    "source": "The State Against Blacks, taxicab chapters; Commentary review (1982) reports the used-car versus $60,000 contrast"
+  },
+  {
+    "id": "q11",
+    "kind": "scenario",
+    "prompt": "A council raises the wage floor above what many teenagers can produce in an hour, and says the law will help them. Which follow-up matches Williams?",
+    "choices": [
+      {"id": "a", "text": "Ask only whether the council meant well"},
+      {"id": "b", "text": "Ask which teenagers an employer will still hire once their output is worth less than the mandated wage"},
+      {"id": "c", "text": "Assume employment of the least skilled rises one-for-one with the wage"},
+      {"id": "d", "text": "Treat a later drop in teen jobs as proof the wage was set too low"}
+    ],
+    "correctId": "b",
+    "explain": "He separates intention from effect. A higher floor, in his account, makes it a loss to hire a worker who produces less than the legal wage per hour. He argues the harm lands hardest on low-skilled teenagers.",
+    "source": "The State Against Blacks (“Minimum Wage, Maximum Folly”); column “Race and Economics”"
+  },
+  {
+    "id": "q12",
+    "kind": "scenario",
+    "prompt": "Group A earns more than Group B. An advocate says the gap itself proves discrimination and nothing else. Which reply is closest to Williams?",
+    "choices": [
+      {"id": "a", "text": "A gap proves that markets have already erased every legal barrier"},
+      {"id": "b", "text": "Discrimination has never existed, so stop counting incomes"},
+      {"id": "c", "text": "A gap has many possible causes. His 2011 book asks how much can be blamed on discrimination, and he also asks which laws price out the least skilled"},
+      {"id": "d", "text": "Only genetics can explain a gap, so ignore law and skills"}
+    ],
+    "correctId": "c",
+    "explain": "Race and Economics: How Much Can Be Blamed on Discrimination? refuses the leap from unequal outcomes to one cause. The State Against Blacks adds a second question. Which rules cut the jobs and licenses the least skilled could have used?",
+    "source": "Race and Economics: How Much Can Be Blamed on Discrimination? (2011); The State Against Blacks"
+  },
+  {
+    "id": "q13",
+    "kind": "scenario",
+    "prompt": "A government bans Black workers from skilled mine jobs and says employers would never have hired them anyway. What question does Williams ask?",
+    "choices": [
+      {"id": "a", "text": "The ban proves markets want racial job reservation"},
+      {"id": "b", "text": "A lower wage offer is too minor to discuss, so the law changed nothing"},
+      {"id": "c", "text": "Job reservation is what free entry looks like"},
+      {"id": "d", "text": "If employers already refused, why was a law required? He argues some would have hired Black workers at a lower wage, so the color bar needed the state"}
+    ],
+    "correctId": "d",
+    "explain": "In “Discrimination and Segregation” he notes South African job-reservation laws for work such as running elevators and supervising machinery. He argues racists cannot trust free markets to keep those jobs white.",
+    "source": "Column “Discrimination and Segregation”; South Africa’s War Against Capitalism"
+  },
+  {
+    "id": "q14",
+    "kind": "scenario",
+    "prompt": "Supporters of a new licensing exam say it protects the public. The written section is unrelated to the work, and people who pass the practical test still fail it. What would Williams stress?",
+    "choices": [
+      {"id": "a", "text": "A written test that people fail is proof the trade is safer"},
+      {"id": "b", "text": "Effect can diverge from intention. An entry exam can screen out competent poor and minority applicants even when the stated goal is safety"},
+      {"id": "c", "text": "Intention is the only result that matters"},
+      {"id": "d", "text": "Licensing always increases the number of practitioners"}
+    ],
+    "correctId": "b",
+    "explain": "Reviewers of The State Against Blacks describe his Missouri beautician example. Applicants faced a written portion and a performance portion. The written portion, not the practical one, drove a racial gap in who passed. His point is the effect of the rule.",
+    "source": "The State Against Blacks, occupational licensing; Reason, June 1983, summarizes the Missouri beautician exam"
+  }
+]
