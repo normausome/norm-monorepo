@@ -31,6 +31,14 @@
       "date": "2026-09-14",
       "tech": "Agent Plans Index",
       "slug": "agent-plans-index"
+    },
+    {
+      "id": "2102050467505430555",
+      "title": "How I shipped 2,500 PRs \u2014 Feature Maps + verification CLI (@poteto)",
+      "url": "https://x.com/poteto/status/2102050467505430555",
+      "date": "2026-09-22",
+      "tech": "Feature Maps + verification CLI",
+      "slug": "feature-map-verify"
     }
   ],
   "seen": []
