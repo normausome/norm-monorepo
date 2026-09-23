@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test"
 import {
   QUESTIONS,
+  SECTION_LABEL,
   SECTION_ORDER,
+  SECTION_SOURCE_URL,
   parseQuestions,
   questionsFor,
 } from "@/data/questions"
@@ -46,6 +48,54 @@ describe("question bank", () => {
     expect(questionsFor("economics").map((question) => question.id)).not.toContain(
       "q1",
     )
+  })
+
+  test("1993 economic versus political section is last and linked", () => {
+    expect(SECTION_ORDER.at(-1)).toBe("economic-vs-political-1993")
+    expect(SECTION_LABEL["economic-vs-political-1993"]).toBe(
+      "Sowell (1993): Economic vs Political Decision-Making",
+    )
+    expect(SECTION_SOURCE_URL["economic-vs-political-1993"]).toBe(
+      "https://www.youtube.com/watch?v=Wh-qTnq-cwM",
+    )
+    for (const id of SECTION_ORDER) {
+      if (id === "economic-vs-political-1993") continue
+      expect(SECTION_SOURCE_URL[id]).toBeUndefined()
+    }
+    const pack = questionsFor("economic-vs-political-1993")
+    expect(pack.length).toBe(12)
+    expect(pack.map((question) => question.id)).toEqual([
+      "econ-pol-1993-q01",
+      "econ-pol-1993-q02",
+      "econ-pol-1993-q03",
+      "econ-pol-1993-q04",
+      "econ-pol-1993-q05",
+      "econ-pol-1993-q06",
+      "econ-pol-1993-q07",
+      "econ-pol-1993-q08",
+      "econ-pol-1993-q09",
+      "econ-pol-1993-q10",
+      "econ-pol-1993-q11",
+      "econ-pol-1993-q12",
+    ])
+    expect(pack.map((question) => question.correctId)).toEqual([
+      "b",
+      "c",
+      "b",
+      "b",
+      "b",
+      "b",
+      "b",
+      "c",
+      "b",
+      "c",
+      "c",
+      "b",
+    ])
+    expect(
+      pack.every((question) => question.section === "economic-vs-political-1993"),
+    ).toBe(true)
+    expect(pack.every((question) => question.kind === "trivia")).toBe(true)
   })
 
   test("rejects an unknown section at the boundary", () => {

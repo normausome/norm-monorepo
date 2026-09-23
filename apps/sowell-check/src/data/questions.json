@@ -970,5 +970,185 @@
     "correctId": "b",
     "explain": "Basic Economics, first published in 2000 and later revised, is the wide survey. A Personal Odyssey is the memoir. The other two titles are about children who talk late.",
     "source": "Basic Economics (2000 and later editions)"
+  },
+  {
+    "id": "econ-pol-1993-q01",
+    "section": "economic-vs-political-1993",
+    "kind": "trivia",
+    "prompt": "According to Sowell, why was the Garden of Eden not an “economy”?",
+    "choices": [
+      { "id": "a", "text": "No private property" },
+      { "id": "b", "text": "No scarcity" },
+      { "id": "c", "text": "No government" },
+      { "id": "d", "text": "No money" }
+    ],
+    "correctId": "b",
+    "explain": "Sowell says the Garden of Eden was not an economy because there was no scarcity.",
+    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+  },
+  {
+    "id": "econ-pol-1993-q02",
+    "section": "economic-vs-political-1993",
+    "kind": "trivia",
+    "prompt": "What does he call the “first lesson of politics”?",
+    "choices": [
+      { "id": "a", "text": "Compromise is inevitable" },
+      { "id": "b", "text": "Voters are rational" },
+      { "id": "c", "text": "Forget the first lesson of economics" },
+      { "id": "d", "text": "Always expand the budget" }
+    ],
+    "correctId": "c",
+    "explain": "Sowell calls the first lesson of politics “Forget the first lesson of economics.”",
+    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+  },
+  {
+    "id": "econ-pol-1993-q03",
+    "section": "economic-vs-political-1993",
+    "kind": "trivia",
+    "prompt": "How does he redefine “politics is the art of the possible”?",
+    "choices": [
+      { "id": "a", "text": "Art of the necessary" },
+      { "id": "b", "text": "Art of the plausible" },
+      { "id": "c", "text": "Art of the popular" },
+      { "id": "d", "text": "Art of the temporary" }
+    ],
+    "correctId": "b",
+    "explain": "Sowell redefines “politics is the art of the possible” as the art of the plausible.",
+    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+  },
+  {
+    "id": "econ-pol-1993-q04",
+    "section": "economic-vs-political-1993",
+    "kind": "trivia",
+    "prompt": "Economists’ estimated decade tradeoff of a baby airplane-seat mandate:",
+    "choices": [
+      { "id": "a", "text": "Save 60 babies, lose 1 adult, $7.2M" },
+      { "id": "b", "text": "Save 1 baby life, lose ~60 other lives, ~$72M" },
+      { "id": "c", "text": "Save 10 babies, lose 10 drivers, ~$720M" },
+      { "id": "d", "text": "No lives changed; only higher fares" }
+    ],
+    "correctId": "b",
+    "explain": "Sowell says economists estimated that a decade of a baby airplane-seat mandate would save 1 baby life, lose about 60 other lives, and cost about $72 million.",
+    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+  },
+  {
+    "id": "econ-pol-1993-q05",
+    "section": "economic-vs-political-1993",
+    "kind": "trivia",
+    "prompt": "On Three Mile Island, which claim does he make?",
+    "choices": [
+      { "id": "a", "text": "Dozens died in the plant accident" },
+      { "id": "b", "text": "Zero died in the “disaster”; two died on the highway fleeing; ~52 lives lost generating replacement power while shut" },
+      { "id": "c", "text": "Nuclear is risk-free in absolute terms" },
+      { "id": "d", "text": "Canoeing is safer than living near any industrial site forever" }
+    ],
+    "correctId": "b",
+    "explain": "Sowell says zero died in the Three Mile Island “disaster”, two died on the highway fleeing, and about 52 lives were lost generating replacement power while the plant was shut.",
+    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+  },
+  {
+    "id": "econ-pol-1993-q06",
+    "section": "economic-vs-political-1993",
+    "kind": "trivia",
+    "prompt": "Living within 5 miles of a nuclear plant for 50 years is, in his comparison, like:",
+    "choices": [
+      { "id": "a", "text": "Driving 100 miles interstate" },
+      { "id": "b", "text": "Driving 10 miles interstate (also ~30 min coal mine / ~6 min canoe)" },
+      { "id": "c", "text": "One commercial flight" },
+      { "id": "d", "text": "A year in a steel mill" }
+    ],
+    "correctId": "b",
+    "explain": "Sowell compares living within 5 miles of a nuclear plant for 50 years to driving 10 miles on the interstate, and also to about 30 minutes in a coal mine or about 6 minutes in a canoe.",
+    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+  },
+  {
+    "id": "econ-pol-1993-q07",
+    "section": "economic-vs-political-1993",
+    "kind": "trivia",
+    "prompt": "In his four-stage pattern, after policy produces critics’ bad result Z, stage four typically:",
+    "choices": [
+      { "id": "a", "text": "Repeals and apologizes" },
+      { "id": "b", "text": "Accuses critics of being simplistic and demands more of the same" },
+      { "id": "c", "text": "Hands issue to courts only" },
+      { "id": "d", "text": "Freezes spending" }
+    ],
+    "correctId": "b",
+    "explain": "Sowell says that after policy produces critics’ bad result Z, stage four accuses critics of being simplistic and demands more of the same.",
+    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+  },
+  {
+    "id": "econ-pol-1993-q08",
+    "section": "economic-vs-political-1993",
+    "kind": "trivia",
+    "prompt": "Before the War on Poverty, he says poverty and dependency had been:",
+    "choices": [
+      { "id": "a", "text": "Rising for a decade" },
+      { "id": "b", "text": "Flat for a decade" },
+      { "id": "c", "text": "Declining for at least a decade" },
+      { "id": "d", "text": "Unmeasured until 1964" }
+    ],
+    "correctId": "c",
+    "explain": "Sowell says that before the War on Poverty, poverty and dependency had been declining for at least a decade.",
+    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+  },
+  {
+    "id": "econ-pol-1993-q09",
+    "section": "economic-vs-political-1993",
+    "kind": "trivia",
+    "prompt": "By when does he say roughly half of U.S. public schools already had sex education?",
+    "choices": [
+      { "id": "a", "text": "1956" },
+      { "id": "b", "text": "1968" },
+      { "id": "c", "text": "1978" },
+      { "id": "d", "text": "1988" }
+    ],
+    "correctId": "b",
+    "explain": "Sowell says that by 1968 roughly half of U.S. public schools already had sex education.",
+    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+  },
+  {
+    "id": "econ-pol-1993-q10",
+    "section": "economic-vs-political-1993",
+    "kind": "trivia",
+    "prompt": "What share of GNP does he say the U.S. spends on health care in the “crisis” talking point?",
+    "choices": [
+      { "id": "a", "text": "4%" },
+      { "id": "b", "text": "8%" },
+      { "id": "c", "text": "14%" },
+      { "id": "d", "text": "24%" }
+    ],
+    "correctId": "c",
+    "explain": "Sowell says the U.S. spends 14% of GNP on health care in the “crisis” talking point.",
+    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+  },
+  {
+    "id": "econ-pol-1993-q11",
+    "section": "economic-vs-political-1993",
+    "kind": "trivia",
+    "prompt": "Relative to a German doctor, how much malpractice insurance does he say an American doctor pays?",
+    "choices": [
+      { "id": "a", "text": "About the same" },
+      { "id": "b", "text": "Twice as much" },
+      { "id": "c", "text": "14 times as much" },
+      { "id": "d", "text": "Half as much" }
+    ],
+    "correctId": "c",
+    "explain": "Sowell says an American doctor pays 14 times as much malpractice insurance as a German doctor.",
+    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+  },
+  {
+    "id": "econ-pol-1993-q12",
+    "section": "economic-vs-political-1993",
+    "kind": "trivia",
+    "prompt": "What does he say changed him from Marxism—not Friedman’s Chicago course?",
+    "choices": [
+      { "id": "a", "text": "Writing for Forbes" },
+      { "id": "b", "text": "A summer job in government seeing how it actually operates" },
+      { "id": "c", "text": "Reading A Conflict of Visions" },
+      { "id": "d", "text": "Moving to California" }
+    ],
+    "correctId": "b",
+    "explain": "Sowell says a summer job in government, seeing how it actually operates, changed him from Marxism, not Friedman’s Chicago course.",
+    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
   }
 ]
