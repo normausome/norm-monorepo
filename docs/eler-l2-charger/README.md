@@ -13,4 +13,9 @@ These pages copy notes from late September 2026. The load numbers are estimates.
 - [Materials](materials.md) records the short-run checklist and the cost estimates.
 - [Next steps](next-steps.md) lists the remaining work in order.
 
+## Sources
+
+- [Building permit ELER-2026-08025](ELER-2026-08025-building-permit.pdf)
+- [License exemption affidavit](license-exemption-affidavit.pdf)
+
 The shopping list is dated 22 September 2026. This folder does not store account passwords or API keys.
