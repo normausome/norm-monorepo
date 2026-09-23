@@ -36,6 +36,7 @@ import {
   RotateCcw,
   XCircle,
 } from "lucide-react"
+import { renderExplainWithLinks } from "@/lib/explain-links"
 import { cn } from "@/lib/utils"
 
 function subscribeToHash(onChange: () => void) {
@@ -328,7 +329,9 @@ function QuizStep({
                 </>
               )}
             </div>
-            <p className="text-muted-foreground">{question.explain}</p>
+            <p className="text-muted-foreground">
+              {renderExplainWithLinks(question.explain)}
+            </p>
             <p className="mt-2 text-xs text-muted-foreground">
               Source: {question.source}
             </p>
