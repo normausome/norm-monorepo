@@ -15,6 +15,7 @@ The title screen is a section picker. Choose one bucket, or **All**.
 | Policy & Government | Incentives, controls, knowledge and decisions, wage floors |
 | Books & Ideas | Conflict of visions, trade-offs, intellectuals, Basic Economics |
 | Sowell (1993): Economic vs Political Decision-Making | Oct 14, 1993 Jacksonville talk, with a YouTube link on the picker |
+| Sowell (1983): Economics & Politics of Race (Firing Line) | Firing Line S0573, taped Nov 3 1983 in NYC, with a YouTube link on the picker and during that quiz |
 
 **All** shuffles the full bank when you set a seed, and the score screen breaks the result down by section. A single section scores only that section. **Play again** repeats the same section. **Choose section** returns to the picker.
 

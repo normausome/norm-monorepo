@@ -3,6 +3,7 @@ import {
   QUESTIONS,
   SECTION_LABEL,
   SECTION_ORDER,
+  SECTION_SOURCE_LINK_TEXT,
   SECTION_SOURCE_URL,
   parseQuestions,
   questionsFor,
@@ -50,18 +51,16 @@ describe("question bank", () => {
     )
   })
 
-  test("1993 economic versus political section is last and linked", () => {
-    expect(SECTION_ORDER.at(-1)).toBe("economic-vs-political-1993")
+  test("1993 economic versus political section stays linked", () => {
     expect(SECTION_LABEL["economic-vs-political-1993"]).toBe(
       "Sowell (1993): Economic vs Political Decision-Making",
     )
     expect(SECTION_SOURCE_URL["economic-vs-political-1993"]).toBe(
       "https://www.youtube.com/watch?v=Wh-qTnq-cwM",
     )
-    for (const id of SECTION_ORDER) {
-      if (id === "economic-vs-political-1993") continue
-      expect(SECTION_SOURCE_URL[id]).toBeUndefined()
-    }
+    expect(SECTION_SOURCE_LINK_TEXT["economic-vs-political-1993"]).toBe(
+      "Watch the 1993 talk",
+    )
     const pack = questionsFor("economic-vs-political-1993")
     expect(pack.length).toBe(12)
     expect(pack.map((question) => question.id)).toEqual([
@@ -94,6 +93,60 @@ describe("question bank", () => {
     ])
     expect(
       pack.every((question) => question.section === "economic-vs-political-1993"),
+    ).toBe(true)
+    expect(pack.every((question) => question.kind === "trivia")).toBe(true)
+  })
+
+  test("1983 economics and politics of race section is last and linked", () => {
+    expect(SECTION_ORDER.at(-1)).toBe("economics-politics-race-1983")
+    expect(SECTION_LABEL["economics-politics-race-1983"]).toBe(
+      "Sowell (1983): Economics & Politics of Race (Firing Line)",
+    )
+    expect(SECTION_SOURCE_URL["economics-politics-race-1983"]).toBe(
+      "https://www.youtube.com/watch?v=TEBPCOG5RHs",
+    )
+    expect(SECTION_SOURCE_LINK_TEXT["economics-politics-race-1983"]).toBe(
+      "Watch the 1983 Firing Line",
+    )
+    const linked = SECTION_ORDER.filter((id) => SECTION_SOURCE_URL[id])
+    expect(linked).toEqual([
+      "economic-vs-political-1993",
+      "economics-politics-race-1983",
+    ])
+    const pack = questionsFor("economics-politics-race-1983")
+    expect(pack.length).toBe(12)
+    expect(pack.map((question) => question.id)).toEqual([
+      "econ-race-1983-q01",
+      "econ-race-1983-q02",
+      "econ-race-1983-q03",
+      "econ-race-1983-q04",
+      "econ-race-1983-q05",
+      "econ-race-1983-q06",
+      "econ-race-1983-q07",
+      "econ-race-1983-q08",
+      "econ-race-1983-q09",
+      "econ-race-1983-q10",
+      "econ-race-1983-q11",
+      "econ-race-1983-q12",
+    ])
+    expect(pack.map((question) => question.correctId)).toEqual([
+      "b",
+      "b",
+      "c",
+      "c",
+      "b",
+      "b",
+      "b",
+      "b",
+      "b",
+      "b",
+      "b",
+      "b",
+    ])
+    expect(
+      pack.every(
+        (question) => question.section === "economics-politics-race-1983",
+      ),
     ).toBe(true)
     expect(pack.every((question) => question.kind === "trivia")).toBe(true)
   })

@@ -1150,5 +1150,185 @@
     "correctId": "b",
     "explain": "Sowell says a summer job in government, seeing how it actually operates, changed him from Marxism, not Friedman’s Chicago course.",
     "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+  },
+  {
+    "id": "econ-race-1983-q01",
+    "section": "economics-politics-race-1983",
+    "kind": "trivia",
+    "prompt": "What book title is on the cover?",
+    "choices": [
+      { "id": "a", "text": "Ethnic America" },
+      { "id": "b", "text": "The Economics and Politics of Race: An International Perspective" },
+      { "id": "c", "text": "A Conflict of Visions" },
+      { "id": "d", "text": "Basic Economics" }
+    ],
+    "correctId": "b",
+    "explain": "The book title on the cover is The Economics and Politics of Race: An International Perspective.",
+    "source": "Firing Line S0573, taped Nov 3 1983, NYC; Buckley host, Sowell guest, Robert Lekachman examiner; Hoover upload 2017-02-02; 58:20. https://www.youtube.com/watch?v=TEBPCOG5RHs"
+  },
+  {
+    "id": "econ-race-1983-q02",
+    "section": "economics-politics-race-1983",
+    "kind": "trivia",
+    "prompt": "What is the tape date?",
+    "choices": [
+      { "id": "a", "text": "Feb 2 2017 upload only" },
+      { "id": "b", "text": "Nov 3 1983" },
+      { "id": "c", "text": "Nov 12 1981" },
+      { "id": "d", "text": "May 2 1986" }
+    ],
+    "correctId": "b",
+    "explain": "The tape date is Nov 3 1983.",
+    "source": "Firing Line S0573, taped Nov 3 1983, NYC; Buckley host, Sowell guest, Robert Lekachman examiner; Hoover upload 2017-02-02; 58:20. https://www.youtube.com/watch?v=TEBPCOG5RHs"
+  },
+  {
+    "id": "econ-race-1983-q03",
+    "section": "economics-politics-race-1983",
+    "kind": "trivia",
+    "prompt": "Who is the examiner?",
+    "choices": [
+      { "id": "a", "text": "Milton Friedman" },
+      { "id": "b", "text": "John Kenneth Galbraith" },
+      { "id": "c", "text": "Robert Lekachman (Lehman College)" },
+      { "id": "d", "text": "Jesse Jackson" }
+    ],
+    "correctId": "c",
+    "explain": "The examiner is Robert Lekachman (Lehman College).",
+    "source": "Firing Line S0573, taped Nov 3 1983, NYC; Buckley host, Sowell guest, Robert Lekachman examiner; Hoover upload 2017-02-02; 58:20. https://www.youtube.com/watch?v=TEBPCOG5RHs"
+  },
+  {
+    "id": "econ-race-1983-q04",
+    "section": "economics-politics-race-1983",
+    "kind": "trivia",
+    "prompt": "What IQ is given for black orphans raised by white families?",
+    "choices": [
+      { "id": "a", "text": "85" },
+      { "id": "b", "text": "100" },
+      { "id": "c", "text": "106" },
+      { "id": "d", "text": "115" }
+    ],
+    "correctId": "c",
+    "explain": "The IQ given for black orphans raised by white families is 106.",
+    "source": "Firing Line S0573, taped Nov 3 1983, NYC; Buckley host, Sowell guest, Robert Lekachman examiner; Hoover upload 2017-02-02; 58:20. https://www.youtube.com/watch?v=TEBPCOG5RHs"
+  },
+  {
+    "id": "econ-race-1983-q05",
+    "section": "economics-politics-race-1983",
+    "kind": "trivia",
+    "prompt": "What happened to Japan’s average IQ?",
+    "choices": [
+      { "id": "a", "text": "Fell 7/generation" },
+      { "id": "b", "text": "Rose 7/generation" },
+      { "id": "c", "text": "Rose 17 Tokyo only" },
+      { "id": "d", "text": "Unchanged century" }
+    ],
+    "correctId": "b",
+    "explain": "Japan’s average IQ rose 7 per generation.",
+    "source": "Firing Line S0573, taped Nov 3 1983, NYC; Buckley host, Sowell guest, Robert Lekachman examiner; Hoover upload 2017-02-02; 58:20. https://www.youtube.com/watch?v=TEBPCOG5RHs"
+  },
+  {
+    "id": "econ-race-1983-q06",
+    "section": "economics-politics-race-1983",
+    "kind": "trivia",
+    "prompt": "What does the discussion say about Jewish IQ in U.S. data around World War I?",
+    "choices": [
+      { "id": "a", "text": "Already highest" },
+      { "id": "b", "text": "Below national average (Brigham premature)" },
+      { "id": "c", "text": "Same as Japan" },
+      { "id": "d", "text": "Unmeasured until 1960s" }
+    ],
+    "correctId": "b",
+    "explain": "On U.S. data around World War I, Jewish IQ was below the national average, and Brigham’s reading was premature.",
+    "source": "Firing Line S0573, taped Nov 3 1983, NYC; Buckley host, Sowell guest, Robert Lekachman examiner; Hoover upload 2017-02-02; 58:20. https://www.youtube.com/watch?v=TEBPCOG5RHs"
+  },
+  {
+    "id": "econ-race-1983-q07",
+    "section": "economics-politics-race-1983",
+    "kind": "trivia",
+    "prompt": "What share of free U.S. blacks were mulattoes (at least half white)?",
+    "choices": [
+      { "id": "a", "text": "~10%" },
+      { "id": "b", "text": "37%" },
+      { "id": "c", "text": "More than half" },
+      { "id": "d", "text": "Nearly all" }
+    ],
+    "correctId": "b",
+    "explain": "37% of free U.S. blacks were mulattoes (at least half white).",
+    "source": "Firing Line S0573, taped Nov 3 1983, NYC; Buckley host, Sowell guest, Robert Lekachman examiner; Hoover upload 2017-02-02; 58:20. https://www.youtube.com/watch?v=TEBPCOG5RHs"
+  },
+  {
+    "id": "econ-race-1983-q08",
+    "section": "economics-politics-race-1983",
+    "kind": "trivia",
+    "prompt": "What do Germans and Chinese across countries mainly illustrate?",
+    "choices": [
+      { "id": "a", "text": "Host fully determines" },
+      { "id": "b", "text": "Groups often carry own skill/occupational patterns" },
+      { "id": "c", "text": "Genetics alone" },
+      { "id": "d", "text": "Only US slavery" }
+    ],
+    "correctId": "b",
+    "explain": "Germans and Chinese across countries mainly illustrate that groups often carry their own skill and occupational patterns.",
+    "source": "Firing Line S0573, taped Nov 3 1983, NYC; Buckley host, Sowell guest, Robert Lekachman examiner; Hoover upload 2017-02-02; 58:20. https://www.youtube.com/watch?v=TEBPCOG5RHs"
+  },
+  {
+    "id": "econ-race-1983-q09",
+    "section": "economics-politics-race-1983",
+    "kind": "trivia",
+    "prompt": "Which affirmative-action outcome does he emphasize?",
+    "choices": [
+      { "id": "a", "text": "Lifts poorest fastest" },
+      { "id": "b", "text": "Benefits already-advantaged clerks; many disadvantaged fall further" },
+      { "id": "c", "text": "No effects" },
+      { "id": "d", "text": "Equalizes all in 5 years" }
+    ],
+    "correctId": "b",
+    "explain": "The affirmative-action outcome he emphasizes is that it benefits already-advantaged clerks, while many disadvantaged people fall further.",
+    "source": "Firing Line S0573, taped Nov 3 1983, NYC; Buckley host, Sowell guest, Robert Lekachman examiner; Hoover upload 2017-02-02; 58:20. https://www.youtube.com/watch?v=TEBPCOG5RHs"
+  },
+  {
+    "id": "econ-race-1983-q10",
+    "section": "economics-politics-race-1983",
+    "kind": "trivia",
+    "prompt": "Which is the clearest human-capital rebuild?",
+    "choices": [
+      { "id": "a", "text": "Colonial Virginia tobacco" },
+      { "id": "b", "text": "Postwar Japan and Germany despite destroyed physical capital" },
+      { "id": "c", "text": "Only Marshall Plan totals" },
+      { "id": "d", "text": "Tanzania aid" }
+    ],
+    "correctId": "b",
+    "explain": "The clearest human-capital rebuild is postwar Japan and Germany, despite destroyed physical capital.",
+    "source": "Firing Line S0573, taped Nov 3 1983, NYC; Buckley host, Sowell guest, Robert Lekachman examiner; Hoover upload 2017-02-02; 58:20. https://www.youtube.com/watch?v=TEBPCOG5RHs"
+  },
+  {
+    "id": "econ-race-1983-q11",
+    "section": "economics-politics-race-1983",
+    "kind": "trivia",
+    "prompt": "What did overseas Chinese in Southeast Asia do until nationalism?",
+    "choices": [
+      { "id": "a", "text": "Capture all parliaments" },
+      { "id": "b", "text": "Avoiding politics; often arriving poor leaving prosperous" },
+      { "id": "c", "text": "Refuse private business" },
+      { "id": "d", "text": "Hereditary monarchies" }
+    ],
+    "correctId": "b",
+    "explain": "Until nationalism, overseas Chinese in Southeast Asia avoided politics, often arriving poor and leaving prosperous.",
+    "source": "Firing Line S0573, taped Nov 3 1983, NYC; Buckley host, Sowell guest, Robert Lekachman examiner; Hoover upload 2017-02-02; 58:20. https://www.youtube.com/watch?v=TEBPCOG5RHs"
+  },
+  {
+    "id": "econ-race-1983-q12",
+    "section": "economics-politics-race-1983",
+    "kind": "trivia",
+    "prompt": "What is the Malaysian affirmative-action parallel?",
+    "choices": [
+      { "id": "a", "text": "Eliminated Malay poverty" },
+      { "id": "b", "text": "Did nothing for poor Malays; lowest Malays’ share of Malay income fell" },
+      { "id": "c", "text": "Only helped Chinese" },
+      { "id": "d", "text": "Malaysia never tried" }
+    ],
+    "correctId": "b",
+    "explain": "The Malaysian affirmative-action parallel did nothing for poor Malays, and the lowest Malays’ share of Malay income fell.",
+    "source": "Firing Line S0573, taped Nov 3 1983, NYC; Buckley host, Sowell guest, Robert Lekachman examiner; Hoover upload 2017-02-02; 58:20. https://www.youtube.com/watch?v=TEBPCOG5RHs"
   }
 ]
