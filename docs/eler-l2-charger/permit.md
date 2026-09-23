@@ -14,7 +14,7 @@ The PLUS fee in the notes is about $158.77. The notes say that fee was paid earl
 
 ## Posted card
 
-The printed permit card stays posted at the job site for the life of the work. The posting place is the garage or the panel.
+The printed permit card stays posted at the job site for the life of the work. The posting place is the garage or the panel. The scan of that card is [building permit ELER-2026-08025](ELER-2026-08025-building-permit.pdf).
 
 ## Inspection
 
