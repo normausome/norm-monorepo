@@ -32,6 +32,8 @@ bun run dev
 
 Open the URL Vite prints (usually `http://localhost:5173`).
 
+A pull request that changes this app gets a desktop shot, a phone shot, a shot after the first clicks, and a short video from the Demo workflow. Those files land on the pull request under `.demo-capture/sowell-check/`.
+
 Optional shareable shuffle of whatever set you start:
 
 ```text
