@@ -246,12 +246,12 @@
     "prompt": "Which account matches his military service?",
     "choices": [
       {"id": "a", "text": "He enlisted in the Navy in 1948 and stayed in Philadelphia for the whole enlistment."},
-      {"id": "b", "text": "He was drafted in 1959, served as a private in the U.S. Army, and was later transferred to South Korea."},
+      {"id": "b", "text": "He was drafted in 1959 into the U.S. Army and was later transferred to South Korea."},
       {"id": "c", "text": "A student deferment kept him out of service through his UCLA doctorate."},
       {"id": "d", "text": "He was an Army officer in West Germany from 1973 to 1980, while he taught at Temple."}
     ],
     "correctId": "b",
-    "explain": "After high school and a stretch driving a cab in Philadelphia, he was drafted in 1959 and served as a private. While in the service he was transferred to South Korea.",
+    "explain": "After high school and a stretch driving a cab in Philadelphia, he was drafted in 1959. While in the service he was transferred to South Korea.",
     "source": "Wikipedia, Early life and education, citing Up from the Projects and Damon Root, Reason, \"Man Versus the State\" (January 28, 2011)"
   },
   {
