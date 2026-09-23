@@ -21,6 +21,10 @@ bunx playwright install chromium
 
 if [ -z "$url" ]; then
   url="http://127.0.0.1:4173"
+  if lsof -nP -iTCP:4173 -sTCP:LISTEN >/dev/null 2>&1; then
+    kill "$(lsof -t -nP -iTCP:4173 -sTCP:LISTEN)" 2>/dev/null || true
+    sleep 0.5
+  fi
   (
     cd "$app"
     bun install --frozen-lockfile
