@@ -8,6 +8,7 @@ export const SECTION_ORDER = [
   "policy",
   "books",
   "economic-vs-political-1993",
+  "economics-politics-race-1983",
 ] as const
 
 export type SectionId = (typeof SECTION_ORDER)[number]
@@ -22,10 +23,18 @@ export const SECTION_LABEL: Record<SectionId, string> = {
   policy: "Policy & Government",
   books: "Books & Ideas",
   "economic-vs-political-1993": "Sowell (1993): Economic vs Political Decision-Making",
+  "economics-politics-race-1983":
+    "Sowell (1983): Economics & Politics of Race (Firing Line)",
 }
 
 export const SECTION_SOURCE_URL: Partial<Record<SectionId, string>> = {
   "economic-vs-political-1993": "https://www.youtube.com/watch?v=Wh-qTnq-cwM",
+  "economics-politics-race-1983": "https://www.youtube.com/watch?v=TEBPCOG5RHs",
+}
+
+export const SECTION_SOURCE_LINK_TEXT: Partial<Record<SectionId, string>> = {
+  "economic-vs-political-1993": "Watch the 1993 talk",
+  "economics-politics-race-1983": "Watch the 1983 Firing Line",
 }
 
 export type QuestionKind = "trivia" | "scenario"

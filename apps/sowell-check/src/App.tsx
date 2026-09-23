@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card"
 import {
   SECTION_ORDER,
+  SECTION_SOURCE_LINK_TEXT,
   SECTION_SOURCE_URL,
   choiceLabel,
   questionsFor,
@@ -146,6 +147,8 @@ function TitleScreen({
 }) {
   const count = questionsFor(section).length
   const sourceUrl = section === "all" ? undefined : SECTION_SOURCE_URL[section]
+  const sourceLinkText =
+    section === "all" ? undefined : SECTION_SOURCE_LINK_TEXT[section]
   const options: SectionChoice[] = ["all", ...SECTION_ORDER]
   const blurb =
     section === "all"
@@ -193,7 +196,7 @@ function TitleScreen({
             rel="noopener noreferrer"
             className="mt-4 block rounded border p-3 text-center break-all text-primary"
           >
-            Watch the 1993 talk
+            {sourceLinkText}
             <span className="mt-1 block">{sourceUrl}</span>
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
