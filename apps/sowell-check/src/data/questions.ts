@@ -7,6 +7,7 @@ export const SECTION_ORDER = [
   "education",
   "policy",
   "books",
+  "economic-vs-political-1993",
 ] as const
 
 export type SectionId = (typeof SECTION_ORDER)[number]
@@ -20,6 +21,11 @@ export const SECTION_LABEL: Record<SectionId, string> = {
   education: "Education",
   policy: "Policy & Government",
   books: "Books & Ideas",
+  "economic-vs-political-1993": "Sowell (1993): Economic vs Political Decision-Making",
+}
+
+export const SECTION_SOURCE_URL: Partial<Record<SectionId, string>> = {
+  "economic-vs-political-1993": "https://www.youtube.com/watch?v=Wh-qTnq-cwM",
 }
 
 export type QuestionKind = "trivia" | "scenario"
