@@ -1,6 +1,7 @@
 [
   {
     "id": "q1",
+    "section": "personal",
     "kind": "trivia",
     "prompt": "After his family left West Philadelphia, where did Walter E. Williams spend much of his childhood?",
     "choices": [
@@ -15,6 +16,7 @@
   },
   {
     "id": "q2",
+    "section": "education",
     "kind": "trivia",
     "prompt": "Where did Williams earn his economics PhD, and what was the dissertation?",
     "choices": [
@@ -29,6 +31,7 @@
   },
   {
     "id": "q3",
+    "section": "personal",
     "kind": "trivia",
     "prompt": "Which post did Williams hold from 1980 until his death?",
     "choices": [
@@ -43,6 +46,7 @@
   },
   {
     "id": "q4",
+    "section": "books",
     "kind": "trivia",
     "prompt": "Which claim does The State Against Blacks argue most directly?",
     "choices": [
@@ -57,6 +61,7 @@
   },
   {
     "id": "q5",
+    "section": "economics",
     "kind": "trivia",
     "prompt": "In Williams’s minimum-wage argument, what happens when the law requires a wage above what a worker’s hourly output is worth to the employer?",
     "choices": [
@@ -71,6 +76,7 @@
   },
   {
     "id": "q6",
+    "section": "policy",
     "kind": "trivia",
     "prompt": "What does Williams argue about the Davis-Bacon Act of 1931?",
     "choices": [
@@ -85,6 +91,7 @@
   },
   {
     "id": "q7",
+    "section": "books",
     "kind": "trivia",
     "prompt": "Which claim is closest to the thesis of South Africa’s War Against Capitalism?",
     "choices": [
@@ -99,6 +106,7 @@
   },
   {
     "id": "q8",
+    "section": "economics",
     "kind": "scenario",
     "prompt": "A city caps rents far below the market to create “affordable” housing. Which reaction matches Williams?",
     "choices": [
@@ -113,6 +121,7 @@
   },
   {
     "id": "q9",
+    "section": "economics",
     "kind": "scenario",
     "prompt": "After a demand spike, a legislature freezes the price of flour below the market. Which pattern does Williams’s price-control lesson predict?",
     "choices": [
@@ -127,6 +136,7 @@
   },
   {
     "id": "q10",
+    "section": "economics",
     "kind": "scenario",
     "prompt": "A city requires an expensive taxi medallion before anyone can drive a cab. A poor person owns a used car and wants to start. What is Williams’s licensing argument?",
     "choices": [
@@ -141,6 +151,7 @@
   },
   {
     "id": "q11",
+    "section": "economics",
     "kind": "scenario",
     "prompt": "A council raises the wage floor above what many teenagers can produce in an hour, and says the law will help them. Which follow-up matches Williams?",
     "choices": [
@@ -155,6 +166,7 @@
   },
   {
     "id": "q12",
+    "section": "race-culture",
     "kind": "scenario",
     "prompt": "Group A earns more than Group B. An advocate says the gap itself proves discrimination and nothing else. Which reply is closest to Williams?",
     "choices": [
@@ -169,6 +181,7 @@
   },
   {
     "id": "q13",
+    "section": "policy",
     "kind": "scenario",
     "prompt": "A government bans Black workers from skilled mine jobs and says employers would never have hired them anyway. What question does Williams ask?",
     "choices": [
@@ -183,6 +196,7 @@
   },
   {
     "id": "q14",
+    "section": "economics",
     "kind": "scenario",
     "prompt": "Supporters of a new licensing exam say it protects the public. The written section is unrelated to the work, and people who pass the practical test still fail it. What would Williams stress?",
     "choices": [
@@ -194,5 +208,350 @@
     "correctId": "b",
     "explain": "Reviewers of The State Against Blacks describe his Missouri beautician example. Applicants faced a written portion and a performance portion. The written portion, not the practical one, drove a racial gap in who passed. His point is the effect of the rule.",
     "source": "The State Against Blacks, occupational licensing; Reason, June 1983, summarizes the Missouri beautician exam"
+  },
+  {
+    "id": "q15",
+    "section": "personal",
+    "kind": "trivia",
+    "prompt": "When and where was Walter E. Williams born?",
+    "choices": [
+      {"id": "a", "text": "March 31, 1936, in Philadelphia, Pennsylvania"},
+      {"id": "b", "text": "July 4, 1930, in Atlanta, Georgia"},
+      {"id": "c", "text": "January 15, 1929, in Chicago, Illinois"},
+      {"id": "d", "text": "November 22, 1942, in Richmond, Virginia"}
+    ],
+    "correctId": "a",
+    "explain": "He was born in Philadelphia on March 31, 1936. Notices of his death give his age as 84, which matches that year. His own biographical sketch names Philadelphia and does not give the calendar date.",
+    "source": "Wikipedia, Walter E. Williams (birth date and city); biographical sketch on walterewilliams.com (born in Philadelphia)"
+  },
+  {
+    "id": "q16",
+    "section": "personal",
+    "kind": "trivia",
+    "prompt": "Who was in the household that raised Williams?",
+    "choices": [
+      {"id": "a", "text": "Both parents, in a two-parent home for his whole childhood"},
+      {"id": "b", "text": "His grandparents, after both parents moved to Los Angeles"},
+      {"id": "c", "text": "His mother and his sister. His father played no role in raising them."},
+      {"id": "d", "text": "A foster family. He had no siblings."}
+    ],
+    "correctId": "c",
+    "explain": "The household was his mother, his sister, and him. His father was not part of raising them. They lived first in West Philadelphia and later in the Richard Allen projects.",
+    "source": "Wikipedia, Early life, citing Up from the Projects, p. 3; Hoover Institution profile, February 5, 2021 (single mother)"
+  },
+  {
+    "id": "q17",
+    "section": "personal",
+    "kind": "trivia",
+    "prompt": "Which account matches his military service?",
+    "choices": [
+      {"id": "a", "text": "He enlisted in the Navy in 1948 and stayed in Philadelphia for the whole enlistment."},
+      {"id": "b", "text": "He was drafted in 1959 into the U.S. Army and was later transferred to South Korea."},
+      {"id": "c", "text": "A student deferment kept him out of service through his UCLA doctorate."},
+      {"id": "d", "text": "He was an Army officer in West Germany from 1973 to 1980, while he taught at Temple."}
+    ],
+    "correctId": "b",
+    "explain": "After high school and a stretch driving a cab in Philadelphia, he was drafted in 1959. While in the service he was transferred to South Korea.",
+    "source": "Wikipedia, Early life and education, citing Up from the Projects and Damon Root, Reason, \"Man Versus the State\" (January 28, 2011)"
+  },
+  {
+    "id": "q18",
+    "section": "personal",
+    "kind": "trivia",
+    "prompt": "What do the memorial accounts agree on about his death?",
+    "choices": [
+      {"id": "a", "text": "He retired when the chairmanship ended in 2001 and died in Philadelphia in 2010."},
+      {"id": "b", "text": "He left George Mason in 1995 for a daily television show and died in 2017, the year of the Bradley Prize."},
+      {"id": "c", "text": "He died in 1989 while in South Africa researching his book on apartheid."},
+      {"id": "d", "text": "He died in 2020 at age 84, shortly after teaching a class at George Mason University."}
+    ],
+    "correctId": "d",
+    "explain": "Hoover's 2021 profile dates his death December 1, 2020. A Wall Street Journal tribute quoted by UCLA says he died the morning after teaching his final class, at 84. Those notices do not use the same calendar day, so the shared facts are the year, his age, and that he had just taught at George Mason.",
+    "source": "Hoover Institution, \"Black History Month Profile: Walter Williams\" (February 5, 2021); UCLA Economics memorial quoting Donald J. Boudreaux, Wall Street Journal"
+  },
+  {
+    "id": "q19",
+    "section": "personal",
+    "kind": "trivia",
+    "prompt": "What is the documented account of his marriage?",
+    "choices": [
+      {"id": "a", "text": "He married Connie Taylor in 1960. She died in 2007. They had one daughter."},
+      {"id": "b", "text": "He married in 1980, the year he joined George Mason, and had no children."},
+      {"id": "c", "text": "Connie in the obituaries is his sister. He did not marry."},
+      {"id": "d", "text": "He married Constance Sowell in 1972, the year of his PhD."}
+    ],
+    "correctId": "a",
+    "explain": "He married Connie Taylor in 1960. She died in 2007. They had one daughter. A few secondary bios give a different year for her death. The 2007 date is the one in the contemporary notice the Wikipedia article cites.",
+    "source": "Wikipedia, Walter E. Williams, citing Lew Rockwell, \"Connie Williams, RIP\" (December 30, 2007)"
+  },
+  {
+    "id": "q20",
+    "section": "education",
+    "kind": "trivia",
+    "prompt": "Which high school did Williams graduate from?",
+    "choices": [
+      {"id": "a", "text": "Central High School in Philadelphia"},
+      {"id": "b", "text": "Benjamin Franklin High School in North Philadelphia"},
+      {"id": "c", "text": "Dunbar High School in Washington, D.C."},
+      {"id": "d", "text": "Los Angeles High School"}
+    ],
+    "correctId": "b",
+    "explain": "He attended and graduated from Benjamin Franklin High School in North Philadelphia. Dunbar High School is a school he later wrote about. It is not the school he attended.",
+    "source": "Wikipedia, Early life, citing Up from the Projects"
+  },
+  {
+    "id": "q21",
+    "section": "education",
+    "kind": "trivia",
+    "prompt": "What does Hoover's profile say pushed him toward economics as an undergraduate?",
+    "choices": [
+      {"id": "a", "text": "A required course with Milton Friedman at Chicago"},
+      {"id": "b", "text": "Thomas Sowell assigning The Wealth of Nations"},
+      {"id": "c", "text": "Reading W. E. B. Du Bois's Black Reconstruction, and its argument that Black Americans needed to understand the economic system"},
+      {"id": "d", "text": "A Bureau of Labor Statistics job that came with a scholarship"}
+    ],
+    "correctId": "c",
+    "explain": "The Hoover profile says he was inspired to study economics at California State University, Los Angeles, after reading Du Bois's Black Reconstruction.",
+    "source": "Hoover Institution, \"Black History Month Profile: Walter Williams\" (February 5, 2021)"
+  },
+  {
+    "id": "q22",
+    "section": "education",
+    "kind": "trivia",
+    "prompt": "What is the first lesson of Economics for the Citizen, and when did he start that series?",
+    "choices": [
+      {"id": "a", "text": "The first lesson is that a higher minimum wage raises employment. He wrote the series as department chairman in 1995."},
+      {"id": "b", "text": "The first lesson is scarcity. Wants exceed the means to meet them. He started the series during a fall semester off after two terms as chairman."},
+      {"id": "c", "text": "The first lesson is that rent control increases construction. The series is his 1972 dissertation."},
+      {"id": "d", "text": "The series is a high-school textbook the Philadelphia schools adopted in 1960."}
+    ],
+    "correctId": "b",
+    "explain": "In the May 2005 Freeman piece he says the semester off was his reward for two terms as chairman at George Mason, and that he used it to write basic lectures for general readers. The first lesson he states is scarcity.",
+    "source": "Walter E. Williams, \"Economics for the Citizen,\" The Freeman, May 2005, posted at walterewilliams.com"
+  },
+  {
+    "id": "q23",
+    "section": "education",
+    "kind": "scenario",
+    "prompt": "A mayor says a larger school budget will make up for parents who do not get children to school ready to learn. Which reply matches \"Is politics the way?\"",
+    "choices": [
+      {"id": "a", "text": "A high enough per-pupil budget can replace parenting."},
+      {"id": "b", "text": "The money works only if it is reserved for vocational tracks."},
+      {"id": "c", "text": "Spending more cannot replace parenting. Homework, sleep, breakfast, and getting to school on time are not jobs a president or a mayor can do."},
+      {"id": "d", "text": "He does not discuss schools in that column. It is only about taxi medallions."}
+    ],
+    "correctId": "c",
+    "explain": "The November 3, 2004 column says those household tasks are the minimum for a decent K-12 education, and that more spending cannot stand in for them.",
+    "source": "Walter E. Williams, \"Is politics the way?\" walterewilliams.com, November 3, 2004"
+  },
+  {
+    "id": "q24",
+    "section": "education",
+    "kind": "trivia",
+    "prompt": "What did he do at Los Angeles City College before his economics degrees?",
+    "choices": [
+      {"id": "a", "text": "He earned his PhD there in 1965."},
+      {"id": "b", "text": "He attended for one semester after high school, then returned to Philadelphia."},
+      {"id": "c", "text": "He was the college president from 1967 to 1969."},
+      {"id": "d", "text": "He never enrolled. He went from the Army straight into the UCLA doctoral program."}
+    ],
+    "correctId": "b",
+    "explain": "After high school he lived with his father in California and attended Los Angeles City College for one semester, then went back to Philadelphia. He later taught at that college. That teaching job is a different part of the story. The bachelor's degree is from California State College at Los Angeles in 1965.",
+    "source": "Wikipedia, Early life and education, citing Up from the Projects, p. 28"
+  },
+  {
+    "id": "q25",
+    "section": "policy",
+    "kind": "trivia",
+    "prompt": "Which study did the Joint Economic Committee print under his name in 1977?",
+    "choices": [
+      {"id": "a", "text": "Youth and Minority Unemployment, on minimum wages, the Davis-Bacon Act, licensing, and related restrictions"},
+      {"id": "b", "text": "A legislative history of the Davis-Bacon Act that he wrote as a congressional staffer in 1931"},
+      {"id": "c", "text": "A report urging a higher federal minimum wage as the way to cut teen unemployment"},
+      {"id": "d", "text": "The Low-Income Market Place, adopted by the committee as a statute"}
+    ],
+    "correctId": "a",
+    "explain": "The committee print of July 6, 1977 is Youth and Minority Unemployment, by Walter E. Williams. It reviews minimum wages, union rules, the Davis-Bacon Act, licensing, schooling, and manpower policy. Hoover's later profile ties the minimum-wage and Davis-Bacon research to his national fellowship there in the mid-1970s. The profile misspells the statute Davis-Beacon. The print uses Davis-Bacon.",
+    "source": "Joint Economic Committee print, Youth and Minority Unemployment, by Walter E. Williams (July 6, 1977); Hoover Institution profile, February 5, 2021"
+  },
+  {
+    "id": "q26",
+    "section": "policy",
+    "kind": "scenario",
+    "prompt": "An employer must pay the same legal wage to every hire of equal productivity. Which follow-up is the one in \"Discrimination and Liberty\"?",
+    "choices": [
+      {"id": "a", "text": "The law fines an employer who hires across racial lines, so race disappears from the choice."},
+      {"id": "b", "text": "With no wage difference left, indulging a racial preference costs less. His analogy is a law that forces chuck steak to sell at the filet price."},
+      {"id": "c", "text": "Payroll offices then sort applicants by race as a requirement of the statute."},
+      {"id": "d", "text": "He says employers ignore wages and hire only by statute."}
+    ],
+    "correctId": "b",
+    "explain": "He argues that a mandated wage lowers the cost of preferring one worker over another of equal productivity. The filet-and-chuck example makes the same point without race. If both cuts must sell at the filet price, the cheaper cut loses the discount that had been its way in.",
+    "source": "Walter E. Williams, \"Discrimination and Liberty,\" FEE, April 1, 1998"
+  },
+  {
+    "id": "q27",
+    "section": "policy",
+    "kind": "trivia",
+    "prompt": "Besides a wage floor, what does that essay say subsidizes personal preferences?",
+    "choices": [
+      {"id": "a", "text": "Only statutes that name a race. Taxes and licenses do not."},
+      {"id": "b", "text": "Government setting the terms of exchange, including taxes on profits, economic regulation, and occupational licensure"},
+      {"id": "c", "text": "Private boycotts alone. He says government does not change the cost of a preference."},
+      {"id": "d", "text": "School vouchers, which he calls the main subsidy for discrimination in that essay"}
+    ],
+    "correctId": "b",
+    "explain": "The essay treats a minimum wage as one case of a wider pattern. Preferences get a subsidy whenever government dictates the terms of exchange. He names taxes on profits, economic regulation, and occupational licensure.",
+    "source": "Walter E. Williams, \"Discrimination and Liberty,\" FEE, April 1, 1998"
+  },
+  {
+    "id": "q28",
+    "section": "policy",
+    "kind": "scenario",
+    "prompt": "A commentator says every serious problem in black neighborhoods is still a civil-rights problem, so the remedy is another statute. What does \"Is politics the way?\" answer?",
+    "choices": [
+      {"id": "a", "text": "Constitutional protections are still denied, so the next civil-rights statute is the remedy."},
+      {"id": "b", "text": "Family structure and crime are beside the point next to a new voting bill."},
+      {"id": "c", "text": "A president can make children do their homework, so the remedy is national."},
+      {"id": "d", "text": "The struggle over constitutional protections has been won. Discrimination has not vanished. The devastating problems he is discussing are not civil-rights problems, and politics will not solve them."}
+    ],
+    "correctId": "d",
+    "explain": "The November 3, 2004 column says black Americans now have the constitutional protections others have. He does not claim every trace of discrimination is gone. He says the problems of family, schooling, and crime that the column discusses are not civil-rights problems.",
+    "source": "Walter E. Williams, \"Is politics the way?\" walterewilliams.com, November 3, 2004"
+  },
+  {
+    "id": "q29",
+    "section": "race-culture",
+    "kind": "trivia",
+    "prompt": "In \"The Welfare State's Legacy,\" what comparison does he draw for black children in single-parent families?",
+    "choices": [
+      {"id": "a", "text": "About 70 percent in 1960, falling to 22 percent fifty years later, which he credits to the Great Society"},
+      {"id": "b", "text": "22 percent in 1960, and more than 70 percent fifty years later. He asks whether that rise is a legacy of slavery or of the welfare state."},
+      {"id": "c", "text": "No change from 1890 to 2017, so he treats family structure as irrelevant"},
+      {"id": "d", "text": "The Census stopped counting family structure after 1954, so the comparison cannot be made"}
+    ],
+    "correctId": "b",
+    "explain": "The September 20, 2017 column says that in 1960, 22 percent of black children were raised in single-parent families, and that fifty years later the share was more than 70 percent. He poses the slavery-or-welfare-state question in those words.",
+    "source": "Walter E. Williams, \"The Welfare State's Legacy,\" walterewilliams.com, September 20, 2017"
+  },
+  {
+    "id": "q30",
+    "section": "race-culture",
+    "kind": "trivia",
+    "prompt": "What does that 2017 column say about black labor-force activity from 1890 to 1954?",
+    "choices": [
+      {"id": "a", "text": "In every census in that span, blacks were as active as whites or more active, and black teen unemployment was about equal to or lower than white teen unemployment."},
+      {"id": "b", "text": "Blacks were left out of labor-force statistics until the Civil Rights Act."},
+      {"id": "c", "text": "Black teen unemployment was about double the white rate in each of those censuses."},
+      {"id": "d", "text": "He says usable data start in 1965, so earlier decades are out of reach."}
+    ],
+    "correctId": "a",
+    "explain": "He uses those census years to ask whether anyone would claim racial discrimination was lighter then. His explanation for the later pattern is labor rules that cut off the bottom rungs.",
+    "source": "Walter E. Williams, \"The Welfare State's Legacy,\" walterewilliams.com, September 20, 2017"
+  },
+  {
+    "id": "q31",
+    "section": "race-culture",
+    "kind": "trivia",
+    "prompt": "How does \"Discrimination and Liberty\" define discrimination, and what does he treat as the test of a commitment to choice?",
+    "choices": [
+      {"id": "a", "text": "Discrimination means only government action. A private choice is not discrimination."},
+      {"id": "b", "text": "Discrimination is the act of choice. The test is whether you allow choices you find objectionable, not only choices you approve."},
+      {"id": "c", "text": "Any income gap between two groups is discrimination, and it is illegal."},
+      {"id": "d", "text": "Choosing a spouse or a university is the one kind of choice he says the law should ban."}
+    ],
+    "correctId": "b",
+    "explain": "He defines discrimination as choice, then applies the word to picking a university or a mate as well as an employee. The test he states is permission for choices the speaker dislikes.",
+    "source": "Walter E. Williams, \"Discrimination and Liberty,\" FEE, April 1, 1998"
+  },
+  {
+    "id": "q32",
+    "section": "race-culture",
+    "kind": "scenario",
+    "prompt": "A public library, paid for by taxes, wants to turn patrons away by race. What does \"Discrimination and Liberty\" say?",
+    "choices": [
+      {"id": "a", "text": "A public board may exclude by race if it votes to do so."},
+      {"id": "b", "text": "Public libraries are private associations, so the essay leaves access aside."},
+      {"id": "c", "text": "Every citizen is entitled to access, whatever their physical attributes. Charging someone for the service and then denying it is the equivalent of theft."},
+      {"id": "d", "text": "Public schools may sort by race. Public libraries may not."}
+    ],
+    "correctId": "c",
+    "explain": "He draws the line at government-financed services such as schools and libraries. If the public pays, every citizen is entitled to get in. He treats a racial bar there as immoral.",
+    "source": "Walter E. Williams, \"Discrimination and Liberty,\" FEE, April 1, 1998"
+  },
+  {
+    "id": "q33",
+    "section": "race-culture",
+    "kind": "trivia",
+    "prompt": "What historical claim does \"The Welfare State's Legacy\" make about black family structure after slavery?",
+    "choices": [
+      {"id": "a", "text": "The family was weaker in the first decades after emancipation than in the 2010s."},
+      {"id": "b", "text": "There is no evidence on family structure before 1965."},
+      {"id": "c", "text": "He cites a 1938 encyclopedia figure of 11 percent of black children born to unwed mothers, set against about 75 percent in his own time, and says the family was stronger in the first 100 years after slavery than in the second."},
+      {"id": "d", "text": "The 1938 figure he cites is 75 percent, and he treats that as a decline that began under slavery."}
+    ],
+    "correctId": "c",
+    "explain": "The column's bottom line is that neither slavery nor Jim Crow nor the harshest racism has decimated the black family the way the welfare state has. The 11 percent and 75 percent figures are the comparison he uses for births to unwed mothers.",
+    "source": "Walter E. Williams, \"The Welfare State's Legacy,\" walterewilliams.com, September 20, 2017"
+  },
+  {
+    "id": "q34",
+    "section": "books",
+    "kind": "trivia",
+    "prompt": "How many books does his own biographical sketch say he wrote, and what does it say about Good Intentions?",
+    "choices": [
+      {"id": "a", "text": "Three books. Good Intentions is the autobiography."},
+      {"id": "b", "text": "Ten books. The State Against Blacks was later made into the PBS documentary Good Intentions."},
+      {"id": "c", "text": "One book, the dissertation. Good Intentions is a novel by another writer."},
+      {"id": "d", "text": "Twenty books, all published by the Joint Economic Committee."}
+    ],
+    "correctId": "b",
+    "explain": "The sketch says he authored ten books, lists them, and says The State Against Blacks was later made into the PBS documentary Good Intentions.",
+    "source": "Biographical sketch on walterewilliams.com"
+  },
+  {
+    "id": "q35",
+    "section": "books",
+    "kind": "trivia",
+    "prompt": "Which book is the autobiography, and which documentary does his sketch tie to it?",
+    "choices": [
+      {"id": "a", "text": "The State Against Blacks is the autobiography, and Good Intentions is the 2014 film of it."},
+      {"id": "b", "text": "Up from the Projects, Hoover Institution Press, 2010, is the autobiography. The sketch says the PBS documentary Suffer No Fools is based on it."},
+      {"id": "c", "text": "Race and Economics is the autobiography. Suffer No Fools is a film about South Africa."},
+      {"id": "d", "text": "America: A Minority Viewpoint, 1982, is the autobiography, and he names no documentary."}
+    ],
+    "correctId": "b",
+    "explain": "Up from the Projects is the autobiography. His sketch says Suffer No Fools, shown on PBS stations in 2014 and 2015, is based on that book. Good Intentions is the documentary he ties to The State Against Blacks, not to the autobiography.",
+    "source": "Biographical sketch and publications list on walterewilliams.com; Hoover Institution book list dates Up from the Projects to 2010"
+  },
+  {
+    "id": "q36",
+    "section": "books",
+    "kind": "trivia",
+    "prompt": "What subtitle, year, and publisher does he list for Race and Economics?",
+    "choices": [
+      {"id": "a", "text": "How Much Can Be Blamed on Discrimination? Hoover Institution Press, 2011."},
+      {"id": "b", "text": "The Case for Reparations. McGraw-Hill, 1982."},
+      {"id": "c", "text": "A Novel of Philadelphia. Regnery, 1987."},
+      {"id": "d", "text": "Minutes of the Department. George Mason University, 2001."}
+    ],
+    "correctId": "a",
+    "explain": "His publications page and his biographical sketch both give Race and Economics the subtitle How Much Can Be Blamed on Discrimination? and place it with Hoover in 2011.",
+    "source": "Publications page and biographical sketch on walterewilliams.com"
+  },
+  {
+    "id": "q37",
+    "section": "books",
+    "kind": "trivia",
+    "prompt": "Which of his real books is the 1995 Hoover collection subtitled The People's Economist Speaks?",
+    "choices": [
+      {"id": "a", "text": "All It Takes Is Guts"},
+      {"id": "b", "text": "South Africa's War Against Capitalism"},
+      {"id": "c", "text": "Do the Right Thing"},
+      {"id": "d", "text": "Liberty Versus the Tyranny of Socialism"}
+    ],
+    "correctId": "c",
+    "explain": "Do the Right Thing: The People's Economist Speaks is the 1995 Hoover book. All It Takes Is Guts is a 1987 Regnery collection. South Africa's War Against Capitalism is the 1989 Praeger monograph. Liberty Versus the Tyranny of Socialism is a 2008 Hoover essay collection.",
+    "source": "Publications list and biographical sketch on walterewilliams.com"
   }
 ]
