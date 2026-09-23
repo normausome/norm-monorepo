@@ -9,7 +9,7 @@ Sticky playground for weekday X-bookmark tech demos. One app per pick under `app
 - Prefer Bun. Each app must be self-contained: `bun install && bun run dev` from its folder.
 - Before any `bun install` / `bun add` in a new app, ensure `bunfig.toml` has `[install] minimumReleaseAge = 259200`.
 - Plan with `skills/project-planning/` (or the app's `PLAN.md`).
-- Open one pull request per demo. Do not push to `main`. The Demo workflow records a desktop shot, a mobile shot, a shot after the first clicks, and a short video for each changed app that has a Vite preview, then commits them under `.demo-capture/` on the pull request.
+- Open one pull request per demo. Do not push to `main`. On this Mac, run `.github/demo/record-local.sh <slug>` before pushing. It builds the app and records in a browser on this computer, writing `.demo-capture/<slug>/`. The Demo workflow on the pull request records the same kind of pass again on a GitHub-hosted machine.
 
 ## Layout
 
