@@ -96,15 +96,24 @@ jobs:
           git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
 
       - name: Comment with the stills and the video
-        if: steps.gate.outputs.skip != 'true' && env.recorded != '0'
+        if: steps.gate.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
+          found=0
+          for dir in .demo-capture/*; do
+            [ -d "$dir" ] || continue
+            found=1
+          done
+          if [ "$found" != 1 ]; then
+            echo "No recording on this branch."
+            exit 0
+          fi
           SHA=$(git rev-parse HEAD)
           body="<!-- demo-capture -->"$'\n'"## Demo"$'\n'
-          body+="The first still is the page as it loads. The second is after the first button clicks. The third is the phone width. The video is that same pass."$'\n'
+          body+="The first still is the page as it loads. The second is after the first button clicks. The third is the phone width. Open the video link to play the pass."$'\n'
           for dir in .demo-capture/*; do
             [ -d "$dir" ] || continue
             slug=$(basename "$dir")
@@ -113,6 +122,6 @@ jobs:
             body+="![desktop](${raw}/desktop.png)"$'\n'
             body+="![after clicks](${raw}/after.png)"$'\n'
             body+="![mobile](${raw}/mobile.png)"$'\n'
-            body+="[Short video](${raw}/demo.webm)"$'\n'
+            body+="[Play the video](${raw}/demo.webm)"$'\n'
           done
           gh pr comment "$PR" --body "$body"
