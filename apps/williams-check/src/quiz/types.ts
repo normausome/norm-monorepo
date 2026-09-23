@@ -28,5 +28,6 @@ export type QuizAction =
   | { type: "START"; seed: string | null; section: SectionChoice }
   | { type: "ANSWER"; choiceId: string }
   | { type: "NEXT" }
+  | { type: "JUMP"; index: number }
   | { type: "PLAY_AGAIN"; seed: string | null; section: SectionChoice }
   | { type: "TO_TITLE" }
