@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card"
 import {
   SECTION_ORDER,
+  SECTION_SOURCE_URL,
   choiceLabel,
   questionsFor,
   sectionLabel,
@@ -144,6 +145,7 @@ function TitleScreen({
   onStart: () => void
 }) {
   const count = questionsFor(section).length
+  const sourceUrl = section === "all" ? undefined : SECTION_SOURCE_URL[section]
   const options: SectionChoice[] = ["all", ...SECTION_ORDER]
   const blurb =
     section === "all"
@@ -173,6 +175,7 @@ function TitleScreen({
                 variant={selected ? "default" : "outline"}
                 role="radio"
                 aria-checked={selected}
+                className="h-auto min-h-8 max-w-full whitespace-normal py-1"
                 onClick={() => onSection(option)}
               >
                 {choiceLabel(option)}
@@ -183,6 +186,18 @@ function TitleScreen({
             )
           })}
         </div>
+        {sourceUrl ? (
+          <a
+            href={sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 block rounded border p-3 text-center break-all text-primary"
+          >
+            Watch the 1993 talk
+            <span className="mt-1 block">{sourceUrl}</span>
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        ) : null}
       </CardContent>
       <CardFooter className="justify-center border-t pt-6">
         <Button size="lg" type="button" onClick={onStart} disabled={count === 0}>
@@ -219,6 +234,7 @@ function QuizStep({
   onNext: () => void
 }) {
   const question = phase.order[phase.index]!
+  const sourceUrl = SECTION_SOURCE_URL[question.section]
   const isFeedback = phase.type === "feedback"
   const selectedId = isFeedback ? phase.selectedId : null
   const correct = selectedId
@@ -237,6 +253,17 @@ function QuizStep({
           </div>
           <span className="text-xs text-muted-foreground">{progressLabel}</span>
         </div>
+        {sourceUrl ? (
+          <a
+            href={sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block max-w-full text-xs break-all text-primary underline underline-offset-4"
+          >
+            {sourceUrl}
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        ) : null}
         <CardTitle className="text-left text-lg leading-snug sm:text-xl">
           {question.prompt}
         </CardTitle>
