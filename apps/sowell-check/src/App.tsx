@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer, useSyncExternalStore } from "react"
+import { useCallback, useMemo, useReducer, useState, useSyncExternalStore } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -9,16 +9,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { QUESTION_COUNT } from "@/data/questions"
+import {
+  SECTION_ORDER,
+  choiceLabel,
+  questionsFor,
+  sectionLabel,
+} from "@/data/questions"
+import type { Question, SectionChoice } from "@/data/questions"
 import {
   initialQuizPhase,
   isAnswerCorrect,
   quizReducer,
   scoreTakeaway,
+  sectionOfRun,
+  tallyBySection,
   tallyScore,
 } from "@/quiz/engine"
 import { parseSeedFromHash } from "@/quiz/seed"
-import type { QuizAction } from "@/quiz/types"
+import type { QuizAction, QuizPhase } from "@/quiz/types"
 import {
   ArrowRight,
   BookOpen,
@@ -44,6 +52,7 @@ function useUrlSeed(): string | null {
 
 export function App() {
   const seed = useUrlSeed()
+  const [section, setSection] = useState<SectionChoice>("all")
   const [phase, dispatch] = useReducer(quizReducer, initialQuizPhase)
 
   const send = useCallback(
@@ -76,36 +85,21 @@ export function App() {
           Sowell Check
         </h1>
         <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground">
-          Fourteen multiple-choice questions on Thomas Sowell’s economics and
-          social themes. Add{" "}
+          A Thomas Sowell quiz in sections. Pick one, or play All. Add{" "}
           <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
             #seed=your-run
           </code>{" "}
-          to shuffle order for a shareable run.
+          to shuffle that set.
         </p>
       </header>
 
       <main className="flex flex-1 flex-col">
         {phase.type === "title" && (
-          <Card className="mx-auto w-full max-w-lg">
-            <CardHeader className="text-center">
-              <CardTitle>Ready when you are</CardTitle>
-              <CardDescription>
-                One question at a time. After each answer you get a short
-                explanation and source line. Fourteen Morgan-verified questions.
-              </CardDescription>
-            </CardHeader>
-            <CardFooter className="justify-center border-t pt-6">
-              <Button
-                size="lg"
-                type="button"
-                onClick={() => send({ type: "START", seed })}
-              >
-                Start quiz
-                <ArrowRight className="size-4" />
-              </Button>
-            </CardFooter>
-          </Card>
+          <TitleScreen
+            section={section}
+            onSection={setSection}
+            onStart={() => send({ type: "START", seed, section })}
+          />
         )}
 
         {(phase.type === "question" || phase.type === "feedback") && (
@@ -119,13 +113,15 @@ export function App() {
 
         {phase.type === "end" && (
           <EndScreen
-            score={tallyScore(phase.order, phase.answers)}
-            total={phase.order.length}
-            takeaway={scoreTakeaway(
-              tallyScore(phase.order, phase.answers),
-              phase.order.length,
-            )}
-            onPlayAgain={() => send({ type: "PLAY_AGAIN", seed })}
+            phase={phase}
+            onPlayAgain={() =>
+              send({
+                type: "PLAY_AGAIN",
+                seed,
+                section: sectionOfRun(phase.order),
+              })
+            }
+            onChooseSection={() => send({ type: "BACK_TO_TITLE" })}
           />
         )}
       </main>
@@ -135,6 +131,66 @@ export function App() {
         Institution.
       </footer>
     </div>
+  )
+}
+
+function TitleScreen({
+  section,
+  onSection,
+  onStart,
+}: {
+  section: SectionChoice
+  onSection: (section: SectionChoice) => void
+  onStart: () => void
+}) {
+  const count = questionsFor(section).length
+  const options: SectionChoice[] = ["all", ...SECTION_ORDER]
+  const blurb =
+    section === "all"
+      ? `${count} questions across ${SECTION_ORDER.length} sections. One at a time, then a short explanation and a source line.`
+      : `${count} questions on ${choiceLabel(section)}. One at a time, then a short explanation and a source line.`
+
+  return (
+    <Card className="mx-auto w-full max-w-lg">
+      <CardHeader className="text-center">
+        <CardTitle>Pick a section</CardTitle>
+        <CardDescription>{blurb}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div
+          role="radiogroup"
+          aria-label="Quiz section"
+          className="flex flex-wrap justify-center gap-2"
+        >
+          {options.map((option) => {
+            const selected = option === section
+            const optionCount = questionsFor(option).length
+            return (
+              <Button
+                key={option}
+                type="button"
+                size="sm"
+                variant={selected ? "default" : "outline"}
+                role="radio"
+                aria-checked={selected}
+                onClick={() => onSection(option)}
+              >
+                {choiceLabel(option)}
+                <span className={selected ? "opacity-80" : "text-muted-foreground"}>
+                  {optionCount}
+                </span>
+              </Button>
+            )
+          })}
+        </div>
+      </CardContent>
+      <CardFooter className="justify-center border-t pt-6">
+        <Button size="lg" type="button" onClick={onStart} disabled={count === 0}>
+          Start quiz
+          <ArrowRight className="size-4" />
+        </Button>
+      </CardFooter>
+    </Card>
   )
 }
 
@@ -148,13 +204,13 @@ function QuizStep({
     | {
         type: "question"
         index: number
-        order: import("@/data/questions").Question[]
+        order: Question[]
         answers: (string | null)[]
       }
     | {
         type: "feedback"
         index: number
-        order: import("@/data/questions").Question[]
+        order: Question[]
         answers: (string | null)[]
         selectedId: string
       }
@@ -173,9 +229,12 @@ function QuizStep({
     <Card className="w-full">
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <Badge variant="secondary">
-            {question.kind === "trivia" ? "Trivia" : "Scenario"}
-          </Badge>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="secondary">{sectionLabel(question.section)}</Badge>
+            <Badge variant="outline">
+              {question.kind === "trivia" ? "Trivia" : "Scenario"}
+            </Badge>
+          </div>
           <span className="text-xs text-muted-foreground">{progressLabel}</span>
         </div>
         <CardTitle className="text-left text-lg leading-snug sm:text-xl">
@@ -259,32 +318,55 @@ function QuizStep({
 }
 
 function EndScreen({
-  score,
-  total,
-  takeaway,
+  phase,
   onPlayAgain,
+  onChooseSection,
 }: {
-  score: number
-  total: number
-  takeaway: string
+  phase: Extract<QuizPhase, { type: "end" }>
   onPlayAgain: () => void
+  onChooseSection: () => void
 }) {
+  const score = tallyScore(phase.order, phase.answers)
+  const total = phase.order.length
+  const rows = tallyBySection(phase.order, phase.answers)
+  const runSection = sectionOfRun(phase.order)
+  const runLabel =
+    runSection === "all" ? "All sections" : choiceLabel(runSection)
+
   return (
     <Card className="mx-auto w-full max-w-lg text-center">
       <CardHeader>
         <CardTitle>Run complete</CardTitle>
-        <CardDescription>{takeaway}</CardDescription>
+        <CardDescription>
+          {scoreTakeaway(score, total)}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <p className="text-4xl font-semibold tabular-nums tracking-tight">
           {score}/{total}
         </p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          out of {QUESTION_COUNT} questions
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">{runLabel}</p>
+        {rows.length > 1 ? (
+          <ul className="mx-auto mt-6 max-w-xs space-y-2 text-left text-sm">
+            {rows.map((row) => (
+              <li
+                key={row.section}
+                className="flex items-center justify-between gap-4 border-b border-border/70 pb-2"
+              >
+                <span>{sectionLabel(row.section)}</span>
+                <span className="tabular-nums text-muted-foreground">
+                  {row.correct}/{row.total}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </CardContent>
-      <CardFooter className="justify-center border-t pt-6">
-        <Button type="button" variant="outline" onClick={onPlayAgain}>
+      <CardFooter className="justify-center gap-2 border-t pt-6">
+        <Button type="button" variant="outline" onClick={onChooseSection}>
+          Choose section
+        </Button>
+        <Button type="button" onClick={onPlayAgain}>
           <RotateCcw className="size-4" />
           Play again
         </Button>
