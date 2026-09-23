@@ -256,4 +256,29 @@ describe("quizReducer", () => {
     expect(state.index).toBe(1)
     expect(state.order[1]?.section).toBe("economics")
   })
+
+  test("JUMP returns to an earlier answered question without changing score", () => {
+    let state = quizReducer(initialQuizPhase, {
+      type: "START",
+      seed: null,
+      section: "personal",
+    })
+    if (state.type !== "question") throw new Error("expected question")
+    const firstId = state.order[0]!.id
+    state = quizReducer(state, {
+      type: "ANSWER",
+      choiceId: state.order[0]!.correctId,
+    })
+    state = quizReducer(state, { type: "NEXT" })
+    if (state.type !== "question" || state.index !== 1) {
+      throw new Error("expected question index 1")
+    }
+    state = quizReducer(state, { type: "JUMP", index: 0 })
+    expect(state.type).toBe("feedback")
+    if (state.type !== "feedback") return
+    expect(state.index).toBe(0)
+    expect(state.order[0]!.id).toBe(firstId)
+    expect(state.answers[0]).toBe(state.order[0]!.correctId)
+    expect(state.answers[1]).toBeNull()
+  })
 })

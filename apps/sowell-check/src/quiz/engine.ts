@@ -117,6 +117,29 @@ export function quizReducer(state: QuizPhase, action: QuizAction): QuizPhase {
         answers: state.answers,
       }
     }
+    case "JUMP": {
+      if (state.type !== "question" && state.type !== "feedback") return state
+      const target = action.index
+      if (target < 0 || target >= state.order.length || target > state.index) {
+        return state
+      }
+      const pick = state.answers[target]
+      if (pick) {
+        return {
+          type: "feedback",
+          index: target,
+          order: state.order,
+          answers: state.answers,
+          selectedId: pick,
+        }
+      }
+      return {
+        type: "question",
+        index: target,
+        order: state.order,
+        answers: state.answers,
+      }
+    }
     case "PLAY_AGAIN":
       return quizReducer(
         { type: "title" },

@@ -116,4 +116,23 @@ describe("section runs", () => {
     })
     expect(quizReducer(started, { type: "TO_TITLE" })).toEqual({ type: "title" })
   })
+
+  test("JUMP revisits an earlier answer in place", () => {
+    let state = quizReducer(initialQuizPhase, {
+      type: "START",
+      seed: null,
+      section: "personal",
+    })
+    if (state.type !== "question") throw new Error("expected question")
+    state = quizReducer(state, {
+      type: "ANSWER",
+      choiceId: state.order[0]!.correctId,
+    })
+    state = quizReducer(state, { type: "NEXT" })
+    state = quizReducer(state, { type: "JUMP", index: 0 })
+    expect(state.type).toBe("feedback")
+    if (state.type !== "feedback") return
+    expect(state.index).toBe(0)
+    expect(state.answers[0]).toBe(state.order[0]!.correctId)
+  })
 })

@@ -32,6 +32,10 @@ import {
   RotateCcw,
   XCircle,
 } from "lucide-react"
+import {
+  QuestionSetOverview,
+  RunQuestionNav,
+} from "@/components/quiz-question-overview"
 import { renderExplainWithLinks } from "@/lib/explain-links"
 import { cn } from "@/lib/utils"
 
@@ -125,6 +129,14 @@ export function App() {
                   />
                 ))}
               </div>
+              <QuestionSetOverview
+                questions={questionsIn(section)}
+                sectionOrder={SECTION_IDS}
+                sectionLabel={(id) =>
+                  sectionLabel(id as (typeof SECTION_IDS)[number])
+                }
+                groupSections={section === "all"}
+              />
             </CardContent>
             <CardFooter className="justify-center border-t pt-6">
               <Button
@@ -141,13 +153,25 @@ export function App() {
         )}
 
         {(phase.type === "question" || phase.type === "feedback") && (
-          <QuizStep
-            phase={phase}
-            progressLabel={progressLabel ?? ""}
-            onAnswer={(choiceId) => send({ type: "ANSWER", choiceId })}
-            onNext={() => send({ type: "NEXT" })}
-            onSections={() => send({ type: "TO_TITLE" })}
-          />
+          <>
+            <RunQuestionNav
+              order={phase.order}
+              index={phase.index}
+              answers={phase.answers}
+              sectionLabel={(id) =>
+                sectionLabel(id as (typeof SECTION_IDS)[number])
+              }
+              showSectionLabels={phase.section === "all"}
+              onJump={(targetIndex) => send({ type: "JUMP", index: targetIndex })}
+            />
+            <QuizStep
+              phase={phase}
+              progressLabel={progressLabel ?? ""}
+              onAnswer={(choiceId) => send({ type: "ANSWER", choiceId })}
+              onNext={() => send({ type: "NEXT" })}
+              onSections={() => send({ type: "TO_TITLE" })}
+            />
+          </>
         )}
 
         {phase.type === "end" && (

@@ -36,6 +36,10 @@ import {
   RotateCcw,
   XCircle,
 } from "lucide-react"
+import {
+  QuestionSetOverview,
+  RunQuestionNav,
+} from "@/components/quiz-question-overview"
 import { renderExplainWithLinks } from "@/lib/explain-links"
 import { cn } from "@/lib/utils"
 
@@ -106,12 +110,23 @@ export function App() {
         )}
 
         {(phase.type === "question" || phase.type === "feedback") && (
-          <QuizStep
-            phase={phase}
-            progressLabel={progressLabel ?? ""}
-            onAnswer={(choiceId) => send({ type: "ANSWER", choiceId })}
-            onNext={() => send({ type: "NEXT" })}
-          />
+          <>
+            <RunQuestionNav
+              order={phase.order}
+              index={phase.index}
+              answers={phase.answers}
+              sectionLabel={(id) => sectionLabel(id as Question["section"])}
+              showSectionLabels={sectionOfRun(phase.order) === "all"}
+              onJump={(targetIndex) => send({ type: "JUMP", index: targetIndex })}
+            />
+            <QuizStep
+              phase={phase}
+              progressLabel={progressLabel ?? ""}
+              onAnswer={(choiceId) => send({ type: "ANSWER", choiceId })}
+              onNext={() => send({ type: "NEXT" })}
+              onSections={() => send({ type: "BACK_TO_TITLE" })}
+            />
+          </>
         )}
 
         {phase.type === "end" && (
@@ -202,6 +217,12 @@ function TitleScreen({
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
         ) : null}
+        <QuestionSetOverview
+          questions={questionsFor(section)}
+          sectionOrder={SECTION_ORDER}
+          sectionLabel={(id) => sectionLabel(id as Question["section"])}
+          groupSections={section === "all"}
+        />
       </CardContent>
       <CardFooter className="justify-center border-t pt-6">
         <Button size="lg" type="button" onClick={onStart} disabled={count === 0}>
@@ -218,6 +239,7 @@ function QuizStep({
   progressLabel,
   onAnswer,
   onNext,
+  onSections,
 }: {
   phase:
     | {
@@ -236,6 +258,7 @@ function QuizStep({
   progressLabel: string
   onAnswer: (choiceId: string) => void
   onNext: () => void
+  onSections: () => void
 }) {
   const question = phase.order[phase.index]!
   const sourceUrl = SECTION_SOURCE_URL[question.section]
@@ -338,14 +361,19 @@ function QuizStep({
           </div>
         )}
       </CardContent>
-      {isFeedback && (
-        <CardFooter className="justify-end border-t pt-6">
+      <CardFooter className="justify-between border-t pt-6">
+        <Button type="button" variant="ghost" onClick={onSections}>
+          Sections
+        </Button>
+        {isFeedback ? (
           <Button type="button" onClick={onNext}>
             {phase.index + 1 >= phase.order.length ? "See score" : "Next"}
             <ArrowRight className="size-4" />
           </Button>
-        </CardFooter>
-      )}
+        ) : (
+          <span />
+        )}
+      </CardFooter>
     </Card>
   )
 }
