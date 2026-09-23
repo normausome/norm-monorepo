@@ -18,12 +18,14 @@ Two shapes.
 
 Clone wins. A second control would be a new stack. The ask is to copy Sowell Check. Mixed format stays trivia plus scenario. Williams-specific content lives in the bank.
 
+Sections were added later. They are a field on each question and an argument to `START`, not a new phase and not a score history.
+
 ## MVP
 
 - `apps/williams-check`, package name `williams-check`
-- 14 questions, 7 trivia and 7 scenario
-- Themes in the bank: markets, unintended consequences, race and economics, price controls, licensing, minimum wages
-- Same scripts as Sowell Check
+- Questions tagged with a section. The title screen picks one section or All.
+- The phase machine stays title, question, feedback, end. `START` filters the bank, then shuffles.
+- The score is the current run. There is no saved best score.
 - No backend, no deploy
 
 ## Attribution rule

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer, useSyncExternalStore } from "react"
+import { useCallback, useMemo, useReducer, useState, useSyncExternalStore } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -9,7 +9,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { QUESTION_COUNT } from "@/data/questions"
+import {
+  QUESTION_COUNT,
+  SECTION_IDS,
+  questionsIn,
+  sectionLabel,
+} from "@/data/questions"
+import type { SectionChoice } from "@/data/questions"
 import {
   initialQuizPhase,
   isAnswerCorrect,
@@ -18,7 +24,7 @@ import {
   tallyScore,
 } from "@/quiz/engine"
 import { parseSeedFromHash } from "@/quiz/seed"
-import type { QuizAction } from "@/quiz/types"
+import type { QuizAction, QuizPhase } from "@/quiz/types"
 import {
   ArrowRight,
   BookOpen,
@@ -45,6 +51,7 @@ function useUrlSeed(): string | null {
 export function App() {
   const seed = useUrlSeed()
   const [phase, dispatch] = useReducer(quizReducer, initialQuizPhase)
+  const [section, setSection] = useState<SectionChoice>("all")
 
   const send = useCallback(
     (action: QuizAction) => {
@@ -76,33 +83,56 @@ export function App() {
           Williams Check
         </h1>
         <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground">
-          Fourteen multiple-choice questions on Walter E. Williams. Markets,
-          price controls, licensing, and race and economics. Add{" "}
+          Multiple-choice questions on Walter E. Williams, split into sections
+          from his life and his arguments. Play one section or all of them.
+          Add{" "}
           <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
             #seed=your-run
           </code>{" "}
-          to shuffle order for a shareable run.
+          to shuffle the chosen set.
         </p>
       </header>
 
       <main className="flex flex-1 flex-col">
         {phase.type === "title" && (
-          <Card className="mx-auto w-full max-w-lg">
+          <Card className="mx-auto w-full">
             <CardHeader className="text-center">
-              <CardTitle>Ready when you are</CardTitle>
+              <CardTitle>Pick a section</CardTitle>
               <CardDescription>
                 One question at a time. After each answer you get a short
-                explanation and a source line. Trivia and scenarios, fourteen
-                questions.
+                explanation and a source line. The score is for the set you
+                start.
               </CardDescription>
             </CardHeader>
+            <CardContent>
+              <div
+                className="flex flex-wrap justify-center gap-2"
+                role="group"
+                aria-label="Quiz section"
+              >
+                <SectionChip
+                  pressed={section === "all"}
+                  label={`All · ${QUESTION_COUNT}`}
+                  onClick={() => setSection("all")}
+                />
+                {SECTION_IDS.map((id) => (
+                  <SectionChip
+                    key={id}
+                    pressed={section === id}
+                    label={`${sectionLabel(id)} · ${questionsIn(id).length}`}
+                    onClick={() => setSection(id)}
+                  />
+                ))}
+              </div>
+            </CardContent>
             <CardFooter className="justify-center border-t pt-6">
               <Button
                 size="lg"
                 type="button"
-                onClick={() => send({ type: "START", seed })}
+                disabled={questionsIn(section).length === 0}
+                onClick={() => send({ type: "START", seed, section })}
               >
-                Start quiz
+                Start {sectionLabel(section)}
                 <ArrowRight className="size-4" />
               </Button>
             </CardFooter>
@@ -115,6 +145,7 @@ export function App() {
             progressLabel={progressLabel ?? ""}
             onAnswer={(choiceId) => send({ type: "ANSWER", choiceId })}
             onNext={() => send({ type: "NEXT" })}
+            onSections={() => send({ type: "TO_TITLE" })}
           />
         )}
 
@@ -122,11 +153,16 @@ export function App() {
           <EndScreen
             score={tallyScore(phase.order, phase.answers)}
             total={phase.order.length}
+            sectionName={sectionLabel(phase.section)}
             takeaway={scoreTakeaway(
               tallyScore(phase.order, phase.answers),
               phase.order.length,
+              phase.section,
             )}
-            onPlayAgain={() => send({ type: "PLAY_AGAIN", seed })}
+            onPlayAgain={() =>
+              send({ type: "PLAY_AGAIN", seed, section: phase.section })
+            }
+            onSections={() => send({ type: "TO_TITLE" })}
           />
         )}
       </main>
@@ -139,29 +175,40 @@ export function App() {
   )
 }
 
+function SectionChip({
+  pressed,
+  label,
+  onClick,
+}: {
+  pressed: boolean
+  label: string
+  onClick: () => void
+}) {
+  return (
+    <Button
+      type="button"
+      size="sm"
+      variant={pressed ? "default" : "outline"}
+      aria-pressed={pressed}
+      onClick={onClick}
+    >
+      {label}
+    </Button>
+  )
+}
+
 function QuizStep({
   phase,
   progressLabel,
   onAnswer,
   onNext,
+  onSections,
 }: {
-  phase:
-    | {
-        type: "question"
-        index: number
-        order: import("@/data/questions").Question[]
-        answers: (string | null)[]
-      }
-    | {
-        type: "feedback"
-        index: number
-        order: import("@/data/questions").Question[]
-        answers: (string | null)[]
-        selectedId: string
-      }
+  phase: Extract<QuizPhase, { type: "question" | "feedback" }>
   progressLabel: string
   onAnswer: (choiceId: string) => void
   onNext: () => void
+  onSections: () => void
 }) {
   const question = phase.order[phase.index]!
   const isFeedback = phase.type === "feedback"
@@ -174,9 +221,12 @@ function QuizStep({
     <Card className="w-full">
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <Badge variant="secondary">
-            {question.kind === "trivia" ? "Trivia" : "Scenario"}
-          </Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline">{sectionLabel(phase.section)}</Badge>
+            <Badge variant="secondary">
+              {question.kind === "trivia" ? "Trivia" : "Scenario"}
+            </Badge>
+          </div>
           <span className="text-xs text-muted-foreground">{progressLabel}</span>
         </div>
         <CardTitle className="text-left text-lg leading-snug sm:text-xl">
@@ -247,14 +297,19 @@ function QuizStep({
           </div>
         )}
       </CardContent>
-      {isFeedback && (
-        <CardFooter className="justify-end border-t pt-6">
+      <CardFooter className="justify-between border-t pt-6">
+        <Button type="button" variant="ghost" onClick={onSections}>
+          Sections
+        </Button>
+        {isFeedback ? (
           <Button type="button" onClick={onNext}>
             {phase.index + 1 >= phase.order.length ? "See score" : "Next"}
             <ArrowRight className="size-4" />
           </Button>
-        </CardFooter>
-      )}
+        ) : (
+          <span />
+        )}
+      </CardFooter>
     </Card>
   )
 }
@@ -262,13 +317,17 @@ function QuizStep({
 function EndScreen({
   score,
   total,
+  sectionName,
   takeaway,
   onPlayAgain,
+  onSections,
 }: {
   score: number
   total: number
+  sectionName: string
   takeaway: string
   onPlayAgain: () => void
+  onSections: () => void
 }) {
   return (
     <Card className="mx-auto w-full max-w-lg text-center">
@@ -280,14 +339,15 @@ function EndScreen({
         <p className="text-4xl font-semibold tabular-nums tracking-tight">
           {score}/{total}
         </p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          out of {QUESTION_COUNT} questions
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">{sectionName}</p>
       </CardContent>
-      <CardFooter className="justify-center border-t pt-6">
-        <Button type="button" variant="outline" onClick={onPlayAgain}>
+      <CardFooter className="justify-center gap-2 border-t pt-6">
+        <Button type="button" variant="outline" onClick={onSections}>
+          Sections
+        </Button>
+        <Button type="button" onClick={onPlayAgain}>
           <RotateCcw className="size-4" />
-          Play again
+          Replay
         </Button>
       </CardFooter>
     </Card>
