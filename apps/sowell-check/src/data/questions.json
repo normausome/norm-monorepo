@@ -510,7 +510,7 @@
     ],
     "correctId": "c",
     "explain": "He has been a Hoover senior fellow since 1980. The current title is Rose and Milton Friedman Senior Fellow on Public Policy, Emeritus. The National Humanities Medal (2002) and the Bradley Prize (2003) are separate honors.",
-    "source": "Hoover Institution profile page"
+    "source": "National Humanities Medal, 2002, https://www.neh.gov/about/awards/national-humanities-medals/thomas-sowell ; Harvard Gazette, 2 October 2003, names him a winner of the first Bradley Prize, https://news.harvard.edu/gazette/story/2003/10/glendon-wins-bradley-prize/"
   },
   {
     "id": "q21",
@@ -645,7 +645,7 @@
     ],
     "correctId": "b",
     "explain": "He uses the term for minorities whose economic niche is in the middle of other people's transactions. Overseas trading minorities are the usual examples in that literature. The point is occupational history and the politics around it, not a biological ranking.",
-    "source": "Sowell's comparative writing on middleman minorities, including Race and Culture and related ethnic studies"
+    "source": "Thomas Sowell, “Is Anti-Semitism Generic?,” Hoover Digest 2005, no. 3, adapted from Black Rednecks and White Liberals, https://www.hoover.org/research/anti-semitism-generic"
   },
   {
     "id": "q26",
@@ -779,8 +779,8 @@
       }
     ],
     "correctId": "a",
-    "explain": "The New York Times of June 2, 1969, reported his resignation under the headline that leniency hurts blacks. That spring, students seized Willard Straight Hall. He later retold the crisis in the essay The Day Cornell Died. He resigned. He was not fired, and he did not leave to become a university president.",
-    "source": "New York Times, June 2, 1969; Sowell, The Day Cornell Died (1999)"
+    "explain": "In “The Day Cornell Died” he writes that he resigned in August 1968, effective at the end of that academic year, not in June 1969 after the crisis. Students seized Willard Straight Hall in April 1969. The essay says black students admitted under lower academic standards were in academic trouble. It does not use the word leniency. The New York Times of 2 June 1969 was not opened for this check.",
+    "source": "Thomas Sowell, “The Day Cornell Died,” Hoover Digest, 30 October 1999, https://www.hoover.org/research/day-cornell-died"
   },
   {
     "id": "q31",
@@ -984,7 +984,7 @@
     ],
     "correctId": "b",
     "explain": "Sowell says the Garden of Eden was not an economy because there was no scarcity.",
-    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+    "source": "Thomas Sowell, Institution for World Capitalism, Jacksonville, 14 October 1993. Alvarism upload https://www.youtube.com/watch?v=Wh-qTnq-cwM , auto-captions about 3:02."
   },
   {
     "id": "econ-pol-1993-q02",
@@ -999,7 +999,7 @@
     ],
     "correctId": "c",
     "explain": "Sowell calls the first lesson of politics “Forget the first lesson of economics.”",
-    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+    "source": "Thomas Sowell, Institution for World Capitalism, Jacksonville, 14 October 1993. Alvarism upload https://www.youtube.com/watch?v=Wh-qTnq-cwM , auto-captions about 3:45."
   },
   {
     "id": "econ-pol-1993-q03",
@@ -1014,7 +1014,7 @@
     ],
     "correctId": "b",
     "explain": "Sowell redefines “politics is the art of the possible” as the art of the plausible.",
-    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+    "source": "Thomas Sowell, Institution for World Capitalism, Jacksonville, 14 October 1993. Alvarism upload https://www.youtube.com/watch?v=Wh-qTnq-cwM , auto-captions about 4:02."
   },
   {
     "id": "econ-pol-1993-q04",
@@ -1029,7 +1029,7 @@
     ],
     "correctId": "b",
     "explain": "Sowell says economists estimated that a decade of a baby airplane-seat mandate would save 1 baby life, lose about 60 other lives, and cost about $72 million. Outside research. McKenzie and Lee, Cato Briefing Paper No. 11, 30 August 1990, [Ending the Free Airplane Rides of Infants](https://web.archive.org/web/20020803113933/http://www.cato.org/pubs/briefs/bp-011.html), say driving was at least 30 times deadlier per mile than scheduled airline travel. They cite a 4 June 1990 Department of Transportation draft that mandatory seats could have prevented at most one infant airline death since 1978. Their model estimates just under 5 extra highway deaths a year. Note 23 sets that against 1 airline life over 12 years, which is 60 highway deaths for each airline life saved. The paper puts extra wreck losses at $6 million a year. It does not print $72 million. Twelve times the annual wreck-loss figure is $72 million, which is how the quiz dollar amount can be reconstructed, and it remains an inference. A December 2011 FAA update, [child-restraint tradeoff PDF](https://web.archive.org/web/20161118013447/https://www.transportation.gov/sites/dot.gov/files/docs/2011-12-29-child-restraint-update.pdf), uses 72 as extra transportation deaths over 10 years, against about 1 infant life over 10 to 15 years. The FAA's 1995 report to Congress, summarized in the [26 August 2005 Federal Register notice](https://www.federalregister.gov/documents/2005/08/26/05-16783/child-restraint-systems), estimated about five infant lives saved on aircraft over 10 years and still found a net increase in deaths.",
-    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+    "source": "Thomas Sowell, Institution for World Capitalism, Jacksonville, 14 October 1993. Alvarism upload https://www.youtube.com/watch?v=Wh-qTnq-cwM , auto-captions about 6:01."
   },
   {
     "id": "econ-pol-1993-q05",
@@ -1044,7 +1044,7 @@
     ],
     "correctId": "b",
     "explain": "Sowell says zero died in the Three Mile Island disaster, two died on the highway fleeing, and about 52 lives were lost generating replacement power while the plant was shut. Outside research. The Department of Energy says the accident caused no injuries, deaths, or direct health effects. See [5 Facts to Know About Three Mile Island](https://www.energy.gov/ne/articles/5-facts-know-about-three-mile-island). A Sentinel report reprinted by Dickinson College says one person who fled was killed and another was seriously injured. The death was Kristoff Lo Piccolo, age 6, who drowned in Maryland. Paula Matincheck, age 21, was critically injured in a two-car collision and is not described as dead. See [the Sentinel evacuation report](https://tmi.dickinson.edu/the-sentinel-carlisle-pa-evacuation-in-holding-pattern-estimated-200000-return-to-homes/). This pass did not find two highway deaths or about 52 replacement-power deaths. A 15 November 1980 letter in the NRC docket estimates more than 173 premature deaths by that date from coal power replacing idle Unit 1. See [NRC ML19340C816](https://www.nrc.gov/docs/ML1934/ML19340C816.pdf). That figure is not 52, and it is one writer's proration, not an official death count.",
-    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+    "source": "Thomas Sowell, Institution for World Capitalism, Jacksonville, 14 October 1993. Alvarism upload https://www.youtube.com/watch?v=Wh-qTnq-cwM , auto-captions about 7:34."
   },
   {
     "id": "econ-pol-1993-q06",
@@ -1059,7 +1059,7 @@
     ],
     "correctId": "b",
     "explain": "Sowell compares living within 5 miles of a nuclear plant for 50 years to driving 10 miles on the interstate, and also to about 30 minutes in a coal mine or about 6 minutes in a canoe. Outside research. Richard Wilson's 1979 one-in-a-million table, reprinted by Peter Sandman, [Appendix B risk tables](https://www.petersandman.com/articles/cma-appb.htm), puts living 50 years within 5 miles of a nuclear plant on the same step as 6 minutes by canoe, 1 hour in a coal mine from black lung disease, 3 hours in a coal mine from an accident, and 300 miles by car. The 10-mile line in that table is bicycle travel, not interstate driving. This pass did not find 10 interstate miles or 30 minutes in a coal mine in the table.",
-    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+    "source": "Thomas Sowell, Institution for World Capitalism, Jacksonville, 14 October 1993. Alvarism upload https://www.youtube.com/watch?v=Wh-qTnq-cwM , auto-captions about 8:02."
   },
   {
     "id": "econ-pol-1993-q07",
@@ -1074,7 +1074,7 @@
     ],
     "correctId": "b",
     "explain": "Sowell says that after policy produces critics’ bad result Z, stage four accuses critics of being simplistic and demands more of the same.",
-    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+    "source": "Thomas Sowell, Institution for World Capitalism, Jacksonville, 14 October 1993. Alvarism upload https://www.youtube.com/watch?v=Wh-qTnq-cwM , auto-captions about 11:46."
   },
   {
     "id": "econ-pol-1993-q08",
@@ -1089,7 +1089,7 @@
     ],
     "correctId": "c",
     "explain": "Sowell says that before the War on Poverty, poverty and dependency had been declining for at least a decade. Outside research. The official poverty rate falls from 22.4 percent in 1959 to 19.0 percent in 1964. Census Table 2 is in [hstpov2.xlsx](https://www2.census.gov/programs-surveys/cps/tables/time-series/historical-poverty-people/hstpov2.xlsx). The official series starts in 1959, so those five years are the measured run before the 1964 declaration, and they fall. AFDC recipients rise from 2.192 million in 1955 to 3.073 million in 1960 and 4.396 million in 1965. See [NCES Indicator 22](https://nces.ed.gov/pubs98/yi/y9622a.asp). HHS describes slow caseload growth in the early 1960s and faster growth after 1967. See [Trends in the AFDC Caseload since 1962](https://aspe.hhs.gov/sites/default/files/private/pdf/167036/2caseload.pdf). The poverty half of the sentence matches the official rate. The dependency half does not match the AFDC count.",
-    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+    "source": "Thomas Sowell, Institution for World Capitalism, Jacksonville, 14 October 1993. Alvarism upload https://www.youtube.com/watch?v=Wh-qTnq-cwM , auto-captions about 13:44."
   },
   {
     "id": "econ-pol-1993-q09",
@@ -1104,7 +1104,7 @@
     ],
     "correctId": "b",
     "explain": "Sowell says that by 1968 roughly half of U.S. public schools already had sex education. Outside research. A Saturday Evening Post editorial of 29 June 1968 says sex education was already in about half of the nation's schools. The reprint is [What's the Best Way to Teach Kids about Sex?](https://www.saturdayeveningpost.com/2018/05/whats-best-way-teach-kids-sex/). A Dayton thesis cites John Kobler, Sex Education in the Classroom, Saturday Evening Post, June 1968, page 27. See the [thesis PDF](https://ecommons.udayton.edu/cgi/viewcontent.cgi?article=6477&context=graduate_theses). Kobler's page was not retrieved, and no government count limited to public schools was found.",
-    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+    "source": "Thomas Sowell, Institution for World Capitalism, Jacksonville, 14 October 1993. Alvarism upload https://www.youtube.com/watch?v=Wh-qTnq-cwM , auto-captions about 14:50."
   },
   {
     "id": "econ-pol-1993-q10",
@@ -1119,7 +1119,7 @@
     ],
     "correctId": "c",
     "explain": "Sowell says the U.S. spends 14 percent of GNP on health care in the crisis talking point. Outside research. HCFA put 1991 health spending at 13.2 percent of GDP, up from 12.2 percent in 1990, and the revised GNP ratio for 1991 was also 13.2 percent. See [the 1991 national health expenditures article](https://www.cms.gov/Research-Statistics-Data-and-Systems/Research/HealthCareFinancingReview/Downloads/CMS1191249dl.pdf). A later article put the GDP share at 13.6 percent in 1992 and 13.9 percent in 1993. See [National Health Expenditures, 1993](https://www.cms.gov/research-statistics-data-and-systems/research/healthcarefinancingreview/downloads/cms1191344dl.pdf). The speech is 14 October 1993, before that full-year 1993 article. Fourteen percent is a round figure next to those shares, not a printed official 14.0 percent of GNP.",
-    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+    "source": "Thomas Sowell, Institution for World Capitalism, Jacksonville, 14 October 1993. Alvarism upload https://www.youtube.com/watch?v=Wh-qTnq-cwM , auto-captions about 15:48."
   },
   {
     "id": "econ-pol-1993-q11",
@@ -1134,7 +1134,7 @@
     ],
     "correctId": "c",
     "explain": "Sowell says an American doctor pays 14 times as much malpractice insurance as a German doctor. Outside research. This pass did not find a source that states that multiple. Sawyer and Sawyer, Journal of the Florida Medical Association, April 1993, compare the two malpractice systems. The abstract does not give a premium ratio. See [PubMed 8505617](https://pubmed.ncbi.nlm.nih.gov/8505617/). A GAO report documents wide differences among U.S. doctors by specialty and place, and it does not compare Germany. See [HRD-86-112](https://www.gao.gov/assets/hrd-86-112.pdf).",
-    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+    "source": "Thomas Sowell, Institution for World Capitalism, Jacksonville, 14 October 1993. Alvarism upload https://www.youtube.com/watch?v=Wh-qTnq-cwM , auto-captions about 21:04."
   },
   {
     "id": "econ-pol-1993-q12",
@@ -1149,7 +1149,7 @@
     ],
     "correctId": "b",
     "explain": "Sowell says a summer job in government, seeing how it actually operates, changed him from Marxism, not Friedman’s Chicago course.",
-    "source": "Thomas Sowell, speech Oct 14, 1993, Institution for World Capitalism, Jacksonville FL; Alvarism upload, ~54:57. https://www.youtube.com/watch?v=Wh-qTnq-cwM"
+    "source": "Thomas Sowell, Institution for World Capitalism, Jacksonville, 14 October 1993. Alvarism upload https://www.youtube.com/watch?v=Wh-qTnq-cwM , auto-captions about 49:15."
   },
   {
     "id": "econ-race-1983-q01",
@@ -1313,8 +1313,8 @@
       { "id": "d", "text": "Hereditary monarchies" }
     ],
     "correctId": "b",
-    "explain": "Until nationalism, overseas Chinese in Southeast Asia avoided politics, often arriving poor and leaving prosperous.",
-    "source": "Firing Line S0573, taped Nov 3 1983, NYC; Buckley host, Sowell guest, Robert Lekachman examiner; Hoover upload 2017-02-02; 58:20. https://www.youtube.com/watch?v=TEBPCOG5RHs"
+    "explain": "Until nationalism, overseas Chinese in Southeast Asia avoided politics, often arriving poor and leaving prosperous. No transcript opened for this check contains that sentence.",
+    "source": "Firing Line S0573, taped 3 November 1983. The Hoover upload has no captions, https://www.youtube.com/watch?v=TEBPCOG5RHs . A captioned clip of the episode does not contain this claim."
   },
   {
     "id": "econ-race-1983-q12",
