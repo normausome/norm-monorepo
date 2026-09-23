@@ -1,11 +1,28 @@
-import { QUESTIONS } from "@/data/questions"
-import type { Question } from "@/data/questions"
+import { SECTION_ORDER, questionsFor } from "@/data/questions"
+import type { Question, SectionChoice, SectionId } from "@/data/questions"
 import { shuffleWithSeed } from "@/quiz/seed"
 import type { QuizAction, QuizPhase } from "@/quiz/types"
 
-export function orderQuestions(seed: string | null): Question[] {
-  if (!seed) return [...QUESTIONS]
-  return shuffleWithSeed(QUESTIONS, seed)
+export type SectionTally = {
+  section: SectionId
+  correct: number
+  total: number
+}
+
+export function orderQuestions(
+  seed: string | null,
+  section: SectionChoice = "all",
+): Question[] {
+  const pool = questionsFor(section)
+  if (!seed) return [...pool]
+  return shuffleWithSeed(pool, seed)
+}
+
+export function sectionOfRun(order: readonly Question[]): SectionChoice {
+  if (order.length === 0) return "all"
+  const first = order[0]?.section
+  if (first && order.every((question) => question.section === first)) return first
+  return "all"
 }
 
 export function isAnswerCorrect(question: Question, choiceId: string): boolean {
@@ -13,8 +30,8 @@ export function isAnswerCorrect(question: Question, choiceId: string): boolean {
 }
 
 export function tallyScore(
-  order: Question[],
-  answers: (string | null)[],
+  order: readonly Question[],
+  answers: readonly (string | null)[],
 ): number {
   let score = 0
   for (let i = 0; i < order.length; i++) {
@@ -23,6 +40,27 @@ export function tallyScore(
     if (q && pick && isAnswerCorrect(q, pick)) score += 1
   }
   return score
+}
+
+export function tallyBySection(
+  order: readonly Question[],
+  answers: readonly (string | null)[],
+): SectionTally[] {
+  const buckets = new Map<SectionId, SectionTally>(
+    SECTION_ORDER.map((section) => [section, { section, correct: 0, total: 0 }]),
+  )
+  for (let i = 0; i < order.length; i++) {
+    const question = order[i]
+    if (!question) continue
+    const bucket = buckets.get(question.section)
+    if (!bucket) continue
+    bucket.total += 1
+    const pick = answers[i]
+    if (pick && isAnswerCorrect(question, pick)) bucket.correct += 1
+  }
+  return SECTION_ORDER.map((section) => buckets.get(section)).filter(
+    (row): row is SectionTally => row !== undefined && row.total > 0,
+  )
 }
 
 export function scoreTakeaway(score: number, total: number): string {
@@ -41,7 +79,8 @@ export const initialQuizPhase: QuizPhase = { type: "title" }
 export function quizReducer(state: QuizPhase, action: QuizAction): QuizPhase {
   switch (action.type) {
     case "START": {
-      const order = orderQuestions(action.seed)
+      const order = orderQuestions(action.seed, action.section)
+      if (order.length === 0) return state
       return {
         type: "question",
         index: 0,
@@ -79,7 +118,12 @@ export function quizReducer(state: QuizPhase, action: QuizAction): QuizPhase {
       }
     }
     case "PLAY_AGAIN":
-      return quizReducer({ type: "title" }, { type: "START", seed: action.seed })
+      return quizReducer(
+        { type: "title" },
+        { type: "START", seed: action.seed, section: action.section },
+      )
+    case "BACK_TO_TITLE":
+      return { type: "title" }
     default:
       return state
   }

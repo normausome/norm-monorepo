@@ -1,198 +1,974 @@
 [
   {
     "id": "q1",
+    "section": "personal",
     "kind": "trivia",
     "prompt": "Where did Thomas Sowell spend much of his childhood after leaving North Carolina, before later earning a PhD in economics?",
     "choices": [
-      {"id": "a", "text": "Harlem, New York City"},
-      {"id": "b", "text": "Chicago’s South Side"},
-      {"id": "c", "text": "Atlanta’s Sweet Auburn"},
-      {"id": "d", "text": "Washington, D.C.’s Anacostia"}
+      {
+        "id": "a",
+        "text": "Harlem, New York City"
+      },
+      {
+        "id": "b",
+        "text": "Chicago's South Side"
+      },
+      {
+        "id": "c",
+        "text": "Atlanta's Sweet Auburn"
+      },
+      {
+        "id": "d",
+        "text": "Washington, D.C.'s Anacostia"
+      }
     ],
     "correctId": "a",
-    "explain": "Sowell was born in Gastonia, North Carolina, moved to Harlem as a child, later served in the Marines, then studied economics through Harvard, Columbia, and a University of Chicago PhD.",
-    "source": "Hoover Institution fellow profile / Thomas Sowell; also A Personal Odyssey (memoir)"
+    "explain": "Sowell was born in Gastonia, North Carolina, and moved with his family to Harlem as a child. He later served in the Marines, then studied economics at Harvard, Columbia, and the University of Chicago.",
+    "source": "Hoover Institution fellow profile; A Personal Odyssey"
   },
   {
     "id": "q2",
+    "section": "books",
     "kind": "trivia",
-    "prompt": "In A Conflict of Visions, Sowell’s “constrained vision” of human nature is closest to which claim?",
+    "prompt": "In A Conflict of Visions, Sowell's constrained vision of human nature is closest to which claim?",
     "choices": [
-      {"id": "a", "text": "People are limited and self-interested, so politics should emphasize trade-offs, incentives, and institutional checks"},
-      {"id": "b", "text": "People are blank slates, so expert planners can redesign society toward moral perfection"},
-      {"id": "c", "text": "Only genetic determinism explains political disagreement"},
-      {"id": "d", "text": "Markets always fail, so unconstrained reason must replace prices"}
+      {
+        "id": "a",
+        "text": "People are blank slates, so expert planners can redesign society toward moral perfection"
+      },
+      {
+        "id": "b",
+        "text": "Only genetic determinism explains political disagreement"
+      },
+      {
+        "id": "c",
+        "text": "Markets always fail, so unconstrained reason must replace prices"
+      },
+      {
+        "id": "d",
+        "text": "People are limited and self-interested, so politics should emphasize trade-offs, incentives, and institutional checks"
+      }
     ],
-    "correctId": "a",
-    "explain": "The constrained vision treats human nature as imperfect and hard to remake; the unconstrained vision treats people as more malleable and perfectible through articulated reason and elite guidance.",
-    "source": "A Conflict of Visions — constrained vs unconstrained vision chapters"
+    "correctId": "d",
+    "explain": "The constrained vision treats human nature as imperfect and hard to remake. The unconstrained vision treats people as more malleable and perfectible through articulated reason and elite guidance.",
+    "source": "A Conflict of Visions (1987), constrained and unconstrained vision"
   },
   {
     "id": "q3",
+    "section": "books",
     "kind": "trivia",
-    "prompt": "Sowell’s recurring line about policy is best paraphrased as:",
+    "prompt": "Sowell's recurring line about policy is best paraphrased as:",
     "choices": [
-      {"id": "a", "text": "There are no solutions, only trade-offs"},
-      {"id": "b", "text": "Every social problem has one correct technical fix"},
-      {"id": "c", "text": "Good intentions are a sufficient success metric"},
-      {"id": "d", "text": "If voters demand a solution, economics must deliver one"}
+      {
+        "id": "a",
+        "text": "Good intentions are a sufficient success metric"
+      },
+      {
+        "id": "b",
+        "text": "If voters demand a solution, economics must deliver one"
+      },
+      {
+        "id": "c",
+        "text": "There are no solutions, only trade-offs"
+      },
+      {
+        "id": "d",
+        "text": "Every social problem has one correct technical fix"
+      }
     ],
-    "correctId": "a",
-    "explain": "He argues that wishing away costs does not erase them; choosing a policy means accepting other costs, shortages, or side effects.",
-    "source": "Sowell columns/talks on housing and policy; theme also in A Conflict of Visions (solutions vs trade-offs)"
+    "correctId": "c",
+    "explain": "In the tragic or constrained vision he describes, suffering and scarcity are not abolished by a program. A choice still leaves costs somewhere. The Vision of the Anointed puts it as no solutions in that vision, only trade-offs.",
+    "source": "A Conflict of Visions; The Vision of the Anointed, discussion of the tragic vision"
   },
   {
     "id": "q4",
+    "section": "economics",
     "kind": "trivia",
     "prompt": "In Basic Economics, what does Sowell emphasize as a common result of rent control that keeps rents artificially low?",
     "choices": [
-      {"id": "a", "text": "Housing shortages, waiting lists, and often deterioration of rental stock"},
-      {"id": "b", "text": "Permanent surpluses of brand-new luxury apartments"},
-      {"id": "c", "text": "Construction booms because builders earn more under the cap"},
-      {"id": "d", "text": "Prices stop mattering because demand no longer responds to price"}
+      {
+        "id": "a",
+        "text": "Prices stop mattering because demand no longer responds to price"
+      },
+      {
+        "id": "b",
+        "text": "Housing shortages, waiting lists, and often deterioration of rental stock"
+      },
+      {
+        "id": "c",
+        "text": "Permanent surpluses of brand-new luxury apartments"
+      },
+      {
+        "id": "d",
+        "text": "Construction booms because builders earn more under the cap"
+      }
     ],
-    "correctId": "a",
-    "explain": "Holding price below the market level raises quantity demanded and reduces quantity supplied; Sowell uses wartime and postwar U.S. housing examples among others.",
-    "source": "Basic Economics — chapters on prices, shortages/surpluses, and price controls / rent control"
+    "correctId": "b",
+    "explain": "Holding price below the market level raises quantity demanded and reduces quantity supplied. Sowell uses wartime and postwar U.S. housing examples among others.",
+    "source": "Basic Economics, chapters on prices, shortages, and rent control"
   },
   {
     "id": "q5",
+    "section": "books",
     "kind": "trivia",
     "prompt": "What is a central theme of Intellectuals and Society?",
     "choices": [
-      {"id": "a", "text": "“Idea workers” can heavily shape public opinion and policy while facing little personal accountability when ideas fail"},
-      {"id": "b", "text": "Only STEM PhDs should vote"},
-      {"id": "c", "text": "Intellectuals have almost no influence in democracies"},
-      {"id": "d", "text": "Universities should be abolished because books are obsolete"}
+      {
+        "id": "a",
+        "text": "Idea workers can heavily shape public opinion and policy while facing little personal accountability when ideas fail"
+      },
+      {
+        "id": "b",
+        "text": "Only STEM PhDs should vote"
+      },
+      {
+        "id": "c",
+        "text": "Intellectuals have almost no influence in democracies"
+      },
+      {
+        "id": "d",
+        "text": "Universities should be abolished because books are obsolete"
+      }
     ],
     "correctId": "a",
-    "explain": "Sowell defines intellectuals as people whose work centers on ideas, argues they often influence democratic climates of opinion, and critiques weak feedback when prescriptions fail empirically.",
-    "source": "Intellectuals and Society — opening thesis / publishers’ book description"
+    "explain": "Sowell defines intellectuals as people whose work centers on ideas. He argues they often influence democratic climates of opinion, and he criticizes weak feedback when prescriptions fail empirically.",
+    "source": "Intellectuals and Society (2009)"
   },
   {
     "id": "q6",
+    "section": "race-culture",
     "kind": "trivia",
     "prompt": "Discrimination and Disparities mainly pushes readers to reject which automatic inference?",
     "choices": [
-      {"id": "a", "text": "That unequal group outcomes by themselves prove discrimination was the sole or primary cause"},
-      {"id": "b", "text": "That discrimination has never existed anywhere"},
-      {"id": "c", "text": "That first-born children never have advantages"},
-      {"id": "d", "text": "That markets always equalize all group averages overnight"}
+      {
+        "id": "a",
+        "text": "That discrimination has never existed anywhere"
+      },
+      {
+        "id": "b",
+        "text": "That first-born children never have advantages"
+      },
+      {
+        "id": "c",
+        "text": "That markets always equalize all group averages overnight"
+      },
+      {
+        "id": "d",
+        "text": "That unequal group outcomes by themselves prove discrimination was the sole or primary cause"
+      }
     ],
-    "correctId": "a",
-    "explain": "Sowell argues disparities have many causes (including non-discriminatory ones); discrimination can matter, but seeing a gap is not enough to infer only discrimination.",
-    "source": "Discrimination and Disparities — early chapters on multiple causes of disparities; Sowell interviews summarizing the book"
+    "correctId": "d",
+    "explain": "Sowell argues disparities have many causes, including ones that are not discrimination. Discrimination can matter, but seeing a gap is not enough to infer that only discrimination produced it.",
+    "source": "Discrimination and Disparities, early chapters on multiple causes of disparities"
   },
   {
     "id": "q7",
+    "section": "race-culture",
     "kind": "trivia",
-    "prompt": "In Black Rednecks and White Liberals, Sowell’s race-vs-culture theme is closest to which claim?",
+    "prompt": "In Black Rednecks and White Liberals, Sowell's race-versus-culture theme is closest to which claim?",
     "choices": [
-      {"id": "a", "text": "Cultural patterns (not race as biology) help explain some group behaviors and outcomes, including traits he traces to Southern “redneck” culture"},
-      {"id": "b", "text": "Genetics alone determine every social outcome"},
-      {"id": "c", "text": "Culture never matters once discrimination is mentioned"},
-      {"id": "d", "text": "Only African history can explain Southern white folkways"}
+      {
+        "id": "a",
+        "text": "Culture never matters once discrimination is mentioned"
+      },
+      {
+        "id": "b",
+        "text": "Only African history can explain Southern white folkways"
+      },
+      {
+        "id": "c",
+        "text": "Cultural patterns, not race as biology, help explain some group behaviors and outcomes, including traits he traces to Southern redneck culture"
+      },
+      {
+        "id": "d",
+        "text": "Genetics alone determine every social outcome"
+      }
     ],
-    "correctId": "a",
-    "explain": "The title essay argues that some dysfunctional patterns often labeled as uniquely Black ghetto culture have historical roots in white Southern cultural patterns, and that romanticizing those patterns can be harmful.",
-    "source": "Black Rednecks and White Liberals — title essay"
+    "correctId": "c",
+    "explain": "The title essay argues that some patterns often labeled as uniquely black ghetto culture have historical roots in white Southern cultural patterns, and that romanticizing those patterns can be harmful.",
+    "source": "Black Rednecks and White Liberals (2005), title essay"
   },
   {
     "id": "q8",
+    "section": "economics",
     "kind": "scenario",
     "prompt": "A city caps apartment rents far below market levels to help tenants. Which reaction is most Sowellian?",
     "choices": [
-      {"id": "a", "text": "Expect shortages, less new rental supply, and pressure to cut maintenance—because price is a signal, not just a number politicians can erase"},
-      {"id": "b", "text": "Assume landlords will build more units once rents are lower"},
-      {"id": "c", "text": "Treat the shortage as proof that rent caps were set too high"},
-      {"id": "d", "text": "Conclude that demand for housing does not respond to price"}
+      {
+        "id": "a",
+        "text": "Conclude that demand for housing does not respond to price"
+      },
+      {
+        "id": "b",
+        "text": "Expect shortages, less new rental supply, and pressure to cut maintenance, because price is a signal, not just a number politicians can erase"
+      },
+      {
+        "id": "c",
+        "text": "Assume landlords will build more units once rents are lower"
+      },
+      {
+        "id": "d",
+        "text": "Treat the shortage as proof that rent caps were set too high"
+      }
     ],
-    "correctId": "a",
-    "explain": "Sowell treats prices as conveying scarcities and costs. Cap the price and you do not cancel those realities; you often get queues, deterioration, and reduced supply.",
-    "source": "Basic Economics (rent control / price controls); Sowell columns on price controls"
+    "correctId": "b",
+    "explain": "Sowell treats prices as conveying scarcities and costs. Cap the price and you do not cancel those realities. You often get queues, deterioration, and reduced supply.",
+    "source": "Basic Economics, rent control and price controls"
   },
   {
     "id": "q9",
+    "section": "economics",
     "kind": "scenario",
-    "prompt": "After a factory closes, a panel of professors proposes a detailed national plan for every worker’s next job. A Sowellian pushback would most likely stress:",
+    "prompt": "After a factory closes, a panel of professors proposes a detailed national plan for every worker's next job. A Sowellian pushback would most likely stress:",
     "choices": [
-      {"id": "a", "text": "The knowledge problem: dispersed local information and changing trade-offs are hard for central planners to know as well as prices and individuals do"},
-      {"id": "b", "text": "That professors always know more than markets about every local job match"},
-      {"id": "c", "text": "That unemployment proves prices convey no useful information"},
-      {"id": "d", "text": "That human nature is unlimited, so one blueprint can optimize everyone’s path"}
+      {
+        "id": "a",
+        "text": "The knowledge problem: dispersed local information and changing trade-offs are hard for central planners to know as well as prices and individuals do"
+      },
+      {
+        "id": "b",
+        "text": "That professors always know more than markets about every local job match"
+      },
+      {
+        "id": "c",
+        "text": "That unemployment proves prices convey no useful information"
+      },
+      {
+        "id": "d",
+        "text": "That human nature is unlimited, so one blueprint can optimize everyone's path"
+      }
     ],
     "correctId": "a",
-    "explain": "Across Basic Economics and his broader work, Sowell emphasizes that useful knowledge is scattered and that prices help coordinate it; unconstrained visions overrate articulated elite plans.",
-    "source": "Basic Economics (prices as signals); A Conflict of Visions (locus of discretion / articulated rationality); related themes in Knowledge and Decisions"
+    "explain": "Sowell emphasizes that useful knowledge is scattered and that prices help coordinate it. Unconstrained visions overrate articulated elite plans.",
+    "source": "Basic Economics, prices as signals; Knowledge and Decisions; A Conflict of Visions"
   },
   {
     "id": "q10",
+    "section": "race-culture",
     "kind": "scenario",
-    "prompt": "Group A out-earns Group B. An activist says: “The gap proves discrimination, full stop.” Most Sowellian reply?",
+    "prompt": "Group A out-earns Group B. An activist says the gap proves discrimination, full stop. Most Sowellian reply?",
     "choices": [
-      {"id": "a", "text": "Disparities can have many causes; discrimination is one possible cause, not an automatic proof from the gap alone"},
-      {"id": "b", "text": "Gaps never matter and need no study"},
-      {"id": "c", "text": "Discrimination is impossible by definition"},
-      {"id": "d", "text": "Only genetics can explain gaps, so stop talking about culture or age"}
+      {
+        "id": "a",
+        "text": "Gaps never matter and need no study"
+      },
+      {
+        "id": "b",
+        "text": "Discrimination is impossible by definition"
+      },
+      {
+        "id": "c",
+        "text": "Only genetics can explain gaps, so stop talking about culture or age"
+      },
+      {
+        "id": "d",
+        "text": "Disparities can have many causes. Discrimination is one possible cause, not an automatic proof from the gap alone"
+      }
     ],
-    "correctId": "a",
-    "explain": "Discrimination and Disparities is built around rejecting the leap from unequal outcomes to a single causal story, while still allowing that discrimination can matter.",
+    "correctId": "d",
+    "explain": "Discrimination and Disparities rejects the leap from unequal outcomes to a single causal story, while still allowing that discrimination can matter.",
     "source": "Discrimination and Disparities"
   },
   {
     "id": "q11",
+    "section": "books",
     "kind": "scenario",
-    "prompt": "A pundit says a new program will “solve” poverty with no serious downsides. Which follow-up questions are most in Sowell’s spirit?",
+    "prompt": "A pundit says a new program will solve poverty with no serious downsides. Which follow-up questions are most in Sowell's spirit?",
     "choices": [
-      {"id": "a", "text": "Compared to what? At what cost? What hard evidence?"},
-      {"id": "b", "text": "Who feels the most moral about it?"},
-      {"id": "c", "text": "How quickly can we expand it before measuring results?"},
-      {"id": "d", "text": "Which slogan polls best with donors?"}
+      {
+        "id": "a",
+        "text": "How quickly can we expand it before measuring results?"
+      },
+      {
+        "id": "b",
+        "text": "Which slogan polls best with donors?"
+      },
+      {
+        "id": "c",
+        "text": "Compared to what? At what cost? What hard evidence?"
+      },
+      {
+        "id": "d",
+        "text": "Who feels the most moral about it?"
+      }
     ],
-    "correctId": "a",
-    "explain": "He repeatedly frames policy as comparative and empirical: alternatives, costs, and evidence—not sincerity or utopia language.",
-    "source": "Sowell interviews/columns summarizing his three questions; trade-offs theme in A Conflict of Visions / Basic Economics"
+    "correctId": "c",
+    "explain": "He frames policy as comparative and empirical. A collected version of the three questions asks: compared to what, at what cost, and what are the hard facts? Interviews often say what hard evidence do you have.",
+    "source": "Ever Wonder Why? and other essays; interviews stating the same three questions"
   },
   {
     "id": "q12",
+    "section": "books",
     "kind": "scenario",
     "prompt": "A celebrated social theory fails in practice, but its academic champions keep promoting it and blame implementation, not the idea. Intellectuals and Society would most likely highlight:",
     "choices": [
-      {"id": "a", "text": "Weak accountability: idea-workers often face little personal cost when theories produce bad results, so evidence may not revise the vision"},
-      {"id": "b", "text": "That failure proves the theory needed even more funding only"},
-      {"id": "c", "text": "That intellectuals never influence democratic opinion"},
-      {"id": "d", "text": "That empirical track records are irrelevant to social ideas"}
+      {
+        "id": "a",
+        "text": "That empirical track records are irrelevant to social ideas"
+      },
+      {
+        "id": "b",
+        "text": "Weak accountability: idea workers often face little personal cost when theories produce bad results, so evidence may not revise the vision"
+      },
+      {
+        "id": "c",
+        "text": "That failure proves the theory needed even more funding only"
+      },
+      {
+        "id": "d",
+        "text": "That intellectuals never influence democratic opinion"
+      }
     ],
-    "correctId": "a",
+    "correctId": "b",
     "explain": "A core claim is that intellectuals shape climates of opinion yet often are not forced to pay for disastrous prescriptions the way market actors are.",
     "source": "Intellectuals and Society"
   },
   {
     "id": "q13",
+    "section": "policy",
     "kind": "scenario",
-    "prompt": "A reform raises welfare benefits but also sharply reduces the payoff to taking an entry-level job. Sowell’s incentives lens most naturally asks:",
+    "prompt": "A reform raises welfare benefits but also sharply reduces the payoff to taking an entry-level job. Sowell's incentives lens most naturally asks:",
     "choices": [
-      {"id": "a", "text": "What behavior does this reward, and what unintended responses should we expect?"},
-      {"id": "b", "text": "Only whether the reformers meant well"},
-      {"id": "c", "text": "Whether the slogan mentions justice"},
-      {"id": "d", "text": "Whether experts feel unconstrained by trade-offs"}
+      {
+        "id": "a",
+        "text": "What behavior does this reward, and what unintended responses should we expect?"
+      },
+      {
+        "id": "b",
+        "text": "Only whether the reformers meant well"
+      },
+      {
+        "id": "c",
+        "text": "Whether the slogan mentions justice"
+      },
+      {
+        "id": "d",
+        "text": "Whether experts feel unconstrained by trade-offs"
+      }
     ],
     "correctId": "a",
     "explain": "Throughout Basic Economics and his policy writing, he treats incentives as drivers of outcomes, independent of stated goals.",
-    "source": "Basic Economics (incentives); related policy essays"
+    "source": "Basic Economics, incentives; related policy essays"
   },
   {
     "id": "q14",
+    "section": "race-culture",
     "kind": "scenario",
-    "prompt": "Commentators say a minority community’s problems must be explained only by race or only by outsider oppression. A Sowellian alternative emphasis would be:",
+    "prompt": "Commentators say a minority community's problems must be explained only by race or only by outsider oppression. A Sowellian alternative emphasis would be:",
     "choices": [
-      {"id": "a", "text": "Also examine culture, human capital, and internal patterns—not race as destiny and not a single external cause for every gap"},
-      {"id": "b", "text": "Ignore history of discrimination entirely"},
-      {"id": "c", "text": "Assume all cultures produce identical results under identical laws"},
-      {"id": "d", "text": "Replace cultural discussion with slogans only"}
+      {
+        "id": "a",
+        "text": "Ignore the history of discrimination entirely"
+      },
+      {
+        "id": "b",
+        "text": "Assume all cultures produce identical results under identical laws"
+      },
+      {
+        "id": "c",
+        "text": "Replace cultural discussion with slogans only"
+      },
+      {
+        "id": "d",
+        "text": "Also examine culture, human capital, and internal patterns, not race as destiny and not a single external cause for every gap"
+      }
+    ],
+    "correctId": "d",
+    "explain": "Black Rednecks and White Liberals and Discrimination and Disparities stress culture and multiple causes. They reject both a biological destiny story and a discrimination-only story.",
+    "source": "Black Rednecks and White Liberals; Discrimination and Disparities"
+  },
+  {
+    "id": "q15",
+    "section": "personal",
+    "kind": "trivia",
+    "prompt": "Where and when was Thomas Sowell born?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Atlanta, Georgia, on July 4, 1925"
+      },
+      {
+        "id": "b",
+        "text": "Chicago, Illinois, on January 15, 1935"
+      },
+      {
+        "id": "c",
+        "text": "Gastonia, North Carolina, on June 30, 1930"
+      },
+      {
+        "id": "d",
+        "text": "Harlem, New York, on June 30, 1930"
+      }
+    ],
+    "correctId": "c",
+    "explain": "He was born in Gastonia during the Depression. His father died before he was born. His mother could not raise him, and his great-aunt Molly did. The move to Harlem came later, in childhood.",
+    "source": "Hoover Institution fellow profile; Library of Congress name authority (born 1930-06-30, Gastonia, N.C.)"
+  },
+  {
+    "id": "q16",
+    "section": "personal",
+    "kind": "trivia",
+    "prompt": "After he was drafted in 1951, what assignment did the Marine Corps give Sowell?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "A Navy medical post attached to the Army"
+      },
+      {
+        "id": "b",
+        "text": "Photography, a craft he already cared about"
+      },
+      {
+        "id": "c",
+        "text": "Command of an infantry company in the Pusan Perimeter"
+      },
+      {
+        "id": "d",
+        "text": "Teaching economics at the Naval Academy"
+      }
+    ],
+    "correctId": "b",
+    "explain": "Hoover's fellow profile says he was drafted in 1951, during the Korean War, and assigned to photography. He was discharged in 1952. He had not finished high school before that service. He then worked as a civil-service clerk in Washington and took night classes at Howard.",
+    "source": "Hoover Institution fellow profile; National Endowment for the Humanities medal biography"
+  },
+  {
+    "id": "q17",
+    "section": "personal",
+    "kind": "trivia",
+    "prompt": "Which sequence matches Sowell's economics degrees?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Harvard BA, magna cum laude, 1958; Columbia MA, 1959; University of Chicago PhD, 1968"
+      },
+      {
+        "id": "b",
+        "text": "Howard BA, Yale MA, MIT PhD"
+      },
+      {
+        "id": "c",
+        "text": "Columbia BA, Harvard MA, Stanford PhD"
+      },
+      {
+        "id": "d",
+        "text": "UCLA BA, Chicago MA, Harvard PhD"
+      }
     ],
     "correctId": "a",
-    "explain": "Books like Black Rednecks and White Liberals and Discrimination and Disparities stress culture and multiple causes while rejecting monocausal racial or discrimination-only stories.",
-    "source": "Black Rednecks and White Liberals; Discrimination and Disparities"
+    "explain": "High exam scores and faculty recommendations helped him transfer from night classes at Howard to Harvard. Arthur Burns later recommended him for doctoral study at Chicago, where he worked with George Stigler and Milton Friedman.",
+    "source": "Hoover Institution profile and fellow profile; Library of Congress name authority"
+  },
+  {
+    "id": "q18",
+    "section": "personal",
+    "kind": "trivia",
+    "prompt": "What was Sowell's University of Chicago doctoral dissertation about?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "A proof that a minimum wage cannot affect employment"
+      },
+      {
+        "id": "b",
+        "text": "A defense of Soviet central planning"
+      },
+      {
+        "id": "c",
+        "text": "The Phillips curve as a permanent policy menu"
+      },
+      {
+        "id": "d",
+        "text": "A historical analysis of Say's Law"
+      }
+    ],
+    "correctId": "d",
+    "explain": "Hoover describes the dissertation as a historical analysis of Say's Law, the classical claim that supplies of goods and services create their own demands. George Stigler was his doctoral advisor.",
+    "source": "Hoover Institution fellow profile; standard academic biography (doctoral advisor George Stigler)"
+  },
+  {
+    "id": "q19",
+    "section": "personal",
+    "kind": "trivia",
+    "prompt": "Which later post and honors match Sowell's public career?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "A Supreme Court clerkship, then Attorney General"
+      },
+      {
+        "id": "b",
+        "text": "Poet laureate and chairman of the National Endowment for the Arts"
+      },
+      {
+        "id": "c",
+        "text": "Rose and Milton Friedman Senior Fellow at the Hoover Institution, the National Humanities Medal in 2002, and the Bradley Prize in 2003"
+      },
+      {
+        "id": "d",
+        "text": "Nobel Prize in Economics in 1976 and chair of the Federal Reserve"
+      }
+    ],
+    "correctId": "c",
+    "explain": "He has been a Hoover senior fellow since 1980. The current title is Rose and Milton Friedman Senior Fellow on Public Policy, Emeritus. The National Humanities Medal (2002) and the Bradley Prize (2003) are separate honors.",
+    "source": "Hoover Institution profile page"
+  },
+  {
+    "id": "q21",
+    "section": "economics",
+    "kind": "trivia",
+    "prompt": "In Basic Economics, what does Sowell argue a wage floor above the market rate tends to do to less-skilled workers?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Remove any trade-off between the wage and the number of jobs"
+      },
+      {
+        "id": "b",
+        "text": "Raise the cost of their labor and reduce the jobs and hours employers offer them"
+      },
+      {
+        "id": "c",
+        "text": "Automatically raise employment because those workers spend more"
+      },
+      {
+        "id": "d",
+        "text": "Affect only workers who already earn far above the floor"
+      }
+    ],
+    "correctId": "b",
+    "explain": "He treats a legal wage above what a worker's output is worth to an employer as a price that can leave that worker unemployed or with fewer hours. The argument is about incentives, not about the stated aim of helping low-paid workers.",
+    "source": "Basic Economics, controlled labor markets and differential impact"
+  },
+  {
+    "id": "q22",
+    "section": "economics",
+    "kind": "trivia",
+    "prompt": "In Applied Economics, what does thinking beyond stage one mean?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Following a policy past its first visible effect to the later reactions it sets off"
+      },
+      {
+        "id": "b",
+        "text": "Stopping the analysis at the first group that benefits"
+      },
+      {
+        "id": "c",
+        "text": "Counting only the budget cost in the first year"
+      },
+      {
+        "id": "d",
+        "text": "Preferring whichever policy has the best opening headline"
+      }
+    ],
+    "correctId": "a",
+    "explain": "Sowell describes a Harvard class with Arthur Smithies. Sowell stated the first benefit he expected, and Smithies kept asking what would happen after that, until the later effects looked worse than the problem. Most policy talk, he argues, stops at stage one.",
+    "source": "Applied Economics: Thinking Beyond Stage One, the chapter on one-stage thinking"
+  },
+  {
+    "id": "q23",
+    "section": "economics",
+    "kind": "trivia",
+    "prompt": "Say's Law, the subject of Sowell's Chicago dissertation, is the classical claim that:",
+    "choices": [
+      {
+        "id": "a",
+        "text": "A legal price floor always raises the quantity demanded"
+      },
+      {
+        "id": "b",
+        "text": "Trade deficits are the only cause of recessions"
+      },
+      {
+        "id": "c",
+        "text": "Demand creates goods even when nothing is produced"
+      },
+      {
+        "id": "d",
+        "text": "Supplies of goods and services create their own demands"
+      }
+    ],
+    "correctId": "d",
+    "explain": "Hoover's account of the dissertation uses that gloss: supplies create their own demands. The dissertation itself is a history of the idea, not a claim that modern recessions are impossible.",
+    "source": "Hoover Institution fellow profile, description of the Chicago dissertation"
+  },
+  {
+    "id": "q24",
+    "section": "race-culture",
+    "kind": "trivia",
+    "prompt": "What is Affirmative Action Around the World (2004)?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "A problem set in undergraduate price theory"
+      },
+      {
+        "id": "b",
+        "text": "A novel about campus life at Cornell"
+      },
+      {
+        "id": "c",
+        "text": "Sowell's comparative study of group-preference policies in several countries"
+      },
+      {
+        "id": "d",
+        "text": "A memoir of his years on the Howard faculty"
+      }
+    ],
+    "correctId": "c",
+    "explain": "The book looks at preferential policies outside the United States as well as inside it. The quiz question stops at that project. It does not ask you to recite country-by-country results.",
+    "source": "Affirmative Action Around the World (2004); his wider work on group preferences"
+  },
+  {
+    "id": "q25",
+    "section": "race-culture",
+    "kind": "trivia",
+    "prompt": "In Sowell's comparative work, a middleman minority is a group that:",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Is a government board that sets prices between buyers and sellers"
+      },
+      {
+        "id": "b",
+        "text": "Concentrates in trade, retail, or other go-between roles, and often draws hostility out of proportion to its numbers"
+      },
+      {
+        "id": "c",
+        "text": "Is the median voter in a two-party system"
+      },
+      {
+        "id": "d",
+        "text": "Is a racial majority that owns heavy industry"
+      }
+    ],
+    "correctId": "b",
+    "explain": "He uses the term for minorities whose economic niche is in the middle of other people's transactions. Overseas trading minorities are the usual examples in that literature. The point is occupational history and the politics around it, not a biological ranking.",
+    "source": "Sowell's comparative writing on middleman minorities, including Race and Culture and related ethnic studies"
+  },
+  {
+    "id": "q26",
+    "section": "education",
+    "kind": "trivia",
+    "prompt": "What has Sowell argued about Washington's Dunbar High School, earlier called the M Street School?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "For decades it met or beat national test norms despite poor funding, and success there cannot be waved off by calling the students middle class without evidence"
+      },
+      {
+        "id": "b",
+        "text": "It was a wealthy boarding school that never enrolled the children of laborers"
+      },
+      {
+        "id": "c",
+        "text": "It opened in 1975 as the nation's first charter school"
+      },
+      {
+        "id": "d",
+        "text": "Its record proves school spending was the only thing that ever mattered"
+      }
+    ],
+    "correctId": "a",
+    "explain": "He followed the school from 1870 to 1955. It was renamed Dunbar in 1916. In his telling, 1899 test scores beat two of the city's three white academic high schools, and parent occupations in 1892-93 included many laborers, not a doctor-heavy middle class. Educators who dismissed the record as middle class, he wrote, had not checked.",
+    "source": "Thomas Sowell, The Education of Minority Children (tsowell.com); Imprimis, January 1999"
+  },
+  {
+    "id": "q27",
+    "section": "education",
+    "kind": "trivia",
+    "prompt": "What is the job of the papers in Education: Assumptions versus History?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Replace history courses with one vocational track for every student"
+      },
+      {
+        "id": "b",
+        "text": "Argue that schools should ignore evidence and follow expert intention"
+      },
+      {
+        "id": "c",
+        "text": "Tell the story of his years as a high-school principal"
+      },
+      {
+        "id": "d",
+        "text": "Test fashionable assumptions about schools and universities against historical and contemporary evidence"
+      }
+    ],
+    "correctId": "d",
+    "explain": "The Hoover Institution Press description says the papers test assumptions behind education policies against the record. Topics include affirmative action, race and IQ debates, tuition tax credits, and academic tenure.",
+    "source": "Hoover Institution Press page for Education: Assumptions versus History"
+  },
+  {
+    "id": "q28",
+    "section": "education",
+    "kind": "trivia",
+    "prompt": "Late-Talking Children, and the follow-up The Einstein Syndrome, are mainly about:",
+    "choices": [
+      {
+        "id": "a",
+        "text": "A proposal to delay all reading instruction until age ten"
+      },
+      {
+        "id": "b",
+        "text": "A biography of Einstein's childhood in Ulm"
+      },
+      {
+        "id": "c",
+        "text": "Children who speak late, are often advanced in other ways, and are sometimes mislabeled. Sowell wrote from experience as a parent"
+      },
+      {
+        "id": "d",
+        "text": "A claim that Einstein failed every subject in school"
+      }
+    ],
+    "correctId": "c",
+    "explain": "The books describe children who talk late and often show unusual memory, music, or mathematical interest. Sowell's son John was one such child. He reports that the pattern is often mistaken for a broader developmental disorder, including autism.",
+    "source": "Encyclopedia.com summary of Late-Talking Children; The Einstein Syndrome as the follow-up"
+  },
+  {
+    "id": "q29",
+    "section": "education",
+    "kind": "trivia",
+    "prompt": "What conclusion does Sowell draw in Charter Schools and Their Enemies (2020)?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "The book is a novel about a fictional school board"
+      },
+      {
+        "id": "b",
+        "text": "After he matched students by ethnic and economic background, charter students in his comparisons generally did better than students in nearby conventional public schools"
+      },
+      {
+        "id": "c",
+        "text": "Charter schools underperform once family background is mentioned, so he opposes them"
+      },
+      {
+        "id": "d",
+        "text": "Charters and district schools had identical scores in every city he studied"
+      }
+    ],
+    "correctId": "b",
+    "explain": "The book is an empirical comparison, not a memoir. Sowell's own presentation is that the charter students in the matched comparisons did better. That is his finding in the book, and critics dispute how far it generalizes.",
+    "source": "Charter Schools and Their Enemies (2020), as described in contemporary reviews of the book's comparisons"
+  },
+  {
+    "id": "q30",
+    "section": "education",
+    "kind": "trivia",
+    "prompt": "Sowell left the Cornell faculty in 1969. What reason did he give at the time?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Leniency toward black students who were not meeting standards was hurting them, not helping them"
+      },
+      {
+        "id": "b",
+        "text": "Cornell had refused to hire any black faculty"
+      },
+      {
+        "id": "c",
+        "text": "He had been denied tenure for publishing too little"
+      },
+      {
+        "id": "d",
+        "text": "The Marine Corps recalled him to active duty"
+      }
+    ],
+    "correctId": "a",
+    "explain": "The New York Times of June 2, 1969, reported his resignation under the headline that leniency hurts blacks. That spring, students seized Willard Straight Hall. He later retold the crisis in the essay The Day Cornell Died. He resigned. He was not fired, and he did not leave to become a university president.",
+    "source": "New York Times, June 2, 1969; Sowell, The Day Cornell Died (1999)"
+  },
+  {
+    "id": "q31",
+    "section": "education",
+    "kind": "trivia",
+    "prompt": "Which book is Sowell's broad critique of American schools and universities from the early 1990s?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Basic Economics"
+      },
+      {
+        "id": "b",
+        "text": "A Personal Odyssey"
+      },
+      {
+        "id": "c",
+        "text": "The Housing Boom and Bust"
+      },
+      {
+        "id": "d",
+        "text": "Inside American Education"
+      }
+    ],
+    "correctId": "d",
+    "explain": "Inside American Education (1993) is the schooling book. Basic Economics is the economics survey, A Personal Odyssey is the memoir, and The Housing Boom and Bust is about housing.",
+    "source": "Inside American Education (1993)"
+  },
+  {
+    "id": "q32",
+    "section": "policy",
+    "kind": "trivia",
+    "prompt": "How has Sowell treated government wage and price controls?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "As something that works only when economists oppose it"
+      },
+      {
+        "id": "b",
+        "text": "As a policy he urged President Nixon to adopt"
+      },
+      {
+        "id": "c",
+        "text": "As a recurring temptation that can sound good at first and then produce shortages and other damage"
+      },
+      {
+        "id": "d",
+        "text": "As a tool that ended scarcity both in ancient Rome and in the 1970s"
+      }
+    ],
+    "correctId": "c",
+    "explain": "On the National Humanities Medal site he points to Nixon's wage and price controls, which he says sounded good and then failed, and to similar controls under the emperor Diocletian. The example is stage-one appeal versus later damage.",
+    "source": "National Endowment for the Humanities, National Humanities Medal biography of Thomas Sowell"
+  },
+  {
+    "id": "q33",
+    "section": "policy",
+    "kind": "trivia",
+    "prompt": "Knowledge and Decisions warns that modern society increasingly suffers from which gap?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Markets stop conveying information once a society is literate"
+      },
+      {
+        "id": "b",
+        "text": "Decisions are made by people who do not hold the firsthand knowledge those decisions depend on"
+      },
+      {
+        "id": "c",
+        "text": "Too many decisions are left with the people who live with the results"
+      },
+      {
+        "id": "d",
+        "text": "Knowledge is now complete, so a central board can set every price"
+      }
+    ],
+    "correctId": "b",
+    "explain": "The 1980 book is about where knowledge sits and where authority sits. Sowell's warning is that the two drift apart, so decisions get made far from the scattered facts that should guide them.",
+    "source": "Knowledge and Decisions (1980), including the publisher's description of the knowledge gap"
+  },
+  {
+    "id": "q34",
+    "section": "policy",
+    "kind": "trivia",
+    "prompt": "In Basic Economics, how does Sowell connect laws such as the Davis-Bacon Act to black workers?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "He argues federal wage floors shut out black workers who had been competing by accepting lower pay"
+      },
+      {
+        "id": "b",
+        "text": "He argues Davis-Bacon was written to expand black employment on federal construction"
+      },
+      {
+        "id": "c",
+        "text": "He argues a legal wage floor cannot change who gets hired"
+      },
+      {
+        "id": "d",
+        "text": "He argues the act applied only to farms in Puerto Rico"
+      }
+    ],
+    "correctId": "a",
+    "explain": "He groups Davis-Bacon (1931) with the National Industrial Recovery Act and the Fair Labor Standards Act as government wage mandates. His claim is that black workers, who had been employable at market wages, were priced out of jobs after those floors. He also writes that the black unemployment rate was slightly lower than the white rate in 1930 and higher later. That comparison is his, from the book.",
+    "source": "Basic Economics, differential impact of minimum wages, including Davis-Bacon"
+  },
+  {
+    "id": "q35",
+    "section": "policy",
+    "kind": "trivia",
+    "prompt": "What is Social Justice Fallacies (2023)?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "A 1975 textbook of input-output tables"
+      },
+      {
+        "id": "b",
+        "text": "The memoir published as A Personal Odyssey"
+      },
+      {
+        "id": "c",
+        "text": "A novel he coauthored with Milton Friedman"
+      },
+      {
+        "id": "d",
+        "text": "Sowell's book on arguments made in the name of social justice"
+      }
+    ],
+    "correctId": "d",
+    "explain": "Basic Books published it in 2023. It is a late entry in the same project as his policy books: take claims that travel under a moral label and ask what the evidence and the trade-offs are. This question asks you to identify the book, not to recite a chapter.",
+    "source": "Social Justice Fallacies (Basic Books, 2023); Hoover Institution profile noting the book"
+  },
+  {
+    "id": "q36",
+    "section": "policy",
+    "kind": "trivia",
+    "prompt": "Which government role does the Library of Congress authority record list for Sowell in 1981?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Secretary of Labor"
+      },
+      {
+        "id": "b",
+        "text": "Director of the FBI"
+      },
+      {
+        "id": "c",
+        "text": "A seat on a White House economic advisory board"
+      },
+      {
+        "id": "d",
+        "text": "Chair of the Federal Reserve"
+      }
+    ],
+    "correctId": "c",
+    "explain": "The authority record, drawing on the African American National Biography, lists service on the White House Economic Advisory Board in 1981. It is not a Cabinet post and not the Federal Reserve chair.",
+    "source": "Library of Congress name authority for Sowell, Thomas, 1930-"
+  },
+  {
+    "id": "q37",
+    "section": "books",
+    "kind": "trivia",
+    "prompt": "Which book is Sowell's large plain-language survey of economics, as distinct from the memoir and the specialized studies?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "The Einstein Syndrome"
+      },
+      {
+        "id": "b",
+        "text": "Basic Economics"
+      },
+      {
+        "id": "c",
+        "text": "A Personal Odyssey"
+      },
+      {
+        "id": "d",
+        "text": "Late-Talking Children"
+      }
+    ],
+    "correctId": "b",
+    "explain": "Basic Economics, first published in 2000 and later revised, is the wide survey. A Personal Odyssey is the memoir. The other two titles are about children who talk late.",
+    "source": "Basic Economics (2000 and later editions)"
   }
 ]
