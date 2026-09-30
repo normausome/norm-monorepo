@@ -6,6 +6,7 @@ import { CORRIDORS, type CorridorId } from "@/data/corridors"
 import { fetchHistory, fetchHistorySummary, formatTime, formatUsd } from "@/lib/api"
 import type { Direction, HistorySample, HistorySummaryResponse, HistoryTrip } from "@/lib/api-types"
 import { cn } from "@/lib/utils"
+import { HistoryOverview } from "@/components/HistoryOverview"
 import { LoaderCircle } from "lucide-react"
 
 const selectClass =
@@ -355,6 +356,8 @@ export default function History() {
           ))}
         </select>
       </label>
+
+      <HistoryOverview hours={hours} corridor={corridor} />
 
       {series.trips.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2">

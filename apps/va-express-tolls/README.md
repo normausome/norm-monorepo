@@ -72,6 +72,8 @@ GET /api/:corridor/estimate?direction=&entry=&exit=[&at=<ISO, past only, 66 Insi
 GET /api/history/summary
     → { available, latestRun: { startedAt, finishedAt, status } | null,
         corridors: [{ id, latest: HistorySample | null, headline: HistoryTrip | null, samples24h }] }
+GET /api/history/overview?hours=24   (hours clamped 1–168)
+    → { available, hours, corridors: [{ id, samples: [{ scrapedAt, min, avg, max, tripCount, error }] }] }
 GET /api/history/:corridor?hours=24[&direction=&entry=&exit=]   (hours clamped 1–168)
     → { corridor, hours, trip: HistoryTrip | null, trips: HistoryTrip[],
         samples: [{ scrapedAt, price, status, openDirection95?, error }] }

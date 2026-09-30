@@ -165,6 +165,28 @@ export interface HistoryResponse {
   samples: HistorySample[]
 }
 
+/** Min / avg / max of priced trips in one scrape snapshot (`summary.trips`). */
+export interface HistoryOverviewSample {
+  scrapedAt: string
+  min: number | null
+  avg: number | null
+  max: number | null
+  /** Priced trips included in min/avg/max (open or free with a number). */
+  tripCount: number
+  error: string | null
+}
+
+export interface HistoryOverviewCorridor {
+  id: CorridorId
+  samples: HistoryOverviewSample[]
+}
+
+export interface HistoryOverviewResponse {
+  available: boolean
+  hours: number
+  corridors: HistoryOverviewCorridor[]
+}
+
 export interface RouteTollsResponse {
   from: Place
   to: Place
