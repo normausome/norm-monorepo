@@ -5,6 +5,7 @@ import type {
   CorridorSupport,
   Direction,
   GeocodeResponse,
+  HistoryOverviewResponse,
   HistoryResponse,
   HistorySummaryResponse,
   Place,
@@ -51,6 +52,9 @@ export const fetchRouteTolls = (from: Place, to: Place) =>
   )
 
 export const fetchHistorySummary = () => get<HistorySummaryResponse>("/api/history/summary")
+
+export const fetchHistoryOverview = (hours: number) =>
+  get<HistoryOverviewResponse>(`/api/history/overview?${new URLSearchParams({ hours: String(hours) })}`)
 
 export const fetchHistory = (
   corridor: CorridorId,

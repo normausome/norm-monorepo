@@ -1,6 +1,15 @@
 import postgres from "postgres"
 import { CORRIDORS, isCorridorId, type CorridorId } from "../src/data/corridors"
-import type { Direction, HistoryResponse, HistorySample, HistorySummaryResponse, HistoryTrip } from "../src/lib/api-types"
+import type {
+  Direction,
+  HistoryOverviewResponse,
+  HistoryResponse,
+  HistorySample,
+  HistorySummaryResponse,
+  HistoryTrip,
+} from "../src/lib/api-types"
+import { buildOverviewCorridors, emptyOverview } from "./history-overview"
+import { historyPreviewEnabled, previewOverview, previewSummary } from "./history-preview"
 import { BadRequest } from "./adapters/types"
 import {
   catalogTrips,
@@ -12,7 +21,7 @@ import {
 } from "./history-trips"
 import { UpstreamError } from "./http"
 
-export const historyConfigured = Boolean(process.env.DATABASE_URL)
+export const historyConfigured = historyPreviewEnabled || Boolean(process.env.DATABASE_URL)
 
 type Sql = ReturnType<typeof postgres>
 let sql: Sql | undefined
@@ -106,6 +115,7 @@ type CatalogRow = { summary: unknown }
 type SeriesRow = { scraped_at: Date; error: string | null; has_open: boolean; open_direction: string | null; trip: unknown }
 
 export async function handleHistorySummary(): Promise<HistorySummaryResponse> {
+  if (historyPreviewEnabled) return previewSummary()
   if (!historyConfigured) return { available: false, latestRun: null, corridors: [] }
 
   return withDb(async (db) => {
@@ -154,8 +164,45 @@ const emptySummary = (): HistorySummaryResponse => ({
   corridors: CORRIDORS.map((c) => ({ id: c.id, latest: null, headline: null, samples24h: 0 })),
 })
 
+type OverviewRow = { corridor_id: string; scraped_at: Date; summary: unknown; error: string | null }
+
+export async function handleHistoryOverview(url: URL): Promise<HistoryOverviewResponse> {
+  const hours = clampHours(url.searchParams.get("hours"))
+  if (historyPreviewEnabled) return previewOverview(hours)
+  if (!historyConfigured) return { available: false, hours, corridors: [] }
+
+  return withDb(async (db) => {
+    const rows = await db<OverviewRow[]>`
+      SELECT corridor_id, scraped_at, summary, error
+      FROM corridor_snapshots
+      WHERE scraped_at >= now() - ${hours} * interval '1 hour'
+      ORDER BY corridor_id ASC, scraped_at ASC
+    `
+    return { available: true, hours, corridors: buildOverviewCorridors(rows) }
+  }, () => emptyOverview(hours))
+}
+
 export async function handleHistory(corridorId: string, url: URL): Promise<HistoryResponse> {
   if (!isCorridorId(corridorId)) throw new BadRequest(`Unknown corridor "${corridorId}"`)
+  if (historyPreviewEnabled) {
+    const hours = clampHours(url.searchParams.get("hours"))
+    const row = previewOverview(hours).corridors.find((c) => c.id === corridorId)
+    const samples = (row?.samples ?? []).map((s) => ({
+      scrapedAt: s.scrapedAt,
+      price: s.avg,
+      status: "open" as const,
+      error: s.error,
+    }))
+    const trip = {
+      direction: corridorId.startsWith("66") ? ("eb" as const) : ("nb" as const),
+      entryId: "entry-a",
+      exitId: "exit-z",
+      entryLabel: "entry-a",
+      exitLabel: "exit-z",
+      spanning: true,
+    }
+    return { corridor: corridorId, hours, trip, trips: [trip], samples }
+  }
   if (!historyConfigured) throw new UpstreamError("History is not configured (DATABASE_URL is unset)", 503)
   const hours = clampHours(url.searchParams.get("hours"))
   const requested = readTripQuery(url)
