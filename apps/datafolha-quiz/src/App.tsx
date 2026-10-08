@@ -443,7 +443,7 @@ function Plot({
           stroke="var(--border)"
         />
         <circle cx={dotX} cy={dotY} r="7" fill="var(--primary)" />
-        <text x={left + plot / 2} y="238" textAnchor="middle" fontSize="12" fill="currentColor">
+        <text x={left} y="236" fontSize="12" fill="currentColor">
           {t.progressive}
         </text>
         <text x={left} y="258" fontSize="12" fill="currentColor">
