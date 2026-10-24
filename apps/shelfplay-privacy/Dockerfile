@@ -5,7 +5,7 @@
 FROM oven/bun:1.4-slim
 WORKDIR /app
 ENV NODE_ENV=production
-COPY package.json server.ts index.html ./
+COPY package.json server.ts index.html favicon.svg favicon.png favicon.ico apple-touch-icon.png ./
 USER bun
 EXPOSE 8080
 CMD ["bun", "run", "server.ts"]
